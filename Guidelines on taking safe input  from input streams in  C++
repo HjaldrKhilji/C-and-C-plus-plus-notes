@@ -1,0 +1,71 @@
+//this files only tells you the best way to take input, not to parse input; parsing is different because it converts the input into tokens.
+//now at times you would have to choose a less recommended way because you have no choice, but these guidelines are guidelines
+//that you should generally follow
+//again the best way of taking input is
+//1.least reccomended.to stop taking input as soon as you encounter an error, that is that cin(or any other input stream) returns 0
+//2. less recommended.or you read the input into a single istringstream, and then into a object of any type, or a string.
+//3. most recommended.or you read the input into a single istringstream, and then into a variable of a single type, strings and chars, 
+//array of a single type or a container whose elements are of a single type, which is the case with all containers and arrays.
+
+
+//the read itself can be done multiple times in the second and thrid way, one the entire line has been read, but in the
+//third way,for a single line, you can only use the objects, arrays, or containers of the same type,
+//or you have to only stick with strings and chars. 
+//by strings, I mean, C style strings.
+//example:
+#include <iostream>
+#include <string>
+#include <sstream>
+
+int main() {
+    int age;
+    std::string line;
+
+    while (true) {
+        std::cout << "Enter your age: ";
+        std::getline(std::cin, line);
+        std::istringstream iss(line);
+
+        if (iss >> age) { // Check if "extraction" was successful
+            // Input was a valid number
+            break; // Exit the loop
+        } else {
+            std::cout << "Invalid input. Please try again." << std::endl;
+        }
+    }
+    
+    std::cout << "Your age is: " << age << std::endl;
+    return 0;
+}
+
+
+
+//if you dont follow these guidelines, a less recommended way would be:
+//the reason this way is less recommended is that there is always a chance that the malicious input is bigger than std::numeric_limits<std::streamsize>::max()
+#include <iostream>
+#include <limits> // Required for std::numeric_limits
+
+int main() {
+    // Write C++ code here
+    int a;
+    for(;;){
+        if(std::cin>>a){
+            
+        }
+        else{
+            std::cout<<a;
+  // Discard the bad input up to the next newline.
+              std::cin.clear();//without clearning the error flags, when you enter a charactor instead of a integer
+,the cin might skip new input, and read the previous input from the buffer, and the cout will then print that input, and this will
+go on forever, so upon entering a, when this line isnt there, you will get a infinite output of zeros. 
+
+                     std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+    
+            }
+        
+    }
+
+    return 0;
+}
+
+//A even less recommended way would be not following any of these guidelines, which would be shooting yourself in the foot. XDDDDDD
