@@ -3,8 +3,8 @@
 //that you should generally follow
 //again the best way of taking input is
 //1.least reccomended.to stop taking input as soon as you encounter an error, that is that cin(or any other input stream) returns 0
-//2. less recommended.or you read the input into a single istringstream, and then into a object of any type, or a string.
-//3. most recommended.or you read the input into a single istringstream, and then into a variable of a single type, strings and chars, 
+//2. less recommended.or you read the input into a single line, then move it to a istringstream, and then into a object of any type, or a string.
+//3. most recommended.or you read the input into a single line, then move it to a istringstream, and then into a variable of a single type, strings and chars, 
 //array of a single type or a container whose elements are of a single type, which is the case with all containers and arrays.
 
 
