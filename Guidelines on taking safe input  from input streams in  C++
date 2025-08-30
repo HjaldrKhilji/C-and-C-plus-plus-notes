@@ -1,3 +1,5 @@
+
+
 //this files only tells you the best way to take input, not to parse input; parsing is different because it converts the input into tokens.
 //now at times you would have to choose a less recommended way because you have no choice, but these guidelines are guidelines
 //that you should generally follow
@@ -24,9 +26,9 @@ int main() {
     while (true) {
         std::cout << "Enter your age: ";
         std::getline(std::cin, line);
-        std::istringstream iss(line);
+        std::istringstream line_stream(line);
 
-        if (iss >> age) { // Check if "extraction" was successful
+        if (line_stream >> age) { // Check if "extraction" was successful
             // Input was a valid number
             break; // Exit the loop
         } else {
