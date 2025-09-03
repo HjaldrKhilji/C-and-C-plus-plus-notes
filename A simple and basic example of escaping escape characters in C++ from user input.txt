@@ -1,0 +1,64 @@
+#include<iostream>
+#include<string>
+#include<vector>
+#include<functional>
+
+namespace common_functions{
+    void escape_string( std::string & input_string,
+   const std::vector < std::string > & strings_to_be_replaced, const std::vector < std:: function < void(std::string & input_string,  size_t & where_is_it_found) >> function_to_be_run_for_each) {
+
+   for (size_t index=0; index < strings_to_be_replaced.size(); index++) {
+     size_t position_of_the_match_found_last = 0;
+     while ((position_of_the_match_found_last = input_string.find(strings_to_be_replaced[index], position_of_the_match_found_last)) != std::string::npos) {
+       function_to_be_run_for_each[index](input_string, position_of_the_match_found_last);
+
+     }
+   }
+
+ }
+};
+std::string get_raw_input() {
+
+        std::string raw_input{};
+       std::getline(std::cin, raw_input);
+       constexpr size_t size_of_some_common_escape_charactors_to_be_replace= 3;
+        constexpr size_t size_of_some_common_escape_charactors= 1;
+        
+       common_functions::escape_string(raw_input, {"\\\\n", "\\\\", "\\\\t", "\\\\N"}, 
+          {[](std::string & input_string, size_t & where_is_it_found)  -> void {
+           input_string.replace(where_is_it_found, size_of_some_common_escape_charactors_to_be_replace, "\n");
+           where_is_it_found+=size_of_some_common_escape_charactors;
+           
+           
+           
+       }, [](std::string & input_string, size_t & where_is_it_found) -> void {
+            input_string.replace(where_is_it_found, size_of_some_common_escape_charactors_to_be_replace, "\\");
+                where_is_it_found+=size_of_some_common_escape_charactors;
+
+           
+       },[](std::string & input_string, size_t & where_is_it_found) -> void {
+            input_string.replace(where_is_it_found, size_of_some_common_escape_charactors_to_be_replace, "\t");
+        where_is_it_found+=size_of_some_common_escape_charactors;
+
+            
+           
+       },
+        [](std::string & input_string, size_t & where_is_it_found) -> void {
+           std::string temp_input=  get_raw_input();
+
+          
+           input_string.replace(where_is_it_found, size_of_some_common_escape_charactors_to_be_replace, "\n"+temp_input);
+           where_is_it_found+=size_of_some_common_escape_charactors+temp_input.length();
+
+           
+           
+       }
+           
+       });
+
+
+    return raw_input;
+    }
+
+//note:
+//I took this code from a larger project that isnt complete yet, and wont be in like a few months.
