@@ -15,6 +15,9 @@
 //or you have to only stick with strings and chars. 
 //by strings, I mean, C style strings.
 //example:
+// to reassign a string to a existing std::istringstream object , you have to first clear it, using:line_stream.clear()
+//then assign like like this: line_stream.str(get_raw_input());
+
 #include <iostream>
 #include <string>
 #include <sstream>
