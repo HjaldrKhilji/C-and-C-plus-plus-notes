@@ -1,0 +1,13 @@
+Anything used by multiple objects that is in a limited quantity Is a resource.
+Say you have a global integer variable initialized to 0. This variable IS a resource if multiple objects need to acquire it, the acquisition in this context means being able to increment it, and this variable isn't to be decremented, as long as no exception occured.
+Why is this resource limited?
+Well that is because only one copy exist and every object has to maintain that one copy to be a accurate count of the amount of objects made. 
+In short: A shared thing in a limited quantity, which also has a invariant is considered a resource hence should be taken care of using RAII techniques, unless it is a resource of the global state, eg, a global variables, a static variables.
+
+
+Now imagine that your constructor increments that variable by 1 upon making a new object, but you have to make sure that the object build is successful because if you increment the variable by 1 and the build fails, then that invariant of the global state fails to hold.
+
+Hence the destructor must make sure of decrementing the variable, in case of an exception, but using a destructor to maintain the invariant of the global state is bad, hence it this case, you will have to us a exception handler for the job.
+
+The main point is that tho you might be tempted to use RAII in this case, you can't. It's not because RAII isn't useful, but because you can't use it to maintain the global invariant.
+
