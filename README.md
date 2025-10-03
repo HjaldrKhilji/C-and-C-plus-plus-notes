@@ -1,1 +1,1 @@
-Just basic nodes, and projects for my personal use
+Just basic notes, and projects for my personal use
