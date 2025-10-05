@@ -48,3 +48,39 @@ the indirect(callers of the callers)
 callers are not to be fixed with 
 exceptions, and are not seen as errors.
 
+all of this implies that error
+handling should be done requires a 
+central strategy that is thought of 
+in the beginning of the design process
+of your system. this central strategy
+is required to be consistently followed,
+which inturn requires it to be
+simple and explicitly implementable
+,so that it can actually be consistently 
+followed.without a centeal error handling
+mechanism, that is thought of early,
+you cant know how to balance 
+encapsulations enough to not rely too 
+much on exceptions while also
+encapsulating enough to take advantage 
+of the perks of encapsulation,
+or when to use lambdas or function objects
+so you can capture capture context
+as opposed to functions, or when to use
+function that take context as arguments
+as opposed to normal functions that take
+arguments useful to its task.
+
+in c++, the noexcept specifier
+makes the hirarchial even more 
+visually cohesive, in that, it 
+helps a layer explicitly 
+state that it does not handle exceptions
+from the layers that it calls, which
+implies that the exception is unhandled,
+hence handled by the terminate call.
+
+A layer is a function call
+in the context of this ENTIRE text, and
+exceptions in general.
+
