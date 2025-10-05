@@ -39,3 +39,12 @@ hence its always good to have a eye open,
 and to keep everything balanced for your
 specific usecase. to do that, it takes
 taste and experience.
+
+according to bjarne streoustrup's book:
+In the context of c++, errors that 
+can be fixed locally by a function call,
+without bothering the caller, or any of
+the indirect(callers of the callers) 
+callers are not to be fixed with 
+exceptions, and are not seen as errors.
+
