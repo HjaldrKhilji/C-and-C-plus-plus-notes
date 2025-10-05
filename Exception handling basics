@@ -1,0 +1,41 @@
+
+Error handling is usually done well 
+when done hirarchially, which is the 
+case in successfull long running 
+systems, and is the case with what
+is supported by the exception
+handling mechanism.
+
+Now the exception handling mechanisms
+hirarcheal characteristic implies that
+the caller in every layer should have
+context that is useful to recover the
+object. The context can be a list 
+containing c style  strings used to
+construct c++ standard library strings, so that the strings can be recovered. The context can otherwise be freind objects, and freind objects in this case can be useful if:
+The freind objects contains additional 
+necessary information that is too heavy to pass to the called function. What makes freind objects special is that they can access private/protected 
+members as well which is better because 
+now you don't have to reconstruct 
+the object for error handling. 
+As always, errors that require 
+context hence requiring exception
+should be minimized in the first
+place, but that isn't possible 
+because of encapsulation which 
+again is useful, but this is
+one small cone of encapsulation.
+Sometimes though, encapsulation
+may not be the issue, may be,
+the only way to fix the object 
+is rebuilding it, but it is the 
+issue when the solution is freind
+objects.
+
+the point that "errors requiring context"
+should be minimized isn't always possible,
+and sometimes make the system too complex,
+hence its always good to have a eye open,
+and to keep everything balanced for your
+specific usecase. to do that, it takes
+taste and experience.
