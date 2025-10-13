@@ -1,4 +1,4 @@
-//Handling exceptions from base class or member destructors(note:exceptions should never get out of a destructor)
+//Handling exceptions from base class or member destructors(note:exceptions should never get out of a destructor),
 //but if it does then
 //it should be either handled by 
 //the derived class object
