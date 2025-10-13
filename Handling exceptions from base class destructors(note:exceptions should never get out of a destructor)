@@ -1,0 +1,79 @@
+//Handling exceptions from base class 
+destructors(note:exceptions should 
+never get out of a destructor)
+
+#include <iostream>
+#include <stdexcept>
+#include <string>
+
+// --- Custom Exception Class (as before) ---
+class CleanupFailure : public std::runtime_error {
+public:
+    CleanupFailure(const std::string& msg)
+        : std::runtime_error("Cleanup Failed: " + msg) {}
+};
+
+// --- Base Class (as before) ---
+class BaseResource {
+public:
+    BaseResource() {
+        std::cout << "BaseResource constructed.\n";
+    }
+
+    virtual ~BaseResource() noexcept(false) { 
+        std::cout << "  [Base Destructor] Attempting resource cleanup...\n";
+        bool critical_failure = true;
+        if (critical_failure) {
+            std::cout << "  [Base Destructor] Throwing CleanupFailure!\n";
+            throw CleanupFailure("Failed to release external lock."); 
+        }
+        std::cout << "  [Base Destructor] Clean up successful.\n";
+    }
+};
+
+// --- Derived Class (CORRECTLY Handles the Base Destructor's Exception) ---
+class DerivedWorker : public BaseResource {
+public:
+    DerivedWorker() {
+        std::cout << "DerivedWorker constructed.\n";
+    }
+
+    // *** CORRECT SYNTAX: FUNCTION-TRY-BLOCK ***
+    ~DerivedWorker() override 
+    try // <--- 'try' keyword is placed here
+    {
+        // This is the derived destructor's body (all code here is monitored)
+        std::cout << "  [Derived Destructor] Starting cleanup.\n";
+        
+        // When this body finishes, the implicit call to ~BaseResource() happens next.
+
+    } 
+    catch (const CleanupFailure& e) // <--- 'catch' is placed after the body closure
+    {
+        // --- DERIVED DESTRUCTOR HANDLES ---
+        std::cerr << "!!! DERIVED DESTRUCTOR CAUGHT EXCEPTION !!!\n";
+        std::cerr << "Error: " << e.what() << "\n";
+        std::cerr << "Local action: Logging error and suppressing rethrow.\n";
+        
+        // Since we omit 'throw;', the exception is suppressed, and the main
+        // program continues execution normally.
+    }
+};
+
+int main() {
+    std::cout << "--- Main Program Start ---\n";
+    
+    try {
+        DerivedWorker* worker = new DerivedWorker();
+        std::cout << "\nManually deleting worker object...\n";
+        delete worker;
+        
+    } catch (const CleanupFailure& e) {
+        // This should NOT be reached, as the derived destructor handled it.
+        std::cerr << "\n!!! ERROR: This catch block was reached (Suppression Failed)! !!!\n";
+        std::cerr << "Final Exception: " << e.what() << "\n";
+    }
+    
+    std::cout << "\n--- Main Program End (Successfully continued) ---\n";
+    return 0;
+}
