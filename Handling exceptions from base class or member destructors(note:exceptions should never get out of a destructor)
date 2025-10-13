@@ -1,23 +1,15 @@
-//Handling exceptions from base class 
-or member
-destructors(note:exceptions should 
-never get out of a destructor)
-//same syntax can be used for catching
-exceptions from member destructors as 
-well!
-
 #include <iostream>
 #include <stdexcept>
 #include <string>
 
-// --- Custom Exception Class (as before) ---
+// --- Custom Exception Class ---
 class CleanupFailure : public std::runtime_error {
 public:
     CleanupFailure(const std::string& msg)
         : std::runtime_error("Cleanup Failed: " + msg) {}
 };
 
-// --- Base Class (as before) ---
+// --- Base Class  ---
 class BaseResource {
 public:
     BaseResource() {
@@ -34,6 +26,57 @@ public:
         std::cout << "  [Base Destructor] Clean up successful.\n";
     }
 };
+
+// --- Derived Class ( Handles the Base Destructor's Exception) ---
+class DerivedWorker : public BaseResource {
+public:
+    DerivedWorker() {
+        std::cout << "DerivedWorker constructed.\n";
+    }
+
+    
+    ~DerivedWorker() override 
+    try 
+    {
+        
+        std::cout << "  [Derived Destructor] Starting cleanup.\n";
+        
+        // When this body finishes, the implicit call to ~BaseResource() happens next.
+
+    } 
+    catch (const CleanupFailure& e) // <--- 'catch' is placed after the body closure
+    {
+        // --- DERIVED DESTRUCTOR HANDLES ---
+        std::cerr << "!!! DERIVED DESTRUCTOR CAUGHT EXCEPTION !!!\n";
+        std::cerr << "Error: " << e.what() << "\n";
+        
+        
+        // Since we dont throw a
+        //new EXCEPTION
+        //this should rethrow
+        //as is the case with all catch clauses in constructors and destructors
+    }
+};
+
+int main() {
+    std::cout << "--- Main Program Start ---\n";
+    
+    try {
+        DerivedWorker* worker = new DerivedWorker();
+        std::cout << "\nManually deleting worker object...\n";
+        delete worker;
+        
+    } catch (const CleanupFailure& e) {
+        // This should be reached because 
+        //catch clauses in constructors and destructors
+        //rethrow by default if you dont throw a new exception urself
+        std::cerr << "\nthe main catch clause reached as expected\n";
+        std::cerr << "Final Exception: " << e.what() << "\n";
+    }
+    
+    std::cout << "\n--- Main Program End (Successfully continued) ---\n";
+    return 0;
+}
 
 // --- Derived Class (CORRECTLY Handles the Base Destructor's Exception) ---
 class DerivedWorker : public BaseResource {
