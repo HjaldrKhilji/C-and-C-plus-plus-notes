@@ -1,6 +1,10 @@
 //Handling exceptions from base class 
+or member
 destructors(note:exceptions should 
 never get out of a destructor)
+//same syntax can be used for catching
+exceptions from member destructors as 
+well!
 
 #include <iostream>
 #include <stdexcept>
