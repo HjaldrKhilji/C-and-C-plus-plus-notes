@@ -10,7 +10,7 @@ int a(){ return 1;
     /*
     I am saying that
     global variables won't
-    be initialized 
+    be gurrentied to be initialized 
     if main isn't
     executed, this 
     means that 
