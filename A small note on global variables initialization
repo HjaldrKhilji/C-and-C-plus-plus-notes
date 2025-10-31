@@ -1,0 +1,37 @@
+#include<iostream>
+int a(){ return 1;
+    }
+    int b = a();
+    //cant catch exceptions
+    //of any kind, and
+    //initialization only
+    //works if main() starts
+    //execution
+    /*
+    I am saying that
+    global variables won't
+    be initialized 
+    if main isn't
+    executed, this 
+    means that 
+    dynamically linked 
+    libraries should
+    not have global
+    variables.
+    
+    this applies even
+    if the initializer is
+    a constant expression
+    
+    this may apply to other
+    things other than dynamically
+    linked libraries, but i cant
+    think of those examples,
+    hence not sure.
+    
+
+    */
+    int main(){
+        std::cout<<b;
+        return 0;
+        }
