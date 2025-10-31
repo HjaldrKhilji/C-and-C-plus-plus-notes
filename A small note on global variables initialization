@@ -19,8 +19,8 @@ int a(){ return 1;
     not have global
     variables.
     
-    this applies even
-    if the initializer is
+    this DOES NOT apply
+    if and only if the initializer is
     a constant expression
     
     this may apply to other
