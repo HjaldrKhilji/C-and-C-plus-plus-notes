@@ -28,7 +28,17 @@ int a(){ return 1;
     linked libraries, but i cant
     think of those examples,
     hence not sure.
-    
+
+    All of this dosent however 
+change the fact that global 
+variables are Initialized
+before main() is executed
+
+The application of this rule 
+on dynamically linked libraries 
+is just a rule of thumb, though 
+in other cases it might or might not be 
+a absolute rule, i am not sure.
 
     */
     int main(){
