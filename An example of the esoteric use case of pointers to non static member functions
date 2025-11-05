@@ -1,0 +1,14 @@
+#include <iostream>
+class S {public: int m;
+int f(); 
+static int sm; }; 
+int S::f() { return m; } 
+int S::sm {7}; 
+int (S::*pmf)() {&S::f}; 
+int main()
+{
+    
+    S a(1);
+    std::cout<<(a.*pmf)();
+    return 0;
+}
