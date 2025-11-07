@@ -11,6 +11,11 @@ hides the underlying conceptual values.
 While value oriented programming never
 hides conceptual values, it only hides 
 the representation of those values.
+note:if a vop object is a part of 
+another vop class implementation,
+then the vop class can encapsulate it
+as long as its not a conceptual
+part of the target value type.
 
 Value oriented programming's 
 identity is it's value, while an 
