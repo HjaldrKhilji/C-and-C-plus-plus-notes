@@ -57,7 +57,19 @@ polymorphism, but sementics is always
 determentistic. So its safe to say 
 that OOP is a non determentistic
 style of programming, while VOP is a
-deterministic one.
+deterministic one. A OOP object
+might hide the value, but will never hide
+the behaviour, and its behavior may be
+non determentistic(polymorphic) in some
+contexts(contexts where its accessed by
+a certian base class interface), but
+its always a good idea to keep
+exactly one interface to every (inherited)
+form of a class well documented(making it
+determentistic if accessed by that interface).
+In this case, I say interface as in class.
+
+
 
 C++ abstraction mechanism supports 
 both, and that's why we love c++ ❤️❤️.
