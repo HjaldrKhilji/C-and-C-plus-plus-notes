@@ -1,0 +1,60 @@
+Value oriented programming differs from OOP in:
+Value oriented objects are required 
+to be able to be allocated on stack.
+
+
+Value oriented programming
+emphasizes encapsulation only as a
+way of hiding implementation, while
+OOP supports encapsulation even if it
+hides the underlying conceptual values. 
+While value oriented programming never
+hides conceptual values, it only hides 
+the representation of those values.
+
+Value oriented programming's 
+identity is it's value, while an 
+objects identity is it's address.
+
+Value oriented programming should
+generally be immutable, a good way 
+to achieve this is to use helper
+functions for implementing the 
+notion of common operators, 
+instead of member operator 
+functions because using helper
+functions would force the usage of
+move and copy operator after every
+operation. A built in type is a 
+value oriented objects, and when 
+you do a operation on it, it 
+completely changes, so while it's 
+mutable as a value, it is immutable
+as a object. The same should apply
+to all value oriented objects.
+
+Value oriented objects are normally 
+inclined towards copying the 
+conceptual value instead of the
+representation itself.
+While object oriented objects are 
+inclined to copy representation itself.
+This point isn't a rule of thumb,
+just a typical thing.
+
+Object oriented programming is used 
+to immiate objects with behaviours,
+while value oriented programming
+is meant to immatate values with 
+semantics. Behaviour can be
+non determentistic through 
+polymorphism, but sementics is always
+determentistic. So its safe to say 
+that OOP is a non determentistic
+style of programming, while VOP is a
+deterministic one.
+
+C++ abstraction mechanism supports 
+both, and that's why we love c++ ❤️❤️.
+
+
