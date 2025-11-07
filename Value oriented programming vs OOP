@@ -69,6 +69,10 @@ form of a class well documented(making it
 determentistic if accessed by that interface).
 In this case, I say interface as in class.
 
+inheritance is allowed for A VOP as long
+as everh interface to the VOP is non
+polymorphic, and the notation of the
+interface is well documented
 
 
 C++ abstraction mechanism supports 
