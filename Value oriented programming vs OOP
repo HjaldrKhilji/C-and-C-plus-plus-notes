@@ -35,7 +35,9 @@ value oriented objects, and when
 you do a operation on it, it 
 completely changes, so while it's 
 mutable as a value, it is immutable
-as a object. The same should apply
+as a object(you cant just change a single
+bit directly).
+The same should apply
 to all value oriented objects.
 
 Value oriented objects are normally 
