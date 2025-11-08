@@ -71,13 +71,44 @@ form of a class well documented(making it
 determentistic if accessed by that interface).
 In this case, I say interface as in class.
 
-inheritance is allowed for A VOP as long
+inheritance is generally allowed for 
+A VOP as long
 as everh interface to the VOP is non
 polymorphic, and the notation of the
-interface is well documented
+interface is well documented. That being 
+said, inheritance isnt allowed for VOP's
+in C++. why is that? well its because
+built in types cant be inherited from,
+and they are VOP's, hence to mantain
+concistancy, dont inherit from VOP
+unless you are writing a non VOP type.
+the language wont stop you, but breaking
+this rule isnt good for consistency.
+even inheriting from a VOP in the code of
+a non VOP class isnt recommended.
+the reason that inheriting from a vop
+for non vop class isnt as bad, as it is
+for a vop inheriting from another vop
+is because we are breaking consistency,
+but we can still reason about the resulting
+non vop class because the non vop classes
+main goal is not to help you reason
+about its value, but rather its behaviour,
+while a vop goal is to help you 
+reason about its value, and inhering
+from a vop as a vop will make the notion
+of the value represented hard, which
+is something that matters for VOP's.
+
+
+
 
 
 C++ abstraction mechanism supports 
 both, and that's why we love c++ ❤️❤️.
 
+it took me 3 hours to read and write 
+this summary, so it may not be
+well writtenn when it comes to the
+grammmer.
 
