@@ -40,14 +40,16 @@ bit directly).
 The same should apply
 to all value oriented objects.
 
-Value oriented objects are normally 
-inclined towards copying the 
+Value oriented objects are TO copying the 
 conceptual value instead of the
 representation itself.
 While object oriented objects are 
 inclined to copy representation itself.
-This point isn't a rule of thumb,
-just a typical thing.
+
+If you copy a object Y of a VOP type V in to
+another object X of the same type, then you 
+must make sure that the "==" operator 
+returns true for Y==X.
 
 Object oriented programming is used 
 to immiate objects with behaviours,
