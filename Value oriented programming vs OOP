@@ -71,13 +71,10 @@ form of a class well documented(making it
 determentistic if accessed by that interface).
 In this case, I say interface as in class.
 
-inheritance is generally allowed for 
-A VOP as long
-as everh interface to the VOP is non
-polymorphic, and the notation of the
-interface is well documented. That being 
-said, inheritance isnt allowed for VOP's
-in C++. why is that? well its because
+
+inheritance isnt allowed for VOP's unless its private inheritance that
+dosent effect the conceptual value of the 
+class. why is that? well its because
 built in types cant be inherited from,
 and they are VOP's, hence to mantain
 concistancy, dont inherit from VOP
@@ -99,6 +96,11 @@ reason about its value, and inhering
 from a vop as a vop will make the notion
 of the value represented hard, which
 is something that matters for VOP's.
+Again, you can inherit as a VOP, but the 
+class your inheriting from must be a VOP itself,
+and it must be a private base that dosent change the conceptual value.
+the class std::vector is a VOP, but in some implementations
+it inherits from a base that provides memory. 
 
 
 
