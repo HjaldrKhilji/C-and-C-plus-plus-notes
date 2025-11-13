@@ -73,7 +73,7 @@ In this case, I say interface as in class.
 
 
 inheritance isnt allowed for VOP's unless its private inheritance that
-dosent effect the conceptual value of the 
+dosent effect the conceptual value and the interface of the 
 class. why is that? well its because
 built in types cant be inherited from,
 and they are VOP's, hence to mantain
@@ -98,7 +98,7 @@ of the value represented hard, which
 is something that matters for VOP's.
 Again, you can inherit as a VOP, but the 
 class your inheriting from must be a VOP itself,
-and it must be a private base that dosent change the conceptual value.
+and it must be a private base that dosent change the conceptual value  and the interface.
 the class std::vector is a VOP, but in some implementations
 it inherits from a base that provides memory. 
 
