@@ -104,7 +104,19 @@ and it must be a private base that dosent change the conceptual value  and the i
 the class std::vector is a VOP, but in some implementations
 it inherits from a base that provides memory. 
 
-
+The standard library containers
+are designed for Value oriented types
+rather than object oriented ones,
+though you can get away with using OOP
+ones, but that would not be recommmended.
+what could be recommended is holding
+pointers or std::reference_wrapper 
+pointer to a list of OOP type objects in 
+a Container. the reason you cant
+use references directly instead of 
+reference wrappers is because references
+cant be used as a template argument to 
+a template, though a pointer can be.
 
 
 
