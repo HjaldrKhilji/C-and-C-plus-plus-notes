@@ -22,14 +22,14 @@ identity is it's value, while an
 objects identity is it's address.
 
 Value oriented programming should
-generally be immutable, a good way 
+ be strictly immutable, a good way 
 to achieve this is to use helper
 functions for implementing the 
 notion of common operators, 
 instead of member operator 
 functions because using helper
 functions would force the usage of
-move and copy operator after every
+move and copy assignment/constructor after every
 operation. A built in type is a 
 value oriented objects, and when 
 you do a operation on it, it 
@@ -39,6 +39,39 @@ as a object(you cant just change a single
 bit directly).
 The same should apply
 to all value oriented objects.
+that being said, it is  not always 
+possible(without ruining performance) to do operations that 
+dosent modify the internal structure, and just 
+make a new object that is assigned to the old one
+as a result, hence the alternative is:
+Every operation on a object changes the object
+so that the previous conceptual value of the object
+is in no way equal to the new one.
+so for any operation or list of operations f():
+f(VALUE_OF_X_BEFORE_OPERATION) != f(VALUE_OF_X_AFTER_OPERATION).
+if this dosent hold then the notion of 
+immutability is completely voilated, and your type isnt
+a VOP. 
+
+summary for this point:
+BEST IMMUTABILITY PROPERTY FOR A VOP:
+member functions that make a new result object that is moved
+into the destination by constructor/assignment.
+in some cases this might not even be possible even when you sacrifice
+performance, for example a type Complex representing complex numbers
+can only add other values into it if it makes its internal state
+externally modifiable, which is something that will break the 
+notion of a VOP type completely. The only alternative
+is to provide a += and -= operators that change the internal state.
+Then to provide +, - as non member operators using += and -=
+for computing their result. 
+
+The absolute minimum property for a VOP, if the best cant be used(because of performance 
+or if being simply impossible for that type):
+f(VALUE_OF_X_BEFORE_OPERATION) != f(VALUE_OF_X_AFTER_OPERATION).
+
+Again either one HAS to be fullfilled or else the type isnt a VOP.
+
 
 Value oriented objects are TO copying the 
 conceptual value instead of the
