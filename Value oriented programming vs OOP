@@ -1,163 +1,160 @@
-Value oriented programming differs from OOP in:
-Value oriented objects are required 
-to be able to be allocated on stack.
+Value-oriented programming differs from OOP in:
+Value-oriented objects are required 
+to be able to be allocated on the stack.
 
 
-Value oriented programming
-emphasizes encapsulation only as a
+Value-oriented programming
+emphasises encapsulation only as a
 way of hiding implementation, while
 OOP supports encapsulation even if it
 hides the underlying conceptual values. 
-While value oriented programming never
-hides conceptual values, it only hides 
+While value-oriented programming never
+hides conceptual values; it only hides 
 the representation of those values.
-note:if a vop object is a part of 
+Note:if a VOP object is a part of 
 another vop class implementation,
-then the vop class can encapsulate it
-as long as its not a conceptual
+Then the VOP class can encapsulate it
+as long as it's not a conceptual
 part of the target value type.
 
-Value oriented programming's 
-identity is it's value, while an 
-objects identity is it's address.
+Value-oriented programming's 
+identity is its value, while an 
+An object's identity is its address.
 
-Value oriented programming should
+Value-oriented programming should
  be strictly immutable, a good way 
-to achieve this is to use helper
+To achieve this, use a helper
 functions for implementing the 
 notion of common operators, 
 instead of member operator 
 functions because using helper
 functions would force the usage of
 move and copy assignment/constructor after every
-operation. A built in type is a 
-value oriented objects, and when 
-you do a operation on it, it 
+operation. A built-in type is a 
+value-oriented objects, and when 
+You do an operation on it, it 
 completely changes, so while it's 
 mutable as a value, it is immutable
 as a object(you cant just change a single
-bit directly).
+bit directly.
 The same should apply
-to all value oriented objects.
-that being said, it is  not always 
+to all value-oriented objects.
+That being said, it is  not always 
 possible(without ruining performance) to do operations that 
-dosent modify the internal structure, and just 
+doesn't modify the internal structure, and just 
 make a new object that is assigned to the old one
-as a result, hence the alternative is:
-Every operation on a object changes the object
+As a result, the alternative is:
+Every operation on an object changes the object
 so that the previous conceptual value of the object
-is in no way equal to the new one.
-so for any operation or list of operations f():
+It is in no way equal to the new one.
+So for any operation or list of operations f():
 f(VALUE_OF_X_BEFORE_OPERATION) != f(VALUE_OF_X_AFTER_OPERATION).
-if this dosent hold then the notion of 
-immutability is completely voilated, and your type isnt
+If this doesn't hold, then the notion of 
+Immutability is completely violated, and your type isn't
 a VOP. 
 
-summary for this point:
+Summary for this point:
 BEST IMMUTABILITY PROPERTY FOR A VOP:
 member functions that make a new result object that is moved
 into the destination by constructor/assignment.
-in some cases this might not even be possible even when you sacrifice
-performance, for example a type Complex representing complex numbers
-can only add other values into it if it makes its internal state
+In some cases, this might not even be possible, even when you sacrifice
+performance, for example, a type Complex representing complex numbers
+can only add other values to it if it makes its internal state
 externally modifiable, which is something that will break the 
 notion of a VOP type completely. The only alternative
-is to provide a += and -= operators that change the internal state.
+is to provide the += and -= operators that change the internal state.
 Then to provide +, - as non member operators using += and -=
 for computing their result. 
 
-The absolute minimum property for a VOP, if the best cant be used(because of performance 
+The absolute minimum property for a VOP, if the best can't be used(because of performance 
 or if being simply impossible for that type):
 f(VALUE_OF_X_BEFORE_OPERATION) != f(VALUE_OF_X_AFTER_OPERATION).
 
-Again either one HAS to be fullfilled or else the type isnt a VOP.
+Again, either one HAS to be fulfilled or else the type isnt a VOP.
 
 
-Value oriented objects are TO copying the 
+Value-oriented objects are TO copying the 
 conceptual value instead of the
 representation itself.
-While object oriented objects are 
+While object-oriented objects are 
 inclined to copy representation itself.
 
-If you copy a object Y of a VOP type V in to
+If you copy an object Y of a VOP type V into
 another object X of the same type, then you 
 must make sure that the "==" operator 
-returns true for Y==X.
+Returns true for Y==X.
 
-Object oriented programming is used 
-to immiate objects with behaviours,
-while value oriented programming
-is meant to immatate values with 
+Object-oriented programming is used 
+to imitate objects with behaviours,
+while value-oriented programming
+is meant to imitate values with 
 semantics. Behaviour can be
-non determentistic through 
-polymorphism, but sementics is always
-determentistic. So its safe to say 
-that OOP is a non determentistic
+non-deterministic through 
+polymorphism, but semantics is always
+deterministic. So it's safe to say 
+that OOP is a non-deterministic
 style of programming, while VOP is a
-deterministic one. A OOP object
+deterministic one. An OOP object
 might hide the value, but will never hide
-the behaviour, and its behavior may be
+the behaviour, and its behaviour may be
 non determentistic(polymorphic) in some
 contexts(contexts where its accessed by
-a certian base class interface), but
-its always a good idea to keep
+a certain base class interface, but
+It's always a good idea to keep
 exactly one interface to every (inherited)
 form of a class well documented(making it
-determentistic if accessed by that interface).
+deterministic if accessed by that interface).
 In this case, I say interface as in class.
 
 
-inheritance isnt allowed for VOP's unless its private inheritance that
-dosent effect the conceptual value and the interface of the 
-class. why is that? well its because
-built in types cant be inherited from,
-and they are VOP's, hence to mantain
-concistancy, dont inherit from VOP
-unless you are writing a non VOP type.
-the language wont stop you, but breaking
-this rule isnt good for consistency.
+Inheritance isn't allowed for VOPs unless it's private inheritance that
+doesn't affect the conceptual value and the interface of the 
+class. Why is that? well its because
+built-in types can't be inherited from,
+and they are VOPs, hence, to maintain
+consistency, don't inherit from VOP
+unless you are writing a non-VOP type.
+The language won't stop you, but breaking
+This rule isn't good for consistency.
 even inheriting from a VOP in the code of
-a non VOP class isnt recommended.
-the reason that inheriting from a vop
-for non vop class isnt as bad, as it is
-for a vop inheriting from another vop
-is because we are breaking consistency,
-but we can still reason about the resulting
+A non-VOP class isn't (generally) recommended.
+The reason that inheriting from a vop
+The non-VOP class isn't as bad as it is
+for a vop inheriting from another vop,
+It's because we are breaking consistency,
+But we can still reason about the resulting
 non vop class because the non vop classes
-main goal is not to help you reason
+The main goal is not to help you reason
 about its value, but rather its behaviour,
-while a vop goal is to help you 
+while a VOP goal is to help you 
 reason about its value, and inhering
 from a vop as a vop will make the notion
 of the value represented hard, which
-is something that matters for VOP's.
+is something that matters for VOPs.
 Again, you can inherit as a VOP, but the 
-class your inheriting from must be a VOP itself,
-and it must be a private base that dosent change the conceptual value  and the interface.
-the class std::vector is a VOP, but in some implementations
-it inherits from a base that provides memory. 
+class you're inheriting from must be a VOP itself,
+and it must be a private base that doesn't change the conceptual value  and the interface.
+The class std::vector is a VOP, but in some implementations
+It inherits from a base that provides memory. 
 
 The standard library containers
-are designed for Value oriented types
-rather than object oriented ones,
-though you can get away with using OOP
-ones, but that would not be recommmended.
-what could be recommended is holding
+They are designed for value-oriented types
+rather than object-oriented ones,
+Though you can get away with using OOP
+ones, but that would not be recommended.
+What could be recommended is holding
 pointers or std::reference_wrapper 
-pointer to a list of OOP type objects in 
-a Container. the reason you cant
-use references directly instead of 
-reference wrappers is because references
-cant be used as a template argument to 
+pointer to a list of OOP-type objects in 
+a Container. The reason you can't
+Use references directly instead of 
+Reference wrappers are because references
+can't be used as a template argument to 
 a template, though a pointer can be.
 
 
 
 C++ abstraction mechanism supports 
-both, and that's why we love c++ ❤️❤️.
+Both, and that's why we love C++ ❤️❤️.
 
-it only took 3 hours to read and write 
-this summary, so it may not be
-well writtenn when it comes to the
-grammmer.
+
 
