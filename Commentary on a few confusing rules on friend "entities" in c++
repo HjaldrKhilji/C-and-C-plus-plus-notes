@@ -4,7 +4,22 @@ A friend must be previously declared in an enclosing scope or defined in the non
 The first rule states that for an entity to be recognized as a friend, it must be forward declared outside, somewhere—either in a class or in the outer namespaces. For example, 
 if my friend is void N::S(), then S must be in N.
 
-The second rule is that I can provide the definition of the friend entity right inside my class.
+The second rule is that I can provide the definition of the friend entity right inside my class, as long as its a non member function. in this case, the non member function will be
+an inline function of the enclosing namespace scope, if the class is nested inside another class, then the inline function is still a function of the enclosing namespace scope of the outer class.
+for example:
+class MyClass {
+private:
+    int secret;
+public:
+    // This is the *first* and only declaration of InlineFriend.
+    // It's treated as an inline non-member function in the global scope.
+    friend void InlineFriend(MyClass& mc) { 
+        // ... access to MyClass::secret is valid here ...
+    }
+};
+
+// You can call it outside the class as a normal function
+// InlineFriend(...)
 
 Additional Explanation for the First Rule
 The first rule says that a name must be forward declared in the specified namespace or in the enclosing namespace. The rule, however, omits mentioning that the name might also be declared in the namespace
