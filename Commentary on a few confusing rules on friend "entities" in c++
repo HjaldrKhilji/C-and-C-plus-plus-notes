@@ -1,0 +1,34 @@
+Rules:
+A friend must be previously declared in an enclosing scope or defined in the non-class scope immediately enclosing the class that is declaring it to be a friend
+
+The first rule states that for an entity to be recognized as a friend, it must be forward declared outside, somewhere—either in a class or in the outer namespaces. For example, 
+if my friend is void N::S(), then S must be in N.
+
+The second rule is that I can provide the definition of the friend entity right inside my class.
+
+Additional Explanation for the First Rule
+The first rule says that a name must be forward declared in the specified namespace or in the enclosing namespace. The rule, however, omits mentioning that the name might also be declared in the namespace
+of the  arguments (Argument-Dependent Lookup or ADL).
+namespace N {
+
+// 1. A function declared in the enclosing namespace:
+void S(); // Forward declaration outside the class is done here
+
+class MyClass {
+    friend void S(); // Refers to N::S
+
+    // 2. A friend function defined entirely inside the class body:
+    friend void InlineFriend(MyClass& mc) {
+        // Function body with access to private members
+    }
+private:
+    int secret;
+};
+
+void S() {
+    // Can access MyClass private members because it was declared as a friend.
+}
+}
+However, the second rule only applies to non-member functions. For instance, InlineFriend is accessible outside the class as a non-member function. 
+You  CANNOT define friend classes or friend members of classes inside your class.
+thought you obviously  can define CLASSES in your class.
