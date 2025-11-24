@@ -22,8 +22,22 @@ public:
 // InlineFriend(...)
 
 Additional Explanation for the First Rule ($1)
-The first rule says that a name must be forward declared in the specified namespace or in the enclosing namespace. The rule, however, omits mentioning that the name might also be declared in the namespace
-of the  arguments (Argument-Dependent Lookup or ADL).
+The first rule says that a name must be forward declared in the specified namespace or in the enclosing namespace. The rule, however, omits
+mentioning that the name might also be declared in the namespace of the  arguments (Argument-Dependent Lookup or ADL).
+
+example of Argument-Dependent Lookup:
+class X {
+friend void f(); // useless
+friend void h(const X&); // can be found through its argument, also in this case it isnt a non member function in the outer namespace scope(because the second rule dosent apply here), hence
+//the argument dependent lookup is very very useful, even if second rule applied, even then argument dependent lookup would be useful for finding the functions h(const X&) from a scope that is not the 
+scope where h(const X&) was initially declared. This however wont apply if h(const X&) was declared as a member of a class, but that isnt the case here since we dont see: A_CLASS_NAME::h(const X&)
+here
+};
+void g(const X& x)
+{
+f(); // no f() in scope
+h(x); // X’s friend h()
+}
 
 An extra third rule:
 Scopes outside the innermost enclosing
