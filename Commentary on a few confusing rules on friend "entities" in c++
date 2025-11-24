@@ -49,12 +49,10 @@ class MyClass {
 private:
     int secret;
 };
-why? well, look at S, and see that it breaks the rule.
-to fix it write:
-// 🚀 Enclosing Scope (Global or Namespace)
 
-// --- Correct Rule 1 Example ---
-void S(); // Declaration (satisfies "previously declared")
+
+but this code is:
+void S(); 
 
 class MyClass {
 private:
