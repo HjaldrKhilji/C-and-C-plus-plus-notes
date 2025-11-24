@@ -99,5 +99,11 @@ void S() {
     std::cout << "Declared Friend Access: " << m.secret << std::endl;
 }
 
-
+in the case of freinds that are template arguments, these rules WILL APPLY TO THOSE FREINDS TOO:
+template<typename T>
+class X {
+friend T;
+friend class T; // Note writing "class" is redundent. As you can see, i can have multiple declarations of a freind because its not a non member freind function that I was also defining
+// ...
+};
 
