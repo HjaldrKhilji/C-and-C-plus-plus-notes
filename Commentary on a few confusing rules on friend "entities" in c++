@@ -27,7 +27,7 @@ of the  arguments (Argument-Dependent Lookup or ADL).
 
 An extra third rule:
 Scopes outside the innermost enclosing
-namespace scope are not considered for a name first declared as a friend. this third rule dosent override Argument dependent lookup describles in "Additional Explanation for the First Rule ($1)
+namespace scope are not considered for a name first declared as a friend. this third rule dosent override Argument dependent lookup describled in "Additional Explanation for the First Rule ($1)
 " section.
 
 this means that if a class A is declared in namespace N, and class b is the freind of class A then, to make the declaration of class b as a freind of class A in class A valid, class b Must be
