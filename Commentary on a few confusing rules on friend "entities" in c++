@@ -17,6 +17,17 @@ public:
         // ... access to MyClass::secret is valid here ...
     }
 };
+also for any functions defined through this way, that function is inaccesible unless you use argument dependent lookup, the reason is that the compiler knows that it is a function of 
+the scope enclosing the class where it is defined, but it dosent know the class that it is defined in:
+class X {
+friend void f(); // useless
+friend void h(const X&); // can be found through its argument
+};
+void g(const X& x)
+{
+f(); // no f() in scope
+h(x); // X’s friend h()
+}
 
 // You can call it outside the class as a normal function
 // InlineFriend(...)
