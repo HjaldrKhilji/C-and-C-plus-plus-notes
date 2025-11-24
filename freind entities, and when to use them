@@ -1,0 +1,37 @@
+normally a class non static member functions is:
+[points borrowed from section 19.4 of The_C++_Programming_Language_4th_Edition_Bjarne_Stroustrup ]
+[1] The function can access the private part of the class declaration.
+[2] The function is in the scope of the class.
+[3] The function must be invoked on an object (has a this pointer).
+while static member functions has the first two, but what if i want only one, well freind functions exist for that exact purpose because it only has the first property.
+One obvious use of a freind function is when I need to access the representations of two classes for the implementation of a function/operator.
+for example:
+[example borrowed from section 19.4 of The_C++_Programming_Language_4th_Edition_Bjarne_Stroustrup ]
+onstexpr rc_max {4}; // row and column size
+class Matrix;
+class Vector {
+float v[rc_max];
+// ...
+friend Vector operator∗(const Matrix&, const Vector&);
+};
+class Matrix {
+Vector v[rc_max];
+// ...
+friend Vector operator∗(const Matrix&, const Vector&);
+};
+Now operator∗() can reach into the implementation of both Vector and Matrix. That would allow
+sophisticated implementation techniques, but a simple implementation would be:
+[example borrowed from section 19.4 of The_C++_Programming_Language_4th_Edition_Bjarne_Stroustrup ]
+Vector operator∗(const Matrix& m, const Vector& v)
+{
+Vector r;
+for (int i = 0; i!=rc_max; i++) { // r[i] = m[i] * v;
+r.v[i] = 0;
+for (int j = 0; j!=rc_max; j++)
+r.v[i] += m.v[i].v[j] ∗ v.v[j];
+}
+return r;
+}
+Now for other less obvious uses of freind classes/functins can be known
+
+[To be continued]
