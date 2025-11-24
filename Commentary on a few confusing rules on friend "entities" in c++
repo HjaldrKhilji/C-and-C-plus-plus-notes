@@ -106,7 +106,6 @@ public:
     }
 };
 
-// --- Correct Rule 1 Definition ---
 void S() {
     // Definition must be here (outside the class) and uses the granted access.
     MyClass m;
