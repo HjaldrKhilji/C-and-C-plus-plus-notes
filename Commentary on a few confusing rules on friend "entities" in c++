@@ -32,3 +32,48 @@ void S() {
 However, the second rule only applies to non-member functions. For instance, InlineFriend is accessible outside the class as a non-member function. 
 You  CANNOT define friend classes or friend members of classes inside your class.
 thought you obviously  can define CLASSES in your class.
+These two rules also imply that this code is not valid:
+// 1. A function declared in the enclosing namespace:
+void S(){
+//definition
+
+} // Forward declaration outside the class is done here
+
+class MyClass {
+    friend void S(); // Refers to N::S
+
+    // 2. A friend function defined entirely inside the class body:
+    friend void InlineFriend(MyClass& mc) {
+        // Function body with access to private members
+    }
+private:
+    int secret;
+};
+why? well, look at S, and see that it breaks the rule.
+to fix it write:
+// 🚀 Enclosing Scope (Global or Namespace)
+
+// --- Correct Rule 1 Example ---
+void S(); // Declaration (satisfies "previously declared")
+
+class MyClass {
+private:
+    int secret = 42;
+public:
+    // 1. Rule 1 Grant: Refers to the previously declared function S.
+    friend void S(); 
+
+    // 2. Correct Rule 2 Example: DEFINED inside the friend declaration.
+    friend void InlineFriend(MyClass& mc) {
+        // This definition is treated as being in the enclosing scope.
+        std::cout << "Inline Friend Access: " << mc.secret << std::endl;
+    }
+};
+
+// --- Correct Rule 1 Definition ---
+void S() {
+    // Definition must be here (outside the class) and uses the granted access.
+    MyClass m;
+    std::cout << "Declared Friend Access: " << m.secret << std::endl;
+}
+
