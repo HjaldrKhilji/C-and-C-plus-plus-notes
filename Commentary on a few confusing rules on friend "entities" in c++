@@ -9,6 +9,14 @@ The second rule is that I can provide the definition of the friend entity right 
 Additional Explanation for the First Rule
 The first rule says that a name must be forward declared in the specified namespace or in the enclosing namespace. The rule, however, omits mentioning that the name might also be declared in the namespace
 of the  arguments (Argument-Dependent Lookup or ADL).
+
+An extra third rule:
+Scopes outside the innermost enclosing
+namespace scope are not considered for a name first declared as a friend
+
+this means that if a class A is declared in namespace N, and class b is the freind of class A then, to make the declaration of class b as a freind of class A in class A valid, class b Must be
+defined in namespace N.
+
 namespace N {
 
 // 1. A function declared in the enclosing namespace:
@@ -74,4 +82,6 @@ void S() {
     MyClass m;
     std::cout << "Declared Friend Access: " << m.secret << std::endl;
 }
+
+
 
