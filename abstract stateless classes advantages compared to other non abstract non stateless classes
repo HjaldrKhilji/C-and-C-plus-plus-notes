@@ -6,4 +6,4 @@ way without any difference in choosing one, and without any issue at all, while 
 to use virtual inheritance to avoid the diamond inheritance problem. You would also need to use virtual bases to avoid the diamond inheritance problem, if the base class is not abstract, and only
 stateless.
 
-in this text, I refer to abstract classes, as classes with no state and only having pure virtual functions
+in this text, I refer to abstract classes, as classes(used a interface only) with no state and only having PURE VIRTUAL FUNCTIONS.
