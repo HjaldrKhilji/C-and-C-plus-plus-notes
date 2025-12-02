@@ -1,8 +1,9 @@
 abstract stateless classes don't have a diamond inheritance issue, and stateful classes (regardless of being abstract or not) have that issue. Similarly, inheritance count doesn't affect
 abstract stateless classes, while it can(if virtual inheritance isnt used) lead to ambiguities(through the diamon inheritance problem) in non-virtual 
 inheritances of stateful classes. The memory overhead of inheritance stateless classes, regardless of whether
-they are abstract or non-abstract, is lower than that of a stateful class due to the duplication of data members. Abstract stateless classes can be inherited from in a virtual or non-virtual 
+they are abstract or non-abstract, is lower than that of a stateful class due to no duplication of data members. Abstract stateless classes can be inherited from(as a base class) in a virtual or non-virtual 
 way without any difference in choosing one, and without any issue at all, while for stateful classes, whether abstract or not, there is a difference; more particularly, you would probably have
-to use virtual inheritance to avoid the diamond inheritance problem. You would also need to use virtual bases to avoid the diamond inheritance problem, if the base class is not abstract.
+to use virtual inheritance to avoid the diamond inheritance problem. You would also need to use virtual bases to avoid the diamond inheritance problem, if the base class is not abstract, and only
+stateless.
 
-in this text, I refer to abstract classes, as classes with no state and only having pure virtua functions
+in this text, I refer to abstract classes, as classes with no state and only having pure virtual functions
