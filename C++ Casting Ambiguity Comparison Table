@@ -3,19 +3,18 @@ C++ Casting Ambiguity Comparison Table
 -----------------------------------------------------
 NOTE
 =====================================================
-(I used AI for formating and fixing grammer mistakes)
+(I used AI for formating)
 =====================================================
 
 -----------------------------------------------------
 
 | Feature | Upcasting (Toward Base Class) | Downcasting (Toward Derived Class) |
 |---------|-------------------------------|------------------------------------|
-| Typical Operation | Derived* to Base* | Base* to Derived* |
-| Primary Cast Types | All casts, often implicit or static_cast | static_cast (unsafe) or dynamic_cast (safe) |
-| Ambiguity Type 1: Member Access | Accessing a non-static member inherited via multiple paths (non-virtual inheritance) without qualification. | Not applicable, as this is a member access/compile-time issue. |
+| Typical Operation: | Derived* to Base* | Base* to Derived* |
+| Primary Cast Types: | static_cast, dynamic_caste | static_cast (unsafe) or dynamic_cast (safe) | --NOTE-- Though you can technically use any other cast types, but PLEASE DONT.
+| Ambiguity Type 1: Member Access | Accessing a non-static member inherited via multiple paths (non-virtual inheritance) without qualification. | Simply not applicable | 
 | Ambiguity Type 2: Pointer Conversion | Conversion to a base pointer where the derived object contains multiple subobjects of that base type (e.g., in non-virtual Diamond Inheritance). | Conversion to a derived pointer where the base object could belong to different derived types. (This is usually just an invalid/unsafe cast). |
-| Detection for Ordinary (Non-Virtual) Bases | Always caught at Compile Time. The compiler must determine which base subobject to point to. | Always detectable at Compile Time (Unique subobject or none). Downcasting errors are about safety, not ambiguity. |
-| Detection for Virtual Bases | Always caught at Compile Time. The compiler must resolve the single shared base subobject. | Run Time Detection (RTTI) is Required if the full class lattice is unknown. The location of the shared virtual base subobject is determined at run time. |
-| Casting Operator for Ambiguity Handling | N/A. Resolved by explicit qualification (e.g., (B1*)d_ptr). | dynamic_cast is required for safe downcasting and to check if the pointer is truly of the target type (e.g., checking if ps is a Component* in your example). |
-| Safety/Outcome on Failure | Compiler Error. | static_cast/reinterpret_cast: Undefined Behavior (UB) upon use. |
-| | | dynamic_cast: Defined Behavior (nullptr for pointers, or std::bad_cast for references). |
+| Detection for Ordinary (Non-Virtual) Bases: | guaranteed TO BE caught at Compile Time. The compiler must determine which base subobject to point to. | Always detectable(detectable dosent mean that the compiler will detect them, it means that it is unspecified, but technically possible) at Compile Time. |
+| Detection for Virtual Bases: | Always caught at Compile Time. The compiler must resolve the single shared base subobject. | Run Time Detection (RTTI) is Required if the full class lattice is unknown(not in the same translation unit). |
+| Casting Operator for Ambiguity Handling: | static_cast will report ambiguities at compile time, and dynamic cast will do it at runtime. Using reinterpret_cast will unsurprisingly lead to undefined behavior  | dynamic_cast is required for safe downcasting and to check if the pointer is truly of the target type (e.g., checking if ps is a Component* in your example), static cast will throw errors, and unsurprisingly again, the result of reinterpret_cast is undefined |
+| Safety/Outcome on Failure: | Compiler Error. | static_cast/reinterpret_cast: Undefined Behavior (UB) upon use. dynamic_cast: Defined Behavior (nullptr for pointers, or std::bad_cast for references). 
