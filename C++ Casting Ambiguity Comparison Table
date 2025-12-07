@@ -6,7 +6,7 @@ NOTE                                                 +
 (I used AI for formating)                            +
 ALSO NOTE:                                           +
 You can't downcaste from a virtual base to a derived +
-class.                                               +
+class using static cast.                             +
 =====================================================+
                                                      +
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++
