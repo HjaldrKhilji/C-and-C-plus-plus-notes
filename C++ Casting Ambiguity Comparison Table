@@ -37,15 +37,34 @@ downcasting in the context of this table).           +
 
 | Feature | Upcasting (Toward Base Class) | Downcasting (Toward Derived Class) |
 |---------|-------------------------------|------------------------------------|
+
+#####################################################################################################################################
+
 | Typical Operation: | Derived* to Base* | Base* to Derived* |
+
+
 | Primary Cast Types:| static_cast, dynamic_caste | static_cast (unsafe, but your only choice for non polymorphic types, and it only checks for ambigiouties in the class hirerchy and weather the destination pointer type is actually a derived type of the base using a proper assertion mechanism like that in "The_C++_Programming_Language_4th_Edition_Bjarne_Stroustrup"'s exceptions chapter) or dynamic_cast (safe) | --NOTE-- Though you can technically use any other cast types, but PLEASE DONT.
+
+
 | Ambiguity Type 1: Member Access | Accessing a non-static member inherited via multiple paths (non-virtual inheritance) without qualification. | Simply not applicable | 
+
+
 | Ambiguity Type 2: Pointer Conversion | Conversion to a base pointer where the derived object contains multiple subobjects of that base type (e.g., non virtual multiple inheritance of classes with the same base class). | Conversion to a derived pointer where the base object could be the root or one of the roots of  different derived sub hirerchies. eg, when you are converting a virtual base to a non virtual base, and that non virtual base is inherited by more than one class |
+
+
 | Detection for Ordinary (Non-Virtual) Bases: | guaranteed(if static_cast is used) TO BE caught at Compile Time. gurrentied to be detected at runtime *(if dynamic cast is used) | short answer: Always detectable(only the type of detections in explained "Primary Cast Types"), detectable dosent mean that the compiler will detect them, it means that it is unspecified, but technically possible at Compile Time. long explaination for compile time checks:If you use static_cast then the compile will check if the type of the source pointer/reference is a base class of the target pointer/reference type, and that is a check that is confirmed to happen at compile time, but please note that static cast wont stop you from unsafe downcasting, in that it wont check the actual object, hence you should still PRIMARLY use dynamic cast, unless you are checking for ambiguities at compile time using the assertion namespace technique in the book "The_C++_Programming_Language_4th_Edition_Bjarne_Stroustrup" (explained in the exception handling chapter of the book). You can also use the static cast with the same assertion namespace for checking if a class actually has the target pointer/reference type.
+
+
 | Detection for Virtual Bases: | Always(if static_cast is used) caught at Compile Time because the base must be declared before you use it(even if it is virtual). | Run Time Detection (RTTI) is Required if the full class lattice is unknown(not in the same translation unit) for any checking at all, dynamic_cast will do all checks regardless. long explaination for compile time checks:if the full class lattice is available to the compiler then the only checks at compile time (if static_ast is used) are if the base class is a base of the target  pointer's/reference's type, and if it a unambiguous base, exactly like the "Detection for Virtual Bases" section except for the whole class hirerchy is required to be available to the compiler.| again, if you want to use static cast use it with combination of the assertion technique in the exception handling chapter of the book "The_C++_Programming_Language_4th_Edition_Bjarne_Stroustrup", and only for checking ambiguouties and weather the target pointer type is actually a derived type of the source pointer/reference type.
+
+
 | Casting Operator for Ambiguity Handling: | static_cast will report ambiguities at compile time, and dynamic cast will do it at runtime. Using reinterpret_cast will unsurprisingly lead to undefined behavior  | dynamic_cast is required for safe downcasting and to check if the pointer is truly of the target type (e.g., checking if ps is a Component* in your example), static cast will throw errors, and unsurprisingly again, the result of reinterpret_cast is undefined |
+
+
 | Safety/Outcome on Failure: | Compiler Error for static cast, Runtime Error for dynamic cast | static_cast/reinterpret_cast: Undefined Behavior (UB) upon use. dynamic_cast: Defined Behavior (nullptr for pointers, or std::bad_cast for references). 
 
+
+#####################################################################################################################################
 
 =====================================================+
                                                      +
