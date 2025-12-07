@@ -4,7 +4,28 @@ C++ Casting Ambiguity Comparison Table
 NOTE
 =====================================================
 (I used AI for formating)
+ALSO NOTE:
+The Detection sections describe what is possibly
+detectable from a theoratical point of view,
+it dosent gurrentie that it will be detected
+given ANY CAST.
 =====================================================
+
++++++++++++++++++++++++++++++++++++++++++++++++++++++
+NUANCES TO NOTE
+=====================================================
+
+It's important to note that dynamic_cast only works 
+on polymorphic types 
+(classes with at least one virtual function).
+If the class hierarchy is non-polymorphic, 
+dynamic_cast cannot be used, and the only cast
+available is static_cast (which is unsafe for 
+downcasting in the context of this table).
+
+=====================================================
+
+
 
 -----------------------------------------------------
 
@@ -14,9 +35,9 @@ NOTE
 | Primary Cast Types: | static_cast, dynamic_caste | static_cast (unsafe) or dynamic_cast (safe) | --NOTE-- Though you can technically use any other cast types, but PLEASE DONT.
 | Ambiguity Type 1: Member Access | Accessing a non-static member inherited via multiple paths (non-virtual inheritance) without qualification. | Simply not applicable | 
 | Ambiguity Type 2: Pointer Conversion | Conversion to a base pointer where the derived object contains multiple subobjects of that base type (e.g., non virtual multiple inheritance of classes with the same base class). | Conversion to a derived pointer where the base object could belong to different derived types. eg, when you are converting a virtual base to a non virtual base that is inherited by more than one class |
-| Detection for Ordinary (Non-Virtual) Bases: | guaranteed(if static_cast is used) TO BE caught at Compile Time. The compiler must determine which base subobject to point to. | Always detectable(detectable dosent mean that the compiler will detect them, it means that it is unspecified, but technically possible) at Compile Time. |
-| Detection for Virtual Bases: | Always(if static_cast is used) caught at Compile Time because the base must be declared to use it(even if it is virtual). | Run Time Detection (RTTI) is Required if the full class lattice is unknown(not in the same translation unit). |
+| Detection for Ordinary (Non-Virtual) Bases: | guaranteed(if static_cast is used) TO BE caught at Compile Time. The compiler must determine which base subobject to point to. | Always detectable(detectable dosent mean that the compiler will detect them, it means that it is unspecified, but technically possible) at Compile Time. | Please note that static cast wont stop you from unsafe downcasting, so while it is detectable at compile time, you still have to SADLY use dynamic cast.
+| Detection for Virtual Bases: | Always(if static_cast is used) caught at Compile Time because the base must be declared before you use it(even if it is virtual). | Run Time Detection (RTTI) is Required if the full class lattice is unknown(not in the same translation unit) at compile time| This means that static cast cant catch issues IN THIS CASE EVEN IF static cast did compile time checking(which it dosent for downcasting), hence always use dynamic cast |
 | Casting Operator for Ambiguity Handling: | static_cast will report ambiguities at compile time, and dynamic cast will do it at runtime. Using reinterpret_cast will unsurprisingly lead to undefined behavior  | dynamic_cast is required for safe downcasting and to check if the pointer is truly of the target type (e.g., checking if ps is a Component* in your example), static cast will throw errors, and unsurprisingly again, the result of reinterpret_cast is undefined |
 | Safety/Outcome on Failure: | Compiler Error. | static_cast/reinterpret_cast: Undefined Behavior (UB) upon use. dynamic_cast: Defined Behavior (nullptr for pointers, or std::bad_cast for references). 
 
-MAIN PURPOSE OF THIS DOCUMENT: TO BE USED AS AN USABLE REFERENCE WHEN NAVIGATING CLASS HIERARCHIES IN CODE.
+MAIN PURPOSE OF THIS DOCUMENT: TO BE USED AS AN USABLE REFERENCE WHEN NAVIGATING CLASS HIERARCHIES IN CODE, AND AS A CONCEPTUAL OVERVIEW OF UPCASTING AND DOWNCASTING IN GENERAL.
