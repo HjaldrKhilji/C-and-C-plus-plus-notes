@@ -4,6 +4,9 @@ C++ Casting Ambiguity Comparison Table               +
 NOTE                                                 +
 =====================================================+
 (I used AI for formating)                            +
+ALSO NOTE:                                           +
+You can't downcaste from a virtual base to a derived +
+class.                                               +
 =====================================================+
                                                      +
 ++++++++++++++++++++++++++++++++++++++++++++++++++++++
