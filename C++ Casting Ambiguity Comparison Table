@@ -61,8 +61,8 @@ sections:                                            +
                                                      +   
 static_cast performs a compile-time check based on   +
 the declared (pointer's/reference's)types and their  +
-relationship in the inheritance hierarchy. It does   +
-not check the actual object's type at runtime.       +
+relationship in the inheritance hierarchy. basically,+
+It does not check the actual object's type at runtime+
                                                      +
 =====================================================+
 
