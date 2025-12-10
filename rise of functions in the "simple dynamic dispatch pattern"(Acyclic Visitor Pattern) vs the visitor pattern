@@ -1,4 +1,5 @@
 rise of functions in the "simple dynamic dispatch pattern"(Acyclic Visitor Pattern) vs the visitor pattern:
+(NOTE: I DIDNT USE THE "BIG O() notation for being as specific as possible, but you should.")
 (n*i)+1(for the node class declaration) is the grwoth of functions when a new "node"(the class on which visitor operates on) class is added or a new function is added to all nodes, n 
 is the amount visitor classes plus the new one or the amount of functions plus the new one, and i is the amount(arguments of functions) of double dispatches. 
 For the Acyclic Visitor Pattern it is n^i, i(arguments of functions) is the amount of double dispatchs and n is the amount of classes that already exist plus the new class.
