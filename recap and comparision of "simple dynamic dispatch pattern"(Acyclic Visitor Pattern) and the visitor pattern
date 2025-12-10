@@ -1,5 +1,10 @@
-rise of functions in the "simple dynamic dispatch pattern"(Acyclic Visitor Pattern) vs the visitor pattern:
 (NOTE: I DIDNT USE THE "BIG O() notation for being as specific as possible, but you should.")
+RECAP: WHAT MAKES THESE TWO PATTERNS DIFFERENT IS THAT THE VISITOR PATTERN HAS A VISITOR CLASS HIERARCHY AND A NODE CLASS HIERARCHY, THE VISITOR CLASS HIREARCHY DOES
+OPERATIONS ON THE NODE CLASS HIREARCHY, BUT THE SPECIFIC VISITOR SELECTED IS RESOLVED BY A NODE FIRST. THE "simple dynamic dispatch pattern"(Acyclic Visitor Pattern) HAS
+A SINGLE HIREARCHY THAT DOES BOTH DISPATCHES IN THE DOUBLE DISPATCH ON THE OBJECTS OF THE EXACT* SAME HIERARCHY. DO NOTE THAT IN THE VISITOR PATTERN THE VISITOR AND NODE
+CAN BE INFACT OF THE SAME HIREARCHY, AS LONG AS THE INTERFACE ACCEPTED BY THE NODE ISNT A BASE OF THE NODE, SO WHEN I SAY DIFFERENT HIERARCHIES, I MEAN, THE 
+POINTER ARGUMENT ACCEPTED BY THE NODE FUNCTION THAT IS PERFORMING THE FIRST DYNAMIC DISPATCH SHOULD NOT IN THE SAME HIERARCHY AS THE NODE.
+
 (n*i)+1(for the node class declaration) is the grwoth of functions when a new "node"(the class on which visitor operates on) class is added or a new function is added to all nodes, n 
 is the amount visitor classes plus the new one or the amount of functions plus the new one, and i is the amount(arguments of functions) of double dispatches. 
 For the Acyclic Visitor Pattern it is n^i, i(arguments of functions) is the amount of double dispatchs and n is the amount of classes that already exist plus the new class.
@@ -60,8 +65,10 @@ public:
 void accept(Visitor&) override;
 };
 class Visitor{}
-void accept(Expr&) =0;
-void accept(Stmt&) =0;
+void accept(Expr&) {}//no need to make it virtual
+void accept(Stmt&) {}//no need to make it virtual
+//atleast one virtual function has to be added for this pattern to work, you can make one of the functions above virtual if you want to, but you arent forced
+//to choose them, you can instead add new virtual functions
 ;
 class Do1_visitor : public Visitor {
 void accept(Expr&) { cout << "do1 to Expr\n"; }
