@@ -65,8 +65,8 @@ public:
 void accept(Visitor&) override;
 };
 class Visitor{}
-virtual void accept(Expr&) =0;
-virtual void accept(Stmt&) =0;
+virtual void accept(Expr&) =0; //must be virtual
+virtual void accept(Stmt&) =0; //must be virtual
 
 ;
 class Do1_visitor : public Visitor {
