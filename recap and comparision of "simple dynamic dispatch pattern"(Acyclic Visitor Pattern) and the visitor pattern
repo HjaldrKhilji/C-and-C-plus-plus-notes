@@ -64,11 +64,10 @@ class Stmt : public Node {
 public:
 void accept(Visitor&) override;
 };
-class Visitor{}
+class Visitor{
 virtual void accept(Expr&) =0; //must be virtual
 virtual void accept(Stmt&) =0; //must be virtual
-
-;
+};
 class Do1_visitor : public Visitor {
 void accept(Expr&) override { cout << "do1 to Expr\n"; }
 void accept(Stmt&) override { cout << "do1 to Stmt\n"; }
