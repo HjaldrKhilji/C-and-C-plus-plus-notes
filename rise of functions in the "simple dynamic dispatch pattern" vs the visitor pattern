@@ -1,5 +1,0 @@
-(n*i)+1(for the node class declaration) is the grwoth of functions when a new "node"(the class on which visitor operates on) class is added, n is the amount visitor classes and 
-i is the amount(arguments of functions) of double dispatches. For the simple ordiniary dynamic dispatch it is n^i, i(arguments of functions) is the amount of double dispatchs
-and n is the amount of classes that already exist plus the new class. when a new visitor class is added then nothing changes for any node class.
-To recall what the visitor pattern and the "simple dynamic dispatch" method is, go to:
-        The_C++_Programming_Language_4th_Edition_Bjarne_Stroustrup chapter 22
