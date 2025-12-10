@@ -65,16 +65,15 @@ public:
 void accept(Visitor&) override;
 };
 class Visitor{}
-void accept(Expr&) {}//no need to make it virtual
-void accept(Stmt&) {}//no need to make it virtual
-//atleast one virtual function has to be added for this pattern to work, you can make one of the functions above virtual if you want to, but you arent forced
-//to choose them, you can instead add new virtual functions
+virtual void accept(Expr&) =0;
+virtual void accept(Stmt&) =0;
+
 ;
 class Do1_visitor : public Visitor {
-void accept(Expr&) { cout << "do1 to Expr\n"; }
-void accept(Stmt&) { cout << "do1 to Stmt\n"; }
+void accept(Expr&) override { cout << "do1 to Expr\n"; }
+void accept(Stmt&) override { cout << "do1 to Stmt\n"; }
 };
 class Do2_visitor : public Visitor {
-void accept(Expr&) { cout << "do2 to Expr\n"; }
-void accept(Stmt&) { cout << "do2 to Stmt\n"; }
+void accept(Expr&) override { cout << "do2 to Expr\n"; }
+void accept(Stmt&) override { cout << "do2 to Stmt\n"; }
 };
