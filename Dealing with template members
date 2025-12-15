@@ -1,0 +1,56 @@
+($R1 23.4 ){Exactly like a class, a template class can have members of several kinds:
+• Data members (variable and constant); §23.4.1
+• Member functions; §23.4.2
+• Member type aliases; §23.6
+• static members (function and data); §23.4.4
+• Member types (e.g., a member class); §23.4.5
+• Member templates (e.g., a member class template); §23.4.6.3
+In addition, a class template can declare friends, just as an ‘‘ordinary class’’ can; §23.4.7.
+The rules for class template members are those for their generated classes. That is, if you want
+to know what the rules of a template member are, just look for the rules for a member of an ordinary class (Chapter 16, Chapter 17, and Chapter 20); that will answer most
+questions.
+}
+lets expand on what the passage above:
+1.Defining non static data members: the concept is the same as ordinary classes
+2.Defining non static functions: The concept is again the same, but a new non static member function is generated uniquely for every specialized type generated from the 
+template when you use a non static member for that specailize type.
+3.Type aliases are new for every combination of template arguments if and only if the type alias is an 
+associated type(associated types(in the context of C++) are type aliases that depend on the template argument). The code for every associated type member is generated,
+only if the member is used, and even then the code generated is the member (applies to both static and non static )functions that are used.
+4.Static members in a template must be defined outside the class unless they are const/constexpr, and must be defined for every specialization, if you cant do 
+that(because there are too many specializations) then just write:
+template <typename T>
+int A<T>::a = 0; // Initialize a to 0 by default for all T
+if the class "A" was:
+template<typename T>
+struct A {
+    static int a;
+     //structs and classes are the same thing except for the fact that struct members are public by default
+};
+if concepts are used and the Class "A" has the template argument that has a concept in its declaration then the static member initialization should also have that concept in 
+its defintion, take the "std::integral" concept as an example:
+if A was :
+template<std::integral T>
+struct A {
+    static int a;
+      //structs and classes are the same thing except for the fact that struct members are public by default
+
+};
+then the static member declaration must be:
+template <std::integral T>
+int A<T>::a = 0; // Initialize a to 0 by default for all T
+
+
+5.Member templates are the same as ordinary templates, but if you create an specialization using that template member, and the template arguments passed to create that
+specialization were template arguments of the outer template class, then the resulting specialized type is a associated type.
+6.friend functions are the usual, but if you have a friend function template, then the syntax for that is:
+ friend void b<T>(T c);
+7.if the freind function depends on the template argument, then that friend must be a function template. Which means that the friend function point of instantiation would be
+during the instantiation of the template class, and it would only happen if the freind function is used. 
+8.the instantiation of associated type functions if happens if those functions are used, and the point of instantiation for those functions would be during the instantiation
+of the outer class.
+9.The point of instantation of any member template(weather class or function) is during the instantiation of the outer template 
+
+
+reference:
+$R1="The_C++_Programming_Language_4th_Edition_Bjarne_Stroustrup"
