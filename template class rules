@@ -71,8 +71,8 @@ template node class to be inside link lists, Now you would want the node to be g
 type that is inside your node class.($r1 23.4.6 ) is a good example. 
 16. ($R1 23.4.3){Type aliases play a major role in generic programming by allowing the designer of classes to
 provide common names for types in different classes (and class templates) with common semantics.}
-
-Inheritance:
+17. virtual functons cant be templates(hence arent implicitly templates), for more information, read $B2(to find $B2, search it in the file).
+Inheritance($B2):
 You cant inherit from a template, but rather a specialization of a template, and a virtual function in a template is not a template, so unlike other member non virtual
 functions that are implicitly templates, virtual functions arent, you can still use the template arguments passed to the outer class, but the way it gets to the virtual
 function isnt by it being a template itself( though that is the case with non virtual function members). This may(and is) sound odd, and also imply that out of class
