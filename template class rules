@@ -62,7 +62,14 @@ regarding the template arguments that you passed at compile time(for the compile
 also give the compiler the information about the template arguments needed for instantiation itself, hence instantiation happens completely at compile time.
 I might have used template class, class template and template function, function template interchangebly, but in the context of this document, they are the same thing.
 13.static member needs only be defined for a specialization or all specializations if used.(the same rule applies to non-template classes)
-14. ($R1 23.4.3){Type aliases play a major role in generic programming by allowing the designer of classes to
+14.I call normal nested(when nested in a template) classes/functions as normal instead of being templates themselves, even though they are templates is 
+I do so to distinguish them from template functions and classes that take extra templete arguments other than what the outer class
+already passes to them.
+15.  template functions/classes can help you work between related specializations together, say a complex number template class that has two values to represent its value
+can have copy constructors that are templates as well in order to allow objects from other specialization to be copied into your object. Similiarly say you had a 
+template node class to be inside link lists, Now you would want the node to be generic, hence the pointer pointing to the value inside the node, can be of a template class
+type that is inside your node class.($r1 23.4.6 ) is a good example. 
+16. ($R1 23.4.3){Type aliases play a major role in generic programming by allowing the designer of classes to
 provide common names for types in different classes (and class templates) with common semantics.}
 
 Inheritance:
