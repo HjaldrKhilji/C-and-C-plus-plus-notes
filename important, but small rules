@@ -1,13 +1,11 @@
 This file will contain small important concepts, just for reference, and will expand with time:
+to search points related to a topic, say static, search that topic in the file, and make the topic uppercase.
+dont use upper case for anything else other than aiding in search for topics.
 Point 1: 
+STATIC MEMBER RELATED RULE:
 static members arent replicated during inheritance, even when you are inheriting from a specialization of a template.
 for example:
-#include <iostream>
-#include <cstddef>  // Required for offsetof
-#include <iomanip>  // Required for output formatting
-#include <type_traits> // Required for alignof
-#include<concepts>
-template<std::integral T>
+//find the headers yourself
 struct A {
     static int a;
     virtual void b(){std::cout<<"h";}  //structs and classes are the same thing except for the fact that struct members are public by default
@@ -23,3 +21,20 @@ int main() {
     std::cout<<B::a; //10
     return 0;
 }
+Point 2:
+ENUMS RELATED RULE:
+The out-of-class definition of a member enumeration is only allowed for an enumeration for which
+we know the underlying type, in other words, you have to use the underlying type of a enum or a enum class when defining it outside the class
+that it was declared in. the same applies to enum/enum_class members of class template. if you dont explicitly define a underlying type for a enum then you cant 
+define the enum in a out of class defintion, and again, the same applies to enum/enum_class members of class template.
+ example of out of class definitions of an enum class:
+struct A{
+    enum class a:short;
+};
+
+template <typename b>
+enum class A<b>::a:short{a1,b2,c};
+template <>
+enum class A<int>::a:short{a1,b2,c, d};
+
+
