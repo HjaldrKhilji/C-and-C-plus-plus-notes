@@ -62,6 +62,22 @@ regarding the template arguments that you passed at compile time(for the compile
 also give the compiler the information about the template arguments needed for instantiation itself, hence instantiation happens completely at compile time.
 I might have used template class, class template and template function, function template interchangebly, but in the context of this document, they are the same thing.
 
+Inheritance:
+You cant inherit from a template, but rather a specialization of a template, and a virtual function in a template is not a template, so unlike other member non virtual
+functions that are implicitly templates, virtual functions arent, you can still use the template arguments passed to the outer class, but the way it gets to the virtual
+function isnt by it being a template itself( though that is the case with non virtual function members). This may(and is) sound odd, and also imply that out of class
+definition of a virtual function can only be done for one specialization of the template, for example:
+template<std::integral T>
+struct A {
+    static int a;
+    virtual void b(); //structs and classes are the same thing except for the fact that struct members are public by default
+
+};
+template<>// you still have to write template<> since you are dealing with a specialization of some template
+ void A<int>::b(){//virtual isnt allowed in a out of class definition
+        int a=12;
+        std::cout<<a;
+    } 
 
 reference:
 $R1="The_C++_Programming_Language_4th_Edition_Bjarne_Stroustrup"
