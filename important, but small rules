@@ -1,0 +1,25 @@
+This file will contain small important concepts, just for reference, and will expand with time:
+Point 1: 
+static members arent replicated during inheritance, even when you are inheriting from a specialization of a template.
+for example:
+#include <iostream>
+#include <cstddef>  // Required for offsetof
+#include <iomanip>  // Required for output formatting
+#include <type_traits> // Required for alignof
+#include<concepts>
+template<std::integral T>
+struct A {
+    static int a;
+    virtual void b(){std::cout<<"h";}  //structs and classes are the same thing except for the fact that struct members are public by default
+
+};
+struct B: public A<int>{
+
+};
+template <>
+int A<int>::a = 10;
+
+int main() {
+    std::cout<<B::a; //10
+    return 0;
+}
