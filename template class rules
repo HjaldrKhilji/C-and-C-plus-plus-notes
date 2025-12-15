@@ -61,7 +61,8 @@ instantiation. The reason you will have template instantation (even though conce
 regarding the template arguments that you passed at compile time(for the compiler to do checks on template instantiation), which will
 also give the compiler the information about the template arguments needed for instantiation itself, hence instantiation happens completely at compile time.
 I might have used template class, class template and template function, function template interchangebly, but in the context of this document, they are the same thing.
-13. ($R1 23.4.3){Type aliases play a major role in generic programming by allowing the designer of classes to
+13.static member needs only be defined for a specialization or all specializations if used.(the same rule applies to non-template classes)
+14. ($R1 23.4.3){Type aliases play a major role in generic programming by allowing the designer of classes to
 provide common names for types in different classes (and class templates) with common semantics.}
 
 Inheritance:
