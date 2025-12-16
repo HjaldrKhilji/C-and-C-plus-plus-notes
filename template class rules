@@ -41,13 +41,72 @@ template <std::integral T>
 int A<T>::a = 0; // Initialize a to 0 by default for all T
 template <>
 int A<int>::a = 0;//overriding the default
-
+In short, the use of concepts must match in both the declaration of a static member, and the out of class definition of that member(if any). This rule applies to 
+every syntax for concepts that is provided by C++.
 
 5.Member class templates are the same as normal class templates, but do note:
 if you create a specialization using that class template member, and the template arguments passed to create that
 specialization were template paremeters of the outer template class, then the resulting specialized type is a associated type.
-6.friend functions are the usual, but if you have a friend function template, then the syntax for that is:
- friend void b<T>(T c);
+6.friend templates classes/functions are simple, if you want a specialization(set by the arguments passed to the class who decalred them as friend) 
+to be your freind:
+class a{ friend void b<T>(T c);
+template friend class B<T>; 
+};
+
+if you want all possible specializations of a template classs/function to be your freind, the syntax is:
+template<typename C>
+class B{
+    
+};
+template<typename C>
+ void f(C);
+class A {
+// All specializations of class B (B<int>, B<double>, etc.) are friends of A
+template<typename T> friend class B; 
+
+// All specializations of function f (f<int>, f<double>, etc.) are friends of A
+template<typename T> friend void f(T a) {a.data=1;   std::cout<<a.data;} 
+private:
+    int data;
+};
+here again, the use of concepts must match in both the declaration declaring an entity as friend, and the declaration of the friend entity itself.
+
+If you are specializing the template by passing arguments(those arguments will help resolve a template argument in this context)
+to the paremeters of that template, specializing that template by 
+specializing(the template argument passed for that will again specialize a new instance of the template that its a argument of)
+a paremeter of that template, or any thing along those lines, and you do those things
+by passing the template argument from the class declaring them as freind,then you have to write
+<> after the name of the entity whose specialization you want to declare as a freind, for example:
+($R1 23.4.7){
+template<typename T> class Matrix;
+template<typename T>
+class Vector {
+T v[4];
+public:
+friend Vector operator∗<>(const Matrix<T>&, const Vector&);
+// ...
+};
+template<typename T>
+class Matrix {
+Vector<T> v[4];
+public:
+friend Vector<T> operator∗<>(const Matrix&, const Vector<T>&);
+// ...
+};
+The <> after the name of the friend function is needed to make clear that the friend is a template
+function. Without the <>, a non-template function would be assumed. The multiplication operator
+can then be defined to access data from Vector and Matrix directly:
+template<typename T>
+Vector<T> operator∗(const Matrix<T>& m, const Vector<T>& v)
+{
+Vector<T> r;
+// ... use m.v[i] and v.v[i] for direct access to elements ...
+return r;
+}
+}
+In this example we are specializing a template by 
+specializing(the template argument passed for that will again specialize a new instance of that template) a paremeter of that template entity.
+
 7.if the freind function depends on the template argument, then that friend must be a function template. This also means that the friend function's point of instantiation 
 would be during the instantiation of the template class, and it would only happen if the freind function is used. 
 8.The instantiation of the functions of a associated type  happens only for the used functions, and the point of instantiation for those functions would be 
@@ -75,7 +134,7 @@ provide common names for types in different classes (and class templates) with c
 virtual functions from getting extra arguments as a template makes snese, but not implicitly making it a template like non virtual functions dosent make sense, 
 since in inheritance you can only inherit from a specialization, so the vtable mechanism can still work as long as we restrict the addition of extra arguments.
 Maybe it exists for consistancy, I cant tell to be honest.
-Inheritance($B2):
+18.Inheritance($B2):
 You cant inherit from a template, but rather a specialization of a template, and a virtual function in a template is not a template, so unlike other member non virtual
 functions that are implicitly templates, virtual functions arent, you can still use the template arguments passed to the outer class, but the way it gets to the virtual
 function isnt by it being a template itself( though that is the case with non virtual function members). This may(and is) sound odd, and also imply that out of class
@@ -91,6 +150,29 @@ template<>// you still have to write template<> since you are dealing with a mem
         int a=12;
         std::cout<<a;
     } 
-
+19.
+($R1 23.4.6){
+template<typename Scalar>
+class complex { // old style
+Scalar re, im;
+public:
+complex() :re(0), im(0) { }
+template<typename T>
+complex(T rr, T ii =0) :re(rr), im(ii) { }
+complex(const complex&) = default; // copy constr uctor
+template<typename T>
+complex(const complex<T>& c) : re(c.real()), im(c.imag()) { }
+// ...
+};
+complex<float> cf4 {2.1,2.9}; // ouch! narrows
+complex<float> cf5 {cd}; // ouch! narrows
+}
+($R1 23.4.6.1 THE MAIN POINT){
+To minimize the chances of confusion, I explicitly added a default copy constructor. Leaving it out
+would not change the meaning of the definition: complex would still get a default copy constructor.
+For technical reasons, a template constructor is never used to generate a copy constructor, so without the explicitly declared copy constructor, a default copy constructor would have been generated.
+Similarly, copy assignments, move constructors, and move assignments (§17.5.1, §17.6, §19.3.1)
+must be defined as non-template operators or the default versions will be generated.
+}
 reference:
 $R1="The_C++_Programming_Language_4th_Edition_Bjarne_Stroustrup"
