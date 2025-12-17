@@ -202,8 +202,34 @@ int main() {
 }
 
 Because the definition is inside the template, the compiler does not create it until the template is instantiated. If you instantiate Box<int>, the compiler "generates" a version of that entity.
-there is no problem in that, but the problem comes when you generate  SecureBox<double> after words. 
-The reason for this behaviour is because of the flexibility of providing friend defintion in class bodies, and template instantiation occuring for every specialization.
+there is no problem in that, but the problem comes when you generate  SecureBox<double> afterwards. 
+The reason for this behaviour is because of the flexibility of providing friend defintion in class bodies, and template instantiation occuring for every specialization,
+why are they the main cause, well together as you see in this example, they help break the one definition rule.
+This issue WILLL NOT apply to friend entities that arent forward declared, and instead are declared(without any defintions) inside a template class.
+WHY? becuase in that case the voilation of the "one definition rule" will no longer be there.
+for example this code works:
+#include <iostream>
+
+
+template <typename T>
+ class SecureBox {
+    T data;
+public:
+    SecureBox(T d) : data(d) {}
+    template <typename T2>
+    friend  class b;
+};
+
+
+
+int main() {
+    SecureBox<int> b1(5);
+    SecureBox<double> b12(5);
+    
+
+    
+}
+
 21. To give all specializations of a friend template access, the syntax is:
 class OtherClass; // Forward declaration
 
