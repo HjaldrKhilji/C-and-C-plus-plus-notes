@@ -39,3 +39,25 @@ enum class A<int>::a:short{a1,b2,c, d};
 
 In short you have to define a enum completely inclass unless you have the underlying type in the declaration as well, in which case you can do out of class defintion
 of that enum and in that defintion you have to include the underlying type again.
+
+
+Point 3:
+FRIEND RELATED RULE:
+($R1  23.4.7){
+Friends do not affect the scope in which the (class template class /)class is defined, nor do they affect the scope
+in which the class (template class/)class is used. Instead, friend functions and operators are found using a lookup
+based on their argument types 
+}
+explaination{
+Adding friends inside a class or a class template, does not make the freind be available by moving the freind to the scope of the class declaring
+it as a friend and dosent move the friend to any scope where the class is used at all, instead the reason while you might feel like that is happening
+is because of ADL(Argument dependent lookup). 
+
+}
+
+
+
+
+
+all references:
+$R1="The_C++_Programming_Language_4th_Edition_Bjarne_Stroustrup"
