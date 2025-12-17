@@ -174,5 +174,35 @@ For technical reasons, a template constructor is never used to generate a copy c
 Similarly, copy assignments, move constructors, and move assignments (§17.5.1, §17.6, §19.3.1)
 must be defined as non-template operators or the default versions will be generated.
 }
+20. If you move the definition of a friend function/class inside a template class body.
+Even though the function might not look like a template (no template<...> syntax), 
+it is instantiated for every specialization of the outer template class, this dosent apply if the friend is not defined in the class, and only applies if the declaration that declares it as a friend
+gives the friend its defintion. for example:
+ class  a;// you dont have to provide a forward declaration of "class a" for the declaratinon that declares "class a" as a friend in SecureBox to work, this is 
+//because that declaration also provides the defintion for "class a". I provided it because I just wanted to.
+template <typename T>
+class SecureBox {
+    T data;
+
+public:
+    SecureBox(T d) : data(d) {}
+
+    friend class  a {
+    
+    };
+   
+};
+
+int main() {
+    SecureBox<int> box1(10);    // Compiler generates: class  "a"
+      SecureBox<double> box1(10);    // ERROR: Compiler tries to generate: 
+                                 // class  "a" AGAIN.
+                                 // Collision! "redefinition because of the 'class  "a"'"
+    return 0;
+}
+
+Because the definition is inside the template, the compiler does not create it until the template is instantiated. If you instantiate Box<int>, the compiler "generates" a version of that entity.
+there is no problem in that, but the problem comes when you generate  SecureBox<double> after words. 
+The reason for this behaviour is because of the flexibility of providing friend defintion in class bodies, and template instantiation occuring for every specialization.
 reference:
 $R1="The_C++_Programming_Language_4th_Edition_Bjarne_Stroustrup"
