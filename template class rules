@@ -70,6 +70,26 @@ private:
     int data;
 };
 here again, the use of concepts must match in both the declaration declaring an entity as friend, and the declaration of the friend entity itself.
+This syntax dosent make the template itself a friend of your template class, but rather makes the freind declaration a template.
+Unfortunately, there is no way of making a template itself your friend
+do note:
+template <typename T>
+class SecureBox {
+    T data;
+    // Declares all specializations of OtherClass as friends
+    template <typename U>
+    friend class OtherClass; 
+};
+int main() {
+    SecureBox<int> box; // Instantiates SecureBox<int>, but NOT OtherClass
+    //this would instantiate OtherClass if and only if point 20 applied, in which case if you would declare  SecureBox<double> afterwords, you would get the same error that was 
+discuessed in point 20, though in this case the error would be the double declaration of a template class, instead of a ordinary class.
+    // Only now does the compiler instantiate OtherClass<double>:
+    OtherClass<double> processor; 
+}
+The good thing is that the compiler dosent allow you to provide an in class definition of a friend class template inside another class template( unlike
+ordinary friend classes that you can define in a insclass defintion inside a class template).
+This can be a issue with friend template functions, since they are allowed to be InClass defined inside of a template class definition.
 
 If you are specializing the template by passing arguments(those arguments will help resolve a template argument in this context)
 to the paremeters of that template, specializing that template by 
@@ -231,27 +251,10 @@ int main() {
 
     
 }
+21.you can't (directly) restrict specializations in C++ from gaining access to a specialization of your class template through the language itself.
+If you try to do so(in anyway), it will be a design error, and to fix it, you will have to make 
+that template class a nested template class, instead of a friend one.
 
-21. To give all specializations of a friend template access, the syntax is:
-class OtherClass; // Forward declaration
 
-template <typename T>
-class SecureBox {
-    T data;
-    // Declares all specializations of OtherClass as friends
-    template <typename U>
-    friend class OtherClass; 
-};
-do note:
-int main() {
-    SecureBox<int> box; // Instantiates SecureBox<int>, but NOT OtherClass
-    //this would instantiate OtherClass if and only if point 20 applied, in which case if you would declare  SecureBox<double> afterwords, you would get the same error that was 
-discuessed in point 20, though in this case the error would be the double declaration of a template class, instead of a ordinary class.
-    // Only now does the compiler instantiate OtherClass<double>:
-    OtherClass<double> processor; 
-}
-The good thing is that the compiler dosent allow you to provide an in class definition of a friend class template inside another class template( unlike
-ordinary friend classes that you can define in a insclass defintion inside a class template).
-This can be a issue with friend template functions, since they are allowed to be InClass defined inside of a template class definition.
 reference:
 $R1="The_C++_Programming_Language_4th_Edition_Bjarne_Stroustrup"
