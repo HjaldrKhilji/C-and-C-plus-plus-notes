@@ -205,7 +205,8 @@ Because the definition is inside the template, the compiler does not create it u
 there is no problem in that, but the problem comes when you generate  SecureBox<double> afterwards. 
 The reason for this behaviour is because of the flexibility of providing friend defintion in class bodies, and template instantiation occuring for every specialization,
 why are they the main cause, well together as you see in this example, they help break the one definition rule.
-This issue WILLL NOT apply to friend entities that arent forward declared, and instead are declared(without any defintions) inside a template class.
+This issue WILLL NOT apply to friend entities that arent forward declared, and instead are declared(without any defintions) in the same 
+friend declaration expression( by adding a extra "class" in the friend declaration expression)inside a template class.
 WHY? becuase in that case the voilation of the "one definition rule" will no longer be there.
 for example this code works:
 #include <iostream>
@@ -217,7 +218,8 @@ template <typename T>
 public:
     SecureBox(T d) : data(d) {}
     template <typename T2>
-    friend  class b;
+    friend  class b; //writing class is necessary since forward declaration wasent done, if forward declaraton was done, then writing 
+//class would be redundent unless its a defintion
 };
 
 
