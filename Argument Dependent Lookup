@@ -1,0 +1,3 @@
+Basically if you pass a entity from a namespace "A", or a any member of a class of namespace "A" to a function, then the function will be looked up for in that namespace "A", this also applies if 
+namespace "A" is the global namespace. If multiple matches are found using Argument dependent lookup and the normal function lookup mechanism, then function resolution mechanisms wont give precedence
+of the one found using Argument dependent lookup over the other functions, and instead the call will be ambigoius. Argument dependent lookup also applies to template arguments.
