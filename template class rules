@@ -222,6 +222,8 @@ discuessed in point 20, though in this case the error would be the double declar
     // Only now does the compiler instantiate OtherClass<double>:
     OtherClass<double> processor; 
 }
-
+The good thing is that the compiler dosent allow you to provide an in class definition of a friend class template inside another class template( unlike
+ordinary friend classes that you can define in a insclass defintion inside a class template).
+This can be a issue with friend template functions, since they are allowed to be InClass defined inside of a template class definition.
 reference:
 $R1="The_C++_Programming_Language_4th_Edition_Bjarne_Stroustrup"
