@@ -204,5 +204,24 @@ int main() {
 Because the definition is inside the template, the compiler does not create it until the template is instantiated. If you instantiate Box<int>, the compiler "generates" a version of that entity.
 there is no problem in that, but the problem comes when you generate  SecureBox<double> after words. 
 The reason for this behaviour is because of the flexibility of providing friend defintion in class bodies, and template instantiation occuring for every specialization.
+21. To give all specializations of a friend template access, the syntax is:
+class OtherClass; // Forward declaration
+
+template <typename T>
+class SecureBox {
+    T data;
+    // Declares all specializations of OtherClass as friends
+    template <typename U>
+    friend class OtherClass; 
+};
+do note:
+int main() {
+    SecureBox<int> box; // Instantiates SecureBox<int>, but NOT OtherClass
+    //this would instantiate OtherClass if and only if point 20 applied, in which case if you would declare  SecureBox<double> afterwords, you would get the same error that was 
+discuessed in point 20, though in this case the error would be the double declaration of a template class, instead of a ordinary class.
+    // Only now does the compiler instantiate OtherClass<double>:
+    OtherClass<double> processor; 
+}
+
 reference:
 $R1="The_C++_Programming_Language_4th_Edition_Bjarne_Stroustrup"
