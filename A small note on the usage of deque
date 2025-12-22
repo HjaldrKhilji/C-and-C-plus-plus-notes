@@ -1,0 +1,2 @@
+Element types of a deque must have two lvalue reference copy constructurs, one for non const lvaue REFERENCES, and the other for const lvalue REFERENCES. It also must have a destructure, and
+ you may face issues in case the destructur is implicitly deleted
