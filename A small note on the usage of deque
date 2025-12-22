@@ -1,2 +1,4 @@
 Element types of a deque must have two lvalue reference copy constructurs, one for non const lvaue REFERENCES, and the other for const lvalue REFERENCES. It also must have a destructure, and
- you may face issues in case the destructur is implicitly deleted
+ you may face issues in case the destructur is implicitly deleted. you may not face these issues in some implementations, but I was only able to fix these some allocator error in 
+Microsoft Visual C++ (MSVC) 2022 after following this exact guideline. obviously having move constructors for any type is recommended, even if its a default move constructor, than having it 
+deleted implcitly or explicitly, but IT IS NOT REQUIRED.
