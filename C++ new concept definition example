@@ -1,0 +1,43 @@
+
+template<typename T, typename type_to_use_in_stream=std::string>
+concept OutputStream = requires(T & os, type_to_use_in_stream & s)
+{
+
+	{ os << s } -> std::same_as<T>;
+	
+} && !std::is_integral_v<T>;
+
+template<typename T, typename type_to_use_in_stream = std::string>
+concept IntputStream = requires(T & is, type_to_use_in_stream & s)
+{
+
+	{ is >> s } -> std::same_as<T>;
+
+} && !std::is_integral_v<T>;
+
+Note: this is just a example, dont verify weather a type is streamable by these concepts, instead use:
+
+template<typename T, typename type_to_stream=std::string>
+concept OutputStream = requires(T & os, type_to_stream  & s) {
+	
+	{ os } -> std::same_as<std::ostream&>;
+	{ os<< s } -> std::same_as<std::ostream&>;
+	//checks if the type is ostream or in the class hirearchy of ostream
+	//notice I dont check weather T is convertable to ostream, that is because
+	//I want to be extra safe and only allow types that are osteam or in its hirierchy 
+	//implicitly convertable types might not provide all the necessary features
+	//aside from the << operator
+};
+template<typename T, typename type_to_stream = std::string>
+concept IntputStream = requires(T & is, type_to_stream & s) {
+
+	{ is } -> std::same_as<std::istream&>;
+	{ is >> s } -> std::same_as<std::istream&>;
+	//checks if the type is ostream or in the class hirearchy of istream
+	//notice I dont check weather T is convertable to istream, that is because
+	//I want to be extra safe and only allow types that are isteam or in its hirierchy 
+	//implicitly convertable types might not provide all the necessary features
+	//aside from the >> operator
+};
+
+
