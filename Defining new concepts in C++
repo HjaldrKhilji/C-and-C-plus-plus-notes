@@ -43,3 +43,8 @@ concept IntputStream = requires(T & is, type_to_stream & s) {
  you can combine these two concepts using at the end (regardless of how these two are defined (as long as they do compile)):
 template<typename T, typename type_to_stream = std::string>
 concept streamable =  OutputStream<T> || IntputStream<T>;
+
+OR 
+
+template<typename T, typename type_to_stream = std::string>
+concept streamable =  OutputStream<T, type_to_stream> || IntputStream<T, type_to_stream>;
