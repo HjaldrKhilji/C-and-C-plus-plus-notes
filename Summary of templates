@@ -1,0 +1,47 @@
+templates are a form of generic programming that depends on types passed as argument. template programming techniques in general are based on one concepts, concepts as in the possible template arguments range. Concepts for each template in documentation is meant to be based on only the requirements that are semantically definable, stable, and general usable, meanwhile it code it can be detailed, but even there make sure a branch of concepts are based on concepts that fulfill those requirements. Axioms are semantic requirements that are about the (non syntactical)semantics of the properties  of those types,  axioms are meant to be used in combination of an assertion interface that is to be inside a separate proper namespace. The assertion interface is meant to change its checking level and action level on axiom fails based on arguments during the build process or command line arguments. Template functions can be overloaded, but template classes cant(if a template class has a name, then no one other entity has that name). The proof of the success of these techniques is the standard library, that is that the standard library requires to be general, since templates help with that, this proves that templates can work with similar very general applications. It is worth noting that inlining templates can help performance and space in some cases, while In the other it can lead to code bloat, hence the better alternative to the cases where it can lead to code bloat is to inherit the template from a concrete class and even doing type casting in case that concrete class is vector<void*> and the template is vector<T>, which can stop code bloat. 
+Techniques of defining implementations of template specializations:
+provide a different definition for a specialization of a template class only if the template class  is forward declared, and I can do it before and after that template class's Definition, and I can also provide a definition of a single function for a specialization after the defintion of the whole template class because I need the function declared before I can override it, hence template defintion is needed. When ever you want to design a template or consider how one works, you have to make a template or consider how an existing one works, you need a arch types, an arch type for a specific template paremeter is one that fits the constraints(concepts) put on/of a specific template paremeter.  In the case of developing a new template function/class, first make a initial non template version of that function/class using those arch types, and once those are done, then only generalize that version using the concept and axioms that  those arch types fall into. Similarly while trying to comprehend a template, or test a template after writing some updating it's code, you use the arch types. Arch types can change, but the concepts and axioms of a template should be stable and should not (in general) get more specific with time to allow for compatibility of code that relies on them. The point of instantiation is the point where the actual type based on provided types and a template is generated, and point of instantiation is the point when errors caused by the use of template arguments are reported, the point of instantiation can be delayed to link time if a linker is used to link for instantiation. Every other error is reported at the time of the template definition itself. Nesting Templates requiring access to the template inside a template class is only to be done if the outer class passes all it's arguments to the inner one, this of course is a rule of thumb because breaking won't cause any errors, but it may cause code bloat, but then what is alternative for that use case?
+Use friend templates, simple as that
+
+
+For ever type paremeter T or value paremeter I:
+
+T 
+T∗
+ const T 
+volatile T 
+T& 
+T[constant_expression] 
+type[I] 
+class_template_name<T> class_template_name<I>
+ TT<T> 
+T<I> 
+T type::∗
+ TT::∗ 
+T<>
+ type T::∗ 
+T(∗)(args)
+ type(T::∗)(args)
+ T(type::∗)(args)
+ type (type::∗)(args_TI) 
+T (T::∗)(args_TI)
+ type (T::∗)(args_TI) 
+T (type::∗)(args_TI)
+ type (∗)(args_TI)
+ Here, args_TI is a parameter list from which a T or an I can be determined by recursive application of these rules, and args is a parameter list that does not allow deduction. If not all parameters can be deduced in this way, a call is ambiguous. For example: template<typename T, typename U> void f(const T∗,U(∗)(U)); int g(int); void h(const char∗ p) { f(p,g); // T is char, U is int f(p,h); // error : can’t deduce U }
+Reference deduction for A type T is the same as normal types except for rvalue references, in that a lvalue can be passed to a rvalue reference paremeter, say this:
+template<typename T> T&& std::forward(typename remove_reference<T>::type&& t) noexcept;
+(Note: don't use only the rvalue version of the std::forward function, instead use a lvalue one as well, to detect weather a user passed a lvalue reference by mistake, so that you can report that to the user)
+In this case the T argument is of lvalue type if an lvalue type is passed, while a rvalue (as for normal function/constructor arguments) remains to be a "by value" value inside the 
+Template functions body.
+Template functions can have the same names as other template functions and normal functions, here is how the function call resolution will work:
+Find all possible template specializations with that name and also normal functions that match the arguments for that call, in the case of templates the most specialized templates found are chosen, for example:
+sqrt<double>(complex<double>) is preferred over sqrt<complex<double>>(complex<double>),
+You don't need to worry about implicit conversions of value arguments to template specializations, Since template specializations can't have implicit conversions, unless you specialize the template using <type arguments> instead of deducing the type arguments using the value argument list.
+If both a normal function and a function instantiated by a template are found, the normal function is chosen.
+As for function call resolutions that don't include function templates, the last step for resolutions including function templates is the same:
+If no match is found, the call is an error. If we end up with two or more equally good matches, the call is ambiguous and is an error.
+
+
+
+
