@@ -17,3 +17,4 @@ now the thing is that since the vtable of C has two different entries for the fu
 at runtime, the entry lookup will look for that specific entry for each classes function at runtime.
 if the functions named B werent virtual then obviously the 
 intent would not have been to do overloading at runtime and instead it would be to do it at compile time.
+note:(it's not function overloading(its technically a type of double dispatch))
