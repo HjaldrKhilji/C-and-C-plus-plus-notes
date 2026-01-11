@@ -1,0 +1,19 @@
+Introduction:
+Now I know what you're thinking:
+function overloading at runtime sounds insanse and impossible,
+but if you look around at the visitor pattern, you will realize that its not.
+To the point:
+basicaly, when you look at a virtual table in c++,
+you will realize that every entry with a different function signature has a different entry,
+so say you have two functions and both are named A1, both of them are virtual(they have to be for this technique to work) and are in a class named C, one takes an int and the other takes a float,
+now you have two other virtual functions named B that are implemented in two classes as follows:
+class 1's B calls function A1(int)
+class 2's B calls function A2(float)
+now imagine an object of class 1 will call A1(4), so
+what happens in the call of A1(4)?
+well, as we all know every polymorphic object has a vptr with it,
+and the vptr is pointing to the vtable of the underlying class,
+now the thing is that since the vtable of C has two different entries for the function A1, hence
+at runtime, the entry lookup will look for that specific entry for each classes function at runtime.
+if the functions named B werent virtual then obviously the 
+intent would not have been to do overloading at runtime and instead it would be to do it at compile time.
