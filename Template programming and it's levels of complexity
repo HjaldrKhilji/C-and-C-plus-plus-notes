@@ -1,0 +1,20 @@
+What is Metaprogrmaming?
+Metaprogramming comes from meta and programming. Meta is a word used for self referencing, like the metadata of a photo is the
+photo's own information. This makes Metaprogramming mean programming that does programming and it makes metaprograms (your template, constexpr/consteval code, or any compile time code) 
+as programs that generate programs. Of course, the code in your code file that is evaluated at compile time isn't a program by itself, but we still call it a Metaprogram despite the fact that it is really just part of 
+your code because using the word Metaprogrammed would be invalid in the English language. 
+
+Metaprogramming can be mapped in 4 levels of difficulty:
+1.generic programming (declaration of the primary template interface(both template and function arguments), concepts of each argument)
+2.constexpr functions using the normal c++ language constructs.
+3. Using user defined specializations for templates.
+4.using type functions (in implementation or interface) (try your best to avoid type functions in your interface unless it's absolutely necessary like using the "select" type function to get the Nth element of a tuple (2013 c++ 4th edition by Bjarne Stroustrup) 28.3.1.3 . (Avoiding type functions in general is good unless they are indispensable (the word means absolutely necessary)for that use case, but this rule specially applies to interfaces)
+5. Using recursion through constexpr functions or template function/type instantiations.
+
+The ordering indicates the level of complexity, with implications for the difficulty of the task, the difficulty of debugging, and the likelihood of error.
+
+The compile time cost in each level increase in concept (except for level 4), but again some compilers may optimize one over the other. In level 5, the speed of constexpr function based recursion is faster than using template instantiation based recursion.
+
+The cost of level 4 complexity is different as it depends on entirely on use, like if you use it in level 5 complexity then it's gonna be slower than if you use it in the implementation of a template function that has level 1 complexity of metaprogramming. It also depends on the type function itself, like some type functions are slower in concept while others are fast.
+
+Note: As always, the speed depends on the compiler, but what ever I said though true in concept, but it may be different for some compilers due to it optimizing one thing over the other. By complexity what I meant wasent the amount of work needed, but rather the amount of problem solving needed. For example, using no metaprogramming is the least complex, but it would result in requiring more hardwork.
