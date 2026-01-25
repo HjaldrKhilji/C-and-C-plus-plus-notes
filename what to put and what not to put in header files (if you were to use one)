@@ -1,0 +1,27 @@
+Avoid header files, but if you were to use one, then only use them for:
+inline functions (including constexpr functions (they are always implicitly inline))
+class declaration/defintions
+type aliases
+const/constexpr variable defintion
+class/function template defintions/declarations
+
+what not to use them for:
+Compile-time assertions static_assert(4<=sizeof(int),"small ints");
+Include directives #include<algorithm>
+Macro definitions #define VERSION 12.03
+Conditional compilation directives #ifdef __cplusplus
+Comments /∗ check for end of file ∗/
+Ordinary function definitions char get(char∗ p) {return ∗p++; }
+Data definitions int a;
+Aggregate definitions short tbl[] = { 1, 2, 3 };//basically the areas you see in the assembly code's data segment where chunk of data is hardcoded with some value, like this array will probably end up being a aggregate in the assembly (if its value was hardcoded in that way (or the way that aggregates are hardcoded in some other assembly syntax that dosent has the data segment))
+Unnamed namespaces namespace { /∗ ... ∗/ }
+using-directives using namespace Foo;
+
+bjarne stroustrup's advice:
+It is wise not to be too clever about the use of #include. My recommendations are:
+• #include only as headers (don’t #include ‘‘ordinary source code containing variable definitions and non-inline functions’’).
+• #include only complete declarations and definitions.
+• #include only in the global scope, in linkage specification blocks, and in namespace definitions when converting old code (§15.2.4).
+• Place all #includes before other code to minimize unintended dependencies.
+• Avoid macro magic.
+• Minimize the use of names (especially aliases) not local to a header in a header
