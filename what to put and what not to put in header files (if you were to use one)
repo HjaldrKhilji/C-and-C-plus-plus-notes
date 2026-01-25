@@ -15,9 +15,7 @@ Conditional compilation directives #ifdef __cplusplus
 Comments /∗ check for end of file ∗/
 Ordinary function definitions char get(char∗ p) {return ∗p++; }
 Data definitions int a;
-Aggregate definitions short tbl[] = { 1, 2, 3 };//basically the areas you see in the assembly code's data segment where chunk of data is hardcoded with some value, like this array will probably end up being a aggregate in the assembly (if its value was hardcoded in that way (or the way that aggregates are hardcoded in some other assembly syntax that dosent has the data segment))
-Unnamed namespaces namespace { /∗ ... ∗/ }
-using-directives using namespace Foo;
+Aggregate definitions short tbl[] = { 1, 2, 3 };//basically the areas you see in the assembly code's data segment where chunk of data is hardcoded with some value, like this array will probably end up being a aggregate in the assembly (if its value was hardcoded in that way (or the way that aggregates are hardcoded in some other assembly syntax that dosent has the data segment)). obviously the linker dosent work with the assembly, but the code produced by such assembly at times makes the linker duplicate these aggregates
 
 bjarne stroustrup's advice:
 It is wise not to be too clever about the use of #include. My recommendations are:
