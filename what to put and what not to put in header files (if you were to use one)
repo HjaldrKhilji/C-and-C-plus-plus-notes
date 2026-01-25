@@ -4,6 +4,8 @@ class declaration/defintions
 type aliases
 const/constexpr variable defintion
 class/function template defintions/declarations
+any declaration
+enum/enum classes (enum classes are obviously better if you dont want to pollute the area that you include in)
 
 what not to use them for:
 Compile-time assertions static_assert(4<=sizeof(int),"small ints");
