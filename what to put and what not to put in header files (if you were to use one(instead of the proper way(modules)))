@@ -15,7 +15,14 @@ Conditional compilation directives #ifdef __cplusplus
 Comments /∗ check for end of file ∗/
 Ordinary function definitions char get(char∗ p) {return ∗p++; }
 Data definitions int a;
-Aggregate definitions short tbl[] = { 1, 2, 3 };//basically the areas you see in the assembly code's data segment where chunk of data is hardcoded with some value, like this array will probably end up being a aggregate in the assembly (if its value was hardcoded in that way (or the way that aggregates are hardcoded in some other assembly syntax that dosent has the data segment)). obviously the linker dosent work with the assembly, but the code produced by such assembly at times makes the linker duplicate these aggregates
+Aggregate definitions short tbl[] = { 1, 2, 3 };//basically the areas you see in the assembly code's data segment where chunk of data is hardcoded with some value, like
+this array will probably end up being a aggregate in the assembly (if its value was hardcoded in that way (or the way that aggregates are hardcoded in some other assembly 
+syntax that dosent has the data segment)). the issue:
+static int large_table[] = {1, 2, 3, ... 1000};
+The Linker is happy: It sees static, so it treats the array as "private" to each file. No more "Multiple Definition" errors.
+
+The Binary is bloated: Every single .cpp file that includes this header now gets its own identical copy of that 1,000-element array in its data segment. 
+If you include that header in 10 files, your executable size grows by the size of 10,000 integers instead of 1,000.
 
 bjarne stroustrup's advice:
 It is wise not to be too clever about the use of #include. My recommendations are:
