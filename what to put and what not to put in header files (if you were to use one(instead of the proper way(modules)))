@@ -18,6 +18,8 @@ Conditional compilation directives #ifdef __cplusplus
 Comments /∗ check for end of file ∗/
 member/global function definitions char get(char∗ p) {return ∗p++; }
 Data definitions int a;
+Unnamed namespaces namespace { /∗ ... ∗/ }
+using-directives using namespace Foo; // note i am not talking about using declarations
 Aggregate definitions short tbl[] = { 1, 2, 3 };//basically the areas you see in the assembly code's data segment where chunk of data is hardcoded with some value, like
 this array will probably end up being a aggregate in the assembly (if its value was hardcoded in that way (or the way that aggregates are hardcoded in some other assembly 
 syntax that dosent has the data segment)). the issue:
@@ -74,6 +76,31 @@ To make sure that your header dosent depend on standard foundational headers, th
 foundational headers are the most reliable.
 
 
+Do note that some old code breaks some of these rules not by choice, but because they had to, for example:
+For each C standard-library header <X.h>, there is a corresponding standard C++ header <cX>.
+for example the short form of cstring will be:
+#include<stdio.h>
+while stdio.h is:
+#ifdef __cplusplus // for C++ compilers only (§15.2.5)
+namespace std { // the standard librar y is defined in namespace std (§4.1.2)
+extern "C" { // stdio functions have C linkage (§15.2.5)
+#endif
+/* ... */
+int printf(const char∗, ...);
+/* ... */
+#ifdef __cplusplus
+}
+}
+// ...
+using std::printf; // make printf available in global namespace
+// ...
+#endif
+or maybe cstdio have all that code directly in itself, either way, we are breaking the rules by including: 
+Include directives #include<algorithm>
+Conditional compilation directives #ifdef __cplusplus
+Comments /∗ check for end of file ∗/
+
+Note that not all cstdio or stdio.h files write :using std::printf, its implementation defined
 
 As always prefer modules instead of headers for sharing any declaration/definition in the context of any
 file organization pattern for your project. Its better and you can import what ever you want, without mistakenly depending on the context.
