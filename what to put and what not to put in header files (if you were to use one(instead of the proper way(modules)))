@@ -22,7 +22,7 @@ this array will probably end up being a aggregate in the assembly (if its value 
 syntax that dosent has the data segment)). the issue:
 static int large_table[] = {1, 2, 3, ... 1000};
 The Linker is happy: It sees static, so it treats the array as "private" to each file. No more "Multiple Definition" errors.
-Basically this applies to local/static array/struct objects that require large intializer data.
+Basically this applies to local/static array/struct_objects that require large intializer data.
 At times, you may see the data be in text segment instead of the data segment(commonly in the case of user defined literals or large string literals), but both have the same
 problems, so please avoid them in multiple translation units by including them ever where.
 in fact, it is a good idea to avoid any long compile time initializer that will not be resolved at compile time
