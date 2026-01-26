@@ -100,7 +100,13 @@ Include directives #include<algorithm>
 Conditional compilation directives #ifdef __cplusplus
 Comments /∗ check for end of file ∗/
 
+These are standard headers, but they break the rules because they had no other way to do what they wanted to do in the old times.
+
+
+
+
 Note that not all cstdio or stdio.h files write :using std::printf, its implementation defined
+
 
 As always prefer modules instead of headers for sharing any declaration/definition in the context of any
 file organization pattern for your project. Its better and you can import what ever you want, without mistakenly depending on the context.
