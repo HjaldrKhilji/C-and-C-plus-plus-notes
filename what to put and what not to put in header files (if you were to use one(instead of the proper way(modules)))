@@ -5,6 +5,7 @@ type aliases
 const/constexpr variable defintion
 class/function template defintions/declarations
 TEMPLATE class member functions definitions (weather its in class or not and also virtual or not)
+template class member function defintions (weather its virtual or not) if they are in class
 any declaration
 enum/enum classes (enum classes are obviously better if you dont want to pollute the area that you include in)
 
