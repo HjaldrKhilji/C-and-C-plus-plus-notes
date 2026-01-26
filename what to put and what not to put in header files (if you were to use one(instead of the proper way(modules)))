@@ -39,3 +39,38 @@ It is wise not to be too clever about the use of #include. My recommendations ar
 • Avoid macro magic.
 • Minimize the use of names (especially aliases) not local to a header in a header
 
+The reason headers can only be used for:
+inline functions (including constexpr functions (they are always implicitly inline))
+class declaration/defintions
+type aliases
+const/constexpr variable defintion
+class/function template defintions/declarations
+TEMPLATE class member functions definitions (weather its in class or not and also virtual or not)
+template class member function defintions (weather its virtual or not) if they are in class
+any declaration
+enum/enum classes (enum classes are obviously better if you dont want to pollute the area that you include in)
+
+is because ODR(one defintion rule) allows all of them to have multiple defintions as long as:
+[1] they appear in different translation units, and
+[2] they are token-for-token identical, and
+[3] the meanings of those tokens are the same in both translation units.
+the first two of these points can be addressed using headers, but the last one is not, and to address
+that, you're header should be as self contained as possible, for example:
+// file1.cpp:
+typedef int X;
+struct S3 { X a; char b; };
+// file2.cpp:
+typedef char X;
+struct S3 { X a; char b; }; // error
+if S3 defintion was imported from an header that didnt define X(as an alias or type), then we get the error that
+we get in the example above, hence, to avoid such issues, make the header self contained by defining
+everything(as much as possible for your use case) in header instead of relying on the environment(file in which it is included)
+for the meaning, because the error above may not be caught and such examples CAN cause undefined behaviour.
+A good way to make sure that you dont mistakenly start depending on the environment is to always 
+include headers in the start of your code, so that if a defintion is missing from the header, then you
+dont start depending on the one in the source file that the header is included in.
+
+
+
+As always prefer modules instead of headers for sharing any declaration/definition in the context of any
+file organization pattern for your project. Its better and you can import what ever you want, without mistakenly depending on the context.
