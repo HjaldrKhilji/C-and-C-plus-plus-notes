@@ -23,6 +23,8 @@ The Linker is happy: It sees static, so it treats the array as "private" to each
 Basically this applies to local/static array/struct objects that require large intializer data.
 At times, you may see the data be in text segment instead of the data segment(commonly in the case of user defined literals or large string literals), but both have the same
 problems, so please avoid them in multiple translation units by including them ever where.
+in fact, it is a good idea to avoid any long compile time initializer that will not be resolved at compile time
+using metaprogramming, but this especially applies when using header files as we discussed.
 The Binary is bloated: Every single .cpp file that includes this header now gets its own identical copy of that 1,000-element array in its data segment. 
 If you include that header in 10 files, your executable size grows by the size of 10,000 integers instead of 1,000.
 
