@@ -70,7 +70,8 @@ for the meaning, because the error above may not be caught and such examples CAN
 A good way to make sure that you dont mistakenly start depending on the environment is to always 
 include headers in the start of your code, so that if a defintion is missing from the header, then you
 dont start depending on the one in the source file that the header is included in. Infact include less reliable headers before reliable ones, and obviously the most reliable ones are standard headers.
-
+To make sure that your header dosent depend on standard foundational headers, this technique works because
+foundational headers are the most reliable.
 
 
 
