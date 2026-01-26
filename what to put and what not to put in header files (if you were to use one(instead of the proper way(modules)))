@@ -1,3 +1,4 @@
+(Note: this advice is based off what bjarne stoustrup says, so if my future me thinks otherwise, it should no that it cant be wrong until the standard of C++ or bjarne stroustrup himself says so)
 Avoid header files(in favor of modules), but if you were to use one, then only use them for:
 inline functions (including constexpr functions (they are always implicitly inline))
 class declaration/defintions
