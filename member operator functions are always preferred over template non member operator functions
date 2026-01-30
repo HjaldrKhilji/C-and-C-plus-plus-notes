@@ -15,7 +15,7 @@ match, so it is preferred over sqrt(double).
 Consequently, sqrt(double) is preferred over sqrt<double>(double) for sqrt(2.0).
 [5] If no match is found, the call is an error. If we end up with two or more equally good
 matches, the call is ambiguous and is an error.
-step 4 causes the code below to display "a" for both == operator uses:
+step 4 causes the code below to display "a" for the two == operator uses:
 #include <iostream>
 #include <type_traits> 
 #include<vector>
