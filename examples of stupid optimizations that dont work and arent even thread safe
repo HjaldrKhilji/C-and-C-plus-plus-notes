@@ -1,0 +1,57 @@
+say you have this code:
+struct polymorphic_strings{
+            std::string* ptr;
+            polymorphic_strings(std::string string_to_build_it_with): 
+            ptr{    new std::string{  std::move( string_to_build_it_with )  }    } {}
+            inline std::string get(){
+                return *ptr;
+            }
+            inline std::string get_moved(){
+                return std::move(*ptr);
+            }
+            ~polymorphic_strings(){
+                delete ptr;
+            }
+
+            };
+
+//now say we wanna make the code faster,by doing bulk allocations using this(problemetic) technique:
+struct polymorphic_strings {
+  static std::vector < std::string > all_polymorphic_strings;
+  static volatile uint64_t minus_index;
+  uint64_t index;
+  inline polymorphic_strings(std::string string_to_add): index {
+    (all_polymorphic_strings.size() - index)
+  } {
+    all_polymorphic_strings.push_back(string_to_add);
+    minus_index++;
+  }
+  inline std::string get() {
+    return all_polymorphic_strings[index - minus_index];
+  }
+  inline std::string get_moved() {
+    return std::move(all_polymorphic_strings[index - minus_index]);
+  }
+  inline~polymorphic_strings() {
+    all_polymorphic_strings.erase(index - minus_index);
+    if (minus_index == 1) {
+      minus_index--; // the if statement is to make sure that it dosent decrement if its already 1 
+    }
+  }
+};
+string_index::all_polymorphic_strings {};
+string_index::minus_index {
+  1
+}; //its one to help starting counting from zero without an extra arithmetic -1 operation
+
+
+the issues are:
+its even slower, its not thread safe, dosent give the advantage that bulk allocations give us because it
+shifts the elements, now a deque might give some advantage in bulk allocations, but it suffers from the 
+same slow speed due to the fact that minus_index is volatile, and it wont be threadsafe either unless
+both minus index and deque are of atomic types, in which case we just make the speed much worse,
+now again, either way the code remains fundementally slow. A better way would be to overload 
+new and delete(for that class) to allocate memory in bulk, and destroy when the whole bulk is empty.
+That would still be unsafe, but atleast it will provide some benefit in large allocation by allowing
+allocating many of them at once instead of individually, and increase the amount of allocations in bulk
+lineary.
