@@ -1,4 +1,4 @@
-say you have this code:
+say you have this code to help you use strings without increasing the stack size (useful where strings are put with smaller objects like uint64_t):
 struct polymorphic_strings{
             std::string* ptr;
             polymorphic_strings(std::string string_to_build_it_with): 
@@ -54,4 +54,5 @@ now again, either way the code remains fundementally slow. A better way would be
 new and delete(for that class) to allocate memory in bulk, and destroy when the whole bulk is empty.
 That would still be unsafe, but atleast it will provide some benefit in large allocation by allowing
 allocating many of them at once instead of individually, and increase the amount of allocations in bulk
-lineary.
+lineary. In my case doing so isnt useful, but you get the point. unfortunately, as of 2/8/2026, there are
+no standard library allocators that do this (or atleast not one that i know of).
