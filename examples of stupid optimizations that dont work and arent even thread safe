@@ -52,7 +52,8 @@ same slow speed due to the fact that minus_index is volatile, and it wont be thr
 both minus index and deque are of atomic types, in which case we just make the speed much worse,
 now again, either way the code remains fundementally slow. A better way would be to overload 
 new and delete(for that class) to allocate memory in bulk, and destroy when the whole bulk is empty.
-That would still be unsafe, but atleast it will provide some benefit in large allocation by allowing
+That would still be thread unsafe, but atleast it will provide some benefit in large allocation by allowing
 allocating many of them at once instead of individually, and increase the amount of allocations in bulk
 lineary. In my case doing so isnt useful, but you get the point. unfortunately, as of 2/8/2026, there are
 no standard library allocators that do this (or atleast not one that i know of).
+In short : sometimes, its best to keep things simple.
