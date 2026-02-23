@@ -1,5 +1,91 @@
-the <=> operator is a feature in c++ to define ==,>,<,<=,>=,and !=, and the return type is a contract that not only shows the intention but also allows for optimization, if the return type is strong ordered, it would mean that if two values are equal then f(x) should equal to f(y), if the values are x and y, the same gurrentied dosent exist if the return type is weakly ordered, and for partially ordered types, if a valid result dosent exist then a "unordered" can be the result, this applies when say you have a floating point divided by another that is NAN or divide by 0 situations, or if a user defined type returns unordered, and do note that if a user defined type A cant be divided by (potentially user defined) type B (or vice versa)because such operator function is deleted or on existent exists then it won't result in a "unordered" result, instead you would get a compiler error. you can store the result of a space ship operator and say result<0 to check if the result was less than, and so on. A strongly ordered object can only be converted to a weakly ordered object which again can only be converted to a partially ordered type, so which you can store a strongly ordered type in a partially ordered type vector, it dosent mean that the conversion would be one to one, infact (if it's a by value (instead of by reference or pointer) vector)you would have to explicitly convert to weakly ordered first then only will the compiler implicitly convert it to partially ordered for you. every potential return type of a <=> has 3 states, except for partially ordered which has 4 (an extra unordered state),  the states are less than, equal to, and greater than(we don't !=, greater than or equal to, or less than or equal to because it wouldn't make sense to both (greater than), and (greater than or equal to) as the state of the same object), and again these represent the relationship between the A and B, like the spaceship operator dosent return a operator (obviously).you can assign a std::strongly_ordered::equal state to a std::weakly_ordered object, but not the other way around.
-if you provide a body for the <=> (unless the body is =default, instead of a function body)then only == and != won't be auto generated, the rest would steal be generated with respect to the <=> body. if you make the return type of a <=> set to auto then the compiler will pick the return type for you, but generally the rule is that the stronger is faster than weakly and weakly is faster than partially, and in some cases this won't be true, but it generally (in theory) is. user defined <=> will obviously return a answer in one of those 3 states (4 for partially ordered), and in the case of partially ordered return types, always check for partially ordered state before checking for any other state because maybe a and b are not equal because the result couldn't be computed due to some rare fault. let's move to the code example of all 3 return types and how to check for the "unordered return type":
+the <=> operator is a feature in c++ to 
+define ==,>,<,<=,>=,and !=, and the 
+return type is a contract that not 
+only shows the intention but also 
+allows for optimization, if the
+return type is strong ordered, it
+would mean that if two values are 
+equal then f(x) should equal to f(y), if 
+the values are x and y, the same 
+gurrentied dosent exist if the return 
+type is weakly ordered, and for
+partially ordered types, if a valid
+result dosent exist then a "unordered"
+can be the result, this applies when
+say you have a floating point divided 
+by another that is NAN or divide by 0
+situations, or if a user defined type
+returns unordered, and do note that if
+a user defined type A cant be divided by
+(potentially user defined) type B 
+(or vice versa)because such operator 
+function is deleted or on existent
+exists then it won't result in a
+"unordered" result, instead you would
+get a compiler error. you can store 
+the result of a space ship operator 
+and say result<0 to check if the result 
+was less than, and so on. A strongly 
+ordered object can only be converted 
+to a weakly ordered object which again 
+can only be converted to a partially 
+ordered type, so which you can store a
+strongly ordered type element in an 
+index of a partially ordered type vector,
+(in the case of by value storage vector, 
+it will occur in slicing) BUT it dosent
+mean that 
+the conversion would be one to one, 
+infact (if it's a by value 
+(instead of by reference or pointer)
+vector)you (might,depending on the 
+implementation)would have to explicitly 
+convert to weakly ordered first then 
+only will the compiler implicitly 
+convert it to partially ordered for you.
+every potential return type of a <=>
+has 3 states, except for partially 
+ordered which has 4 
+(an extra unordered state),  
+the states are less than, equal to, and 
+greater than(we don't !=, greater than
+or equal to, or less than or equal to 
+because it wouldn't make sense to both
+(greater than), and 
+(greater than or equal to) as the state 
+of the same object), and again these
+represent the relationship between the 
+A and B, like the spaceship operator 
+dosent return a operator (obviously).you
+can assign a std::strongly_ordered::equal
+state to a std::weakly_ordered object,
+but not the other way around.
+if you provide a body for the <=> 
+(unless the body is =default, instead 
+of a function body)then only == 
+and != won't be auto generated, 
+the rest would steal be generated 
+with respect to the <=> body. 
+
+if you make the return type of a <=>
+set to auto then the compiler will 
+pick the return type for you, but 
+generally the rule is that the stronger
+is faster than weakly and weakly is 
+faster than partially, and in some cases
+this won't be true, but it generally 
+(in theory) is. user defined <=> will 
+obviously return a answer in one of 
+those 3 states (4 for partially ordered), 
+and in the case of partially ordered 
+return types, always check for partially 
+ordered state before checking for any 
+other state because maybe a and b are 
+not equal because the result 
+couldn't be computed due to some rare 
+fault. let's move to the code example 
+of all 3 return types and how to check
+for the "unordered return type":
 #include <iostream>
 #include <compare>
 #include <vector>
