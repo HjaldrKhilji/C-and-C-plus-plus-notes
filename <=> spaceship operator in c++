@@ -189,6 +189,33 @@ are at the same priority according
 to overload resolution rules)
 then the user defined one would
 be preferred. You can use <= and >=
-if <=> can is defined.
+if <=> can is defined, and
+if you have a vector as a member
+then the <=> will use
+<=> or the operators defined
+for that member to generate the 
+<=> for your class.
+
+Think of <=> operator as a way
+for objects to ask the compiler 
+to optimize them, so say a class
+A, has 2 vectors and a int inside it,
+and you want your compiled to produce 
+the optimal <,>,= because you
+dont have the time to do it yourself,
+then <=> has your back,unless 
+in a case where you can do a better job
+(or if only you can do the job)than 
+a compiler, like in the case of
+vectors and some other cases, even more
+vectors, maybe you want a easy way to
+store the exact relationship
+for vector A and vector B, even then
+a <=> (MIGHT, not necessarily)can be
+helpful, but it wont
+probably be (by default) provided to you by your
+implementation ( i dont know if it is
+provided)
+
 
 
