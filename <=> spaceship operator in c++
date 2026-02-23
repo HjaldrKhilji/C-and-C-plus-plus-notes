@@ -209,8 +209,9 @@ then <=> has your back,unless
 in a case where you can do a better job
 (or if only you can do the job)than 
 a compiler, like in the case of
-vectors and some other cases, even more
-vectors, maybe you want a easy way to
+vectors and some other cases( even more
+in the case of vectors ). Maybe 
+you want a easy way to
 store the exact relationship
 for vector A and vector B, even then
 a <=> (MIGHT, not necessarily)can be
