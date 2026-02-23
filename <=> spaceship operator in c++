@@ -199,7 +199,7 @@ for that member to generate the
 <=> for your class.
 
 Think of <=> operator as a way
-for objects to ask the compiler 
+for types to ask the compiler 
 to optimize them, so say a class
 A, has 2 vectors and a int inside it,
 and you want your compiled to produce 
