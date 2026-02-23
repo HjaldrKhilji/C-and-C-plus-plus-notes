@@ -188,7 +188,7 @@ user defined (and both operators
 are at the same priority according 
 to overload resolution rules)
 then the user defined one would
-be preferred. You can use <= and =>
+be preferred. You can use <= and >=
 if <=> can is defined.
 
 
