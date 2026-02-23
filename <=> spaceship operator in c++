@@ -215,7 +215,15 @@ a <=> (MIGHT, not necessarily)can be
 helpful, but it wont
 probably be (by default) provided to you by your
 implementation ( i dont know if it is
-provided)
+provided). Also just note that you can
+return a raw state like 
+std::partial_ordering::unordered 
+as the result of a user defined <=>,
+I know its obvious, but just wanted to
+make sure that you get it.
+
+It was fun writing all of this,
+and honestly it took me half an hour.
 
 
 
