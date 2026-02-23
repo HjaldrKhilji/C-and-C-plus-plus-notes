@@ -1,5 +1,7 @@
 the <=> operator is a feature in c++ to 
-define ==,>,<,<=,>=,and !=, and the 
+help you be able to use
+==< <=, >=, and the other 3, 
+without define them. The 
 return type is a contract that not 
 only shows the intention but also 
 allows for optimization, if the
