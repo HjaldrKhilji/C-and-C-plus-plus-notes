@@ -128,7 +128,7 @@ int main() {
     Coordinates c1{NAN, 0.0f}, c2{1.0f, 1.0f};
     auto result = c1 <=> c2;
 
-    // Correct way to check for the "unordered" state
+
     if (result == std::partial_ordering::unordered) {
         std::cout << "Values are incomparable (NaN detected).\n";
     } else if (result < 0) {
