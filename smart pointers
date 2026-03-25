@@ -53,7 +53,7 @@ Getting the underlying shared ptr is thread safe; which means that the underlyin
 ref count wont be decremented, while you are trying to get the shared ptr of that weak ptr. Also note: that 
 if the underlying shared ptr's underlying object is destroyed (the shared ptr's counter reached zero) then 
 trying to get the underlying shared ptr would fail, which is the reason why we use weak ptr's over shared ptr
-references.
+references. Also, the weak ptr has a counter for the amount of weak ptrs to the underlying shared ptr.
 
 
 
