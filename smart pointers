@@ -1,7 +1,7 @@
 Smart pointers can be divided into two parts:
 
 unique_ptr:
-thread safe (without any cost) and thread safe (with some cost)
+thread safe (without any cost (since only one thread can use it at a time)) and thread safe (with some cost)
 the pointer types are: unique_pt, shared_ptr, and weak_ptr; unique_pt is in the thread safe(without any cost)
 categary, while shared_ptr and weak_ptr are thread safe (with some cost). 
 unique_ptrs are helpful when you want to expand out of scopes just like pointers do, but while having 
