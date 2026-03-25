@@ -13,7 +13,7 @@ Shared_ptr:
 shared_ptr is the same, but a shared ptr can be owned by multiple scopes 
 and also multiple objects at the same time; this in turn is done using a 
 shared counter, and is the reason why shared ptr can take an allocator
-(but also uses the default allocator "std::allocator"); in particular, unlike unique_ptr, which
+(but also uses the default allocator ("std::allocator" as of c++26)); in particular, unlike unique_ptr, which
 takes a pointer, shared_ptr needs an allocator for allocating the shared counter. It is also worth noting that this 
 allocator is not used for allocating the pointer, and is only used for the shared counter. The object owned by 
 a shared ptr is destroyed when the counter reaches zero; the counter increments when a new shared ptr owning the object 
