@@ -1,16 +1,19 @@
 Smart pointers can be divided into two parts:
-
-unique_ptr:
 thread safe (without any cost (since only one thread can use it at a time)) and thread safe (with some cost)
 the pointer types are: unique_pt, shared_ptr, and weak_ptr; unique_pt is in the thread safe(without any cost)
-categary, while shared_ptr and weak_ptr are thread safe (with some cost). 
+categary, while shared_ptr and weak_ptr are thread safe (with some cost). Note: the underlying data of any of these
+smart pointers is not thread safe, while the smart pointers themselves are as thread safe as normal pointers.
+
+unique_ptr:
 unique_ptrs are helpful when you want to expand out of scopes just like pointers do, but while having 
-the standard library use RAII to manage the memory for you. its thread safe because only one scope/object can own it at a time.
+the standard library use RAII to manage the memory for you. its thread safe because only one scope/object can 
+own it at a time. Unique_ptr is as thread safe as a normal pointers(the underlying data is not thread safe).
 
 Shared_ptr:
 shared_ptr is the same, but a shared ptr can be owned by multiple scopes 
 and also multiple objects at the same time; this in turn is done using a 
-shared counter, and is the reason why shared ptr takes an allocator; in particular, unlike unique_ptr, which
+shared counter, and is the reason why shared ptr can take an allocator
+(but also uses the default allocator "std::allocator"); in particular, unlike unique_ptr, which
 takes a pointer, shared_ptr needs an allocator for allocating the shared counter. It is also worth noting that this 
 allocator is not used for allocating the pointer, and is only used for the shared counter. The object owned by 
 a shared ptr is destroyed when the counter reaches zero; the counter increments when a new shared ptr owning the object 
@@ -39,7 +42,7 @@ fixed these circular dependency issues, no matter how many objects are in this c
 is exactly as thread safe as a normal pointer; which means the ref count and destruction
 is thread safe, but the data itself is not thread safe. This thread safety means that only one thread can
 decrement and increment the counter at a time; this also means that only one thread will run the destructor for the 
-underlying object in the entire lifetime of the shared ptr.
+underlying object in the entire lifetime of the shared ptr. 
 
 
 Weak ptrs:
@@ -52,8 +55,9 @@ reached 0). Also to use the underlying shared ptr of a weak ptr, you have to get
 Getting the underlying shared ptr is thread safe; which means that the underlying shared ptr wont be destructed and 
 ref count wont be decremented, while you are trying to get the shared ptr of that weak ptr. Also note: that 
 if the underlying shared ptr's underlying object is destroyed (the shared ptr's counter reached zero) then 
-trying to get the underlying shared ptr would fail, which is the reason why we use weak ptr's over shared ptr
-references. Also, the weak ptr has a counter for the amount of weak ptrs to the underlying shared ptr.
+trying to get the underlying shared ptr would fail, in the case of failiure, it returns shared_ptr<T>(); this
+is the reason why we use weak ptr's over shared ptr references. Also, the weak ptr has a counter 
+for the amount of weak ptrs to the underlying shared ptr. 
 
 
 
