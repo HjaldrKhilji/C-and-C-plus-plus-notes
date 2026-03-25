@@ -19,7 +19,8 @@ pointers are pointing to each other (A good example of circular dependency).
 For example(1.1): if a Class B has 
 a member object of type shared ptr of (forward declared class) class A, and the defintion of class A has a member
 object of type shared ptr of class B (in this case, you can allocate memory for a forward declared class 
-because shared ptr is a template, which means that the resolution for class A is at instantiaton time), then 
+because shared ptr is a template, which means that the resolution for class A is at instantiaton time (since A 
+is a template argument to a template paremeter), then 
 you will have a mem leak if An object of A was default intialized, an object of B was intialized with A, and 
 that object of type B was assigned to the object of type A. Why?
 lets call the object of type A as (a) and of type B as (b). Now, first the counter of (b) is 1, then it become 2 when 
