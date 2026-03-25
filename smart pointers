@@ -49,7 +49,50 @@ is exactly as thread safe as a normal pointer; which means the ref count and des
 is thread safe, but the data itself is not thread safe. This thread safety means that only one thread can
 decrement and increment the counter at a time; this also means that only one thread will run the destructor for the 
 underlying object in the entire lifetime of the shared ptr. 
+code for the example(1.1):
+class B;
 
+class A
+{
+    shared_ptr<B> sP1; // use weak_ptr instead to avoid CD
+
+public:
+    A() {  cout << "A()" << endl; }
+    ~A() { cout << "~A()" << endl; }
+
+    void setShared(shared_ptr<B>& p)
+    {
+        sP1 = p;
+    }
+};
+
+class B
+{
+    shared_ptr<A> sP1;
+
+public:
+    B() {  cout << "B()" << endl; }
+    ~B() { cout << "~B()" << endl; }
+
+    void setShared(shared_ptr<A>& p)
+    {
+        sP1 = p;
+    }
+};
+
+int main()
+{
+    shared_ptr<A> aPtr(new A);
+    shared_ptr<B> bPtr(new B);
+
+    aPtr->setShared(bPtr);
+    bPtr->setShared(aPtr);
+
+    return 0;  
+}
+output:
+A()
+B()
 
 Weak ptrs:
 Now, if you look at the example numbered as (1.1), you will see a circular dependency cycle, to fix that, you will have
