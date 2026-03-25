@@ -50,6 +50,10 @@ basically, weak ptr's are a non owning reference to a shared_ptr, but are used i
 they can represent the notion of a shared ptr that has its underlying object destroyed (the counter of shared ptr 
 reached 0). Also to use the underlying shared ptr of a weak ptr, you have to get the shared ptr of that weak ptr first.
 Getting the underlying shared ptr is thread safe; which means that the underlying shared ptr wont be destructed and 
-ref count wont be decremented, while you are trying to get the shared ptr of that weak ptr.
+ref count wont be decremented, while you are trying to get the shared ptr of that weak ptr. Also note: that 
+if the underlying shared ptr's underlying object is destroyed (the shared ptr's counter reached zero) then 
+trying to get the underlying shared ptr would fail, which is the reason why we use weak ptr's over shared ptr
+references.
+
 
 
