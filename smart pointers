@@ -1,0 +1,54 @@
+Smart pointers can be divided into two parts:
+
+unique_ptr:
+thread safe (without any cost) and thread safe (with some cost)
+the pointer types are: unique_pt, shared_ptr, and weak_ptr; unique_pt is in the thread safe(without any cost)
+categary, while shared_ptr and weak_ptr are thread safe (with some cost). 
+unique_ptrs are helpful when you want to expand out of scopes just like pointers do, but while having 
+the standard library use RAII to manage the memory for you. its thread safe because only one scope/object can own it at a time.
+
+Shared_ptr:
+shared_ptr is the same, but a shared ptr can be owned by multiple scopes 
+and also multiple objects at the same time; this in turn is done using a 
+shared counter, and is the reason why shared ptr takes an allocator; in particular, unlike unique_ptr, which
+takes a pointer, shared_ptr needs an allocator for allocating the shared counter. It is also worth noting that this 
+allocator is not used for allocating the pointer, and is only used for the shared counter. The object owned by 
+a shared ptr is destroyed when the counter reaches zero; the counter increments when a new shared ptr owning the object 
+is constructed, and decrements when a shared ptr is destroyed. This infers that we have a mem leak if a pair of shared
+pointers are pointing to each other (A good example of circular dependency). 
+For example(1.1): if a Class B has 
+a member object of type shared ptr of (forward declared class) class A, and the defintion of class A has a member
+object of type shared ptr of class B (in this case, you can allocate memory for a forward declared class 
+because shared ptr is a template, which means that the resolution for class A is at instantiaton time), then 
+you will have a mem leak if An object of A was default intialized, an object of B was intialized with A, and 
+that object of type B was assigned to the object of type A. Why?
+lets call the object of type A as (a) and of type B as (b). Now, first the counter of (b) is 1, then it become 2 when 
+(b) is assigned to (a) (note assigning a shared ptr (or a object containing a shared ptr and a assignment operator that 
+copies a shared ptr of a member of the argument (or the argument itself) to that shared ptr) results in the 
+shared ownership of the resource owned by shared ptr assigned between the shared ptr assigned and the destination).
+Now imagine that when both of them go out of scope, what will happen?
+the count of both are 2 because (b) is assigned to (a) then the counter of shared ptr in (b) gets 
+incremented(since (a) owns (b) hence every inside (b). The counter of counter of shared ptr in (a) because
+counter of shared ptr in (b) got incremented, and counter of shared ptr in (b) points to (a). some people
+(including me) might find this conceptually wierd and would rather blame shared ptr for behaving this wierdly, but
+it is because we have the rule that we if (a) owns (b) then it will own everything in (b). Now because both of them have
+counters with the value 2, hence non of them will have their destructors called when they get out of scope or you try
+to delete them because both of them will have their counter reached to 1 (after getting decremented by 1). Weak ptr's
+fixed these circular dependency issues, no matter how many objects are in this circular dependency cycle. shared ptr
+is exactly as thread safe as a normal pointer; which means the ref count and destruction
+is thread safe, but the data itself is not thread safe. This thread safety means that only one thread can
+decrement and increment the counter at a time; this also means that only one thread will run the destructor for the 
+underlying object in the entire lifetime of the shared ptr.
+
+
+Weak ptrs:
+Now, if you look at the example numbered as (1.1), you will see a circular dependency cycle, to fix that, you will have
+to make the object initialized to none ((a) in the example (1.1)), you will have to make that object a weak ptr or
+a reference of "shared ptr type".
+basically, weak ptr's are a non owning reference to a shared_ptr, but are used instead of references because
+they can represent the notion of a shared ptr that has its underlying object destroyed (the counter of shared ptr 
+reached 0). Also to use the underlying shared ptr of a weak ptr, you have to get the shared ptr of that weak ptr first.
+Getting the underlying shared ptr is thread safe; which means that the underlying shared ptr wont be destructed and 
+ref count wont be decremented, while you are trying to get the shared ptr of that weak ptr.
+
+
