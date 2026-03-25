@@ -8,17 +8,23 @@ unique_ptr:
 unique_ptrs are helpful when you want to expand out of scopes just like pointers do, but while having 
 the standard library use RAII to manage the memory for you. its thread safe because only one scope/object can 
 own it at a time. Unique_ptr is as thread safe as a normal pointers(the underlying data is not thread safe).
-
+unique_ptr also takes a deleter if specified and if not then it used std::default_delete as its deleter.
+The object is disposed of, using a potentially user-supplied deleter, by calling get_deleter()(ptr). 
+The default deleter (std::default_delete) uses the delete operator as of c++26,which 
+destroys the object and deallocates the memory.
 Shared_ptr:
 shared_ptr is the same, but a shared ptr can be owned by multiple scopes 
 and also multiple objects at the same time; this in turn is done using a 
 shared counter, and is the reason why shared ptr can take an allocator
-(but also uses the default allocator ("std::allocator" as of c++26)); in particular, unlike unique_ptr, which
-takes a pointer, shared_ptr needs an allocator for allocating the shared counter. It is also worth noting that this 
-allocator is not used for allocating the pointer, and is only used for the shared counter. The object owned by 
-a shared ptr is destroyed when the counter reaches zero; the counter increments when a new shared ptr owning the object 
-is constructed, and decrements when a shared ptr is destroyed. This infers that we have a mem leak if a pair of shared
-pointers are pointing to each other (A good example of circular dependency). 
+(but also uses the default allocator ("std::allocator" as of c++26)) ; in particular, unlike unique_ptr, which
+takes a pointer, shared_ptr needs an allocator for allocating the shared counter.shared. It is also worth noting that this 
+allocator is not used for allocating the pointer, and is only used for the shared counter.shared ptr also
+stores a deleter if passed and if not then as of c++26, it using the delete operator to destroy and deallocate the object.
+The freedom to provide both a deleter and allocator for the same object implies that if those two are dont work well together 
+then we have problem. As of C++26, the counter and deleter are stored in a block known as the control block.
+The object owned by a shared ptr is destroyed when the counter reaches zero; the counter increments when a new shared ptr
+owning the object is constructed, and decrements when a shared ptr is destroyed. This infers that we have a mem leak if a pair of
+sharedpointers are pointing to each other (A good example of circular dependency). 
 For example(1.1): if a Class B has 
 a member object of type shared ptr of (forward declared class) class A, and the defintion of class A has a member
 object of type shared ptr of class B (in this case, you can allocate memory for a forward declared class 
@@ -56,8 +62,9 @@ Getting the underlying shared ptr is thread safe; which means that the underlyin
 ref count wont be decremented, while you are trying to get the shared ptr of that weak ptr. Also note: that 
 if the underlying shared ptr's underlying object is destroyed (the shared ptr's counter reached zero) then 
 trying to get the underlying shared ptr would fail, in the case of failiure, it returns shared_ptr<T>(); this
-is the reason why we use weak ptr's over shared ptr references. Also, the weak ptr has a counter 
-for the amount of weak ptrs to the underlying shared ptr. 
+is the reason why we use weak ptr's over shared ptr references. Also,as of C++26 the weak ptr has a counter 
+for the amount of weak ptrs to the underlying shared ptr, and as of c++26, that control block keeps the 
+control block of the underlying shared ptr valid.
 
 
 
