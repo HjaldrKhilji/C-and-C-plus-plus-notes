@@ -3,4 +3,5 @@ manual but also very portable(as portable as streams), infact std::println(stdou
 Both of them also look better for some developers. Println and getline can be used with streams: std::println(std::cout, "string") or std::getline(std::cin, destination_variable).
 For File IO as on 4-20-2026, the speed difference isnt much, in fact Streams in my opinion are better as they take care of everything for you, using portable techniques. 
 In Short, use Streams when you dont have a manual and/or easy to write technnique to safely do IO, and use the println/getline when thats not the case or if you just 
-dont care (what you are trying to do is not important, so its acceptable for things to go wrong), though, I think thats rare.
+dont care (what you are trying to do is not important, so its acceptable for things to go wrong), though, I think thats rare. Use streams with println or getline
+((std::println(std::cout, "string") or std::getline(std::cin, destination_variable)) if you like the formating but also want everything to be taken care of.
