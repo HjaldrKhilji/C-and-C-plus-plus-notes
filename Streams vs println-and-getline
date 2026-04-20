@@ -7,4 +7,6 @@ In Short, use Streams when you dont have a manual and/or easy to write technniqu
 dont care (what you are trying to do is not important, so its acceptable for things to go wrong), though, I think thats rare. Use streams with println or getline
 ((std::println(std::cout, "string") or std::getline(std::cin, destination_variable)) if you like the formating but also want everything to be taken care of.
 
-Note: while Println and getline are more typesafe, they dont take care of low level mishaps as well as streams can.
+Note: while Println is more typesafe, they dont take care of low level mishaps as well as streams can. getline is actually less type safe than streams.
+Using them with streams is best because you get the best of both worlds and dont have to think about things too much because as of 4-20-2026, unless you are not
+doing actual file IO ( you are instead reading or printing to a terminal ), the overhead is really not that much, since FILE IO is heavy by nature (as of 4-20-2026). 
