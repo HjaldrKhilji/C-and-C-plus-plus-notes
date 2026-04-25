@@ -1,0 +1,116 @@
+#include<type_traits>
+#include<cstdint>
+struct Not_base {
+	template<typename T>
+	constexpr Not_base(T&& a) {} //just a place holder
+};
+template<typename T, typename Base= Not_base>
+//Base must be another wrapper object
+struct Enum_wrapper: Base {
+	using Enum_t=T;
+	Enum_t enumerator;
+	bool is_initialized;
+	using Base_t= Base;
+	consteval Enum_wrapper(Enum_t a):
+		enumerator{a}, is_initialized{true} {}
+	template<typename Other_Enum_t>
+	requires(std::is_scoped_enum_v<Other_Enum_t>)
+	consteval Enum_wrapper(Other_Enum_t a): Base{a}, enumerator{}, is_initialized{false} {}
+//One could optionally (to make it even better) append/add:
+	/*
+	using enum Enum_t;
+	using Base;
+	Or Anything equavulent to the two lines above
+	*/
+};
+
+template <typename Enum_wrapper,  Enum_wrapper obj,template<typename T, T obj_nested> typename correct_enum>
+consteval auto potential_base() {
+	using potential_base= typename Enum_wrapper::Base_t;
+	if constexpr (!obj.is_initialized) {
+
+		if constexpr (std::is_same_v<potential_base,Not_base>) {
+
+			return;
+
+		}
+		else {
+
+			return correct_enum<potential_base, potential_base{obj}> {};
+		}
+	}
+	else {
+
+		return;
+
+	}
+
+}
+
+template<typename Enum_wrapper, Enum_wrapper obj>
+struct correct_enum {
+	using potential_base_t=
+	    decltype(
+	        potential_base<Enum_wrapper, obj, correct_enum>()
+	    );
+	using enum_t=
+	    std::conditional_t<
+	    obj.is_initialized,
+	    typename Enum_wrapper::Enum_t,
+	    typename potential_base_t::enum_t
+	    >;
+	static constexpr enum_t enum_v = obj.is_initialized ? obj.enumerator : potential_base_t::enum_v;
+};
+
+template<typename intermediate_enum_wrapper, std::uintmax_t>
+struct specific_ {
+
+	inline static intermediate_enum_wrapper enum_val = intermediate_enum_wrapper{static_cast<typename intermediate_enum_wrapper::Enum_t>(0)};
+	inline static bool does_exist = false;
+
+};
+template<std::uintmax_t N>
+struct empty {
+	static_assert(N==UINTMAX_MAX, "too many enums");
+	using internal_t = empty<N>;
+};
+template<template<typename T, std::uintmax_t> class F, typename Arg, std::uintmax_t N>
+using Delay = F<Arg, N>;
+
+template<typename intermediate_enum_wrapper, std::uintmax_t N=0>
+struct specific_interface:
+	std::conditional_t<
+	specific_<intermediate_enum_wrapper, N>::does_exist,
+	specific_interface<intermediate_enum_wrapper, N+1>,
+	empty<N>
+	> {
+	using internal_t=
+	    std::conditional_t<
+	    specific_<intermediate_enum_wrapper, N>::does_exist,
+	    typename specific_interface<intermediate_enum_wrapper, N+1>::internal_t,
+	    specific_<intermediate_enum_wrapper, N>
+	    >;
+};
+
+template<typename intermediate_enum_wrapper>
+struct Enum_wrapper_complete {
+
+	using interface_t = specific_interface<intermediate_enum_wrapper>;
+	using internal = typename interface_t::internal_t;
+
+	consteval Enum_wrapper_complete(intermediate_enum_wrapper a) {
+		internal::enum_val = a;
+		internal::does_exist = true;
+	}
+	consteval typename correct_enum<intermediate_enum_wrapper,
+	          internal::enum_val
+	>::enum_t operator()() {
+		return correct_enum<intermediate_enum_wrapper, internal::enum_val>::enum_v;
+
+	}
+};
+
+int main()
+{
+	return 0;
+}
