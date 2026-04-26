@@ -119,12 +119,12 @@ struct Enum_wrapper_complete {
 
 	}
 	consteval operator typename correct_enum<intermediate_enum_wrapper,
-	          get_obj<decltype(internal::enum_val), interal::enum_val>()
+	          get_obj<decltype(internal::enum_val), internal::enum_val>()
 	          >::enum_t()
 	{
 		return correct_enum<
 		       intermediate_enum_wrapper,
-		       get_obj<decltype(internal::enum_val), interal::enum_val>()
+		       get_obj<decltype(internal::enum_val), internal::enum_val>()
 		       >::enum_v;
 
 	}
@@ -133,7 +133,7 @@ struct Enum_wrapper_complete {
 int main()
 {
 	enum class A { voilet, blue, roses, red};
-	A enum_obj= A::blue;
+	constexpr A enum_obj= A::blue;
 	Enum_wrapper B{enum_obj};
 	Enum_wrapper_complete wrap{B};
 
