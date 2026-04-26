@@ -32,7 +32,7 @@ consteval auto potential_base() {
 		if constexpr (std::is_same_v<potential_base,Not_base>) {
 
 			static_assert(true, "not found");
-    return;
+			return;
 
 		}
 		else {
@@ -41,7 +41,7 @@ consteval auto potential_base() {
 		}
 	}
 	else {
-   static_assert(true, "not found");
+		static_assert(true, "not found");
 		return;
 
 	}
@@ -62,38 +62,52 @@ struct correct_enum {
 	    >;
 	static constexpr enum_t enum_v = obj.is_initialized ? obj.enumerator : potential_base_t::enum_v;
 };
-
-template<typename intermediate_enum_wrapper, std::uintmax_t>
+template<typename intermediate_enum_wrapper, std::uintmax_t N>
+struct specific_bool_impl {
+	inline static bool v = false;
+};
+template<typename intermediate_enum_wrapper, std::uintmax_t N>
 struct specific_ {
 
 	inline static intermediate_enum_wrapper enum_val = intermediate_enum_wrapper{static_cast<typename intermediate_enum_wrapper::Enum_t>(0)};
-	inline static bool does_exist = false;
-
+	consteval specific_() {
+		specific_bool_impl<intermediate_enum_wrapper, N>::v= true;
+	}
 };
+
+
+
+
 template<std::uintmax_t N>
 struct empty {
 	static_assert(N==UINTMAX_MAX, "too many enums");
 };
+template<typename T, T* obj>
+consteval T get_obj() {
+
+	return *obj;
+}
 template<template<typename T, std::uintmax_t> class F, typename Arg, std::uintmax_t N>
 using Delay = F<Arg, N>;
 
-template<typename intermediate_enum_wrapper, std::uintmax_t N=0>
+template<typename intermediate_enum_wrapper, std::uintmax_t N=0, bool does_exist=get_obj<bool,&specific_bool_impl<intermediate_enum_wrapper, N>::v>()>
 struct specific_interface:
 	std::conditional_t<
-	specific_<intermediate_enum_wrapper, N>::does_exist,
+	does_exist,
 	specific_interface<intermediate_enum_wrapper, N+1>,
 	empty<N>
 	> {
 	using internal_t=
 	    std::conditional_t<
-	    specific_<intermediate_enum_wrapper, N>::does_exist,
+	    does_exist,
 	    typename specific_interface<intermediate_enum_wrapper, N+1>::internal_t,
 	    specific_<intermediate_enum_wrapper, N>
 	    >;
-     static constexpr std::uintmax_t N_val=N;
+	static const constexpr std::uintmax_t enum_val= N;
 };
-
-template<typename intermediate_enum_wrapper, std::uintmax_t N= specific_interface<intermediate_enum_wrapper>::internal_t::N_val>
+template<typename intermediate_enum_wrapper>
+std::uintmax_t get_unique_num= specific_interface<intermediate_enum_wrapper>::internal_t::N_val;
+template<typename intermediate_enum_wrapper, std::uintmax_t N= get_unique_num<intermediate_enum_wrapper>>
 struct Enum_wrapper_complete {
 
 	using interface_t = specific_interface<intermediate_enum_wrapper>;
@@ -101,17 +115,27 @@ struct Enum_wrapper_complete {
 
 	consteval Enum_wrapper_complete(intermediate_enum_wrapper a) {
 		internal::enum_val = a;
-		internal::does_exist = true;
+		specific_<intermediate_enum_wrapper, N> {};
+
 	}
-	consteval typename correct_enum<intermediate_enum_wrapper,
-	          internal::enum_val
-	>::enum_t operator()() {
-		return correct_enum<intermediate_enum_wrapper, internal::enum_val>::enum_v;
+	consteval operator typename correct_enum<intermediate_enum_wrapper,
+	          get_obj<decltype(internal::enum_val), interal::enum_val>()
+	          >::enum_t()
+	{
+		return correct_enum<
+		       intermediate_enum_wrapper,
+		       get_obj<decltype(internal::enum_val), interal::enum_val>()
+		       >::enum_v;
 
 	}
 };
 
 int main()
 {
+	enum class A { voilet, blue, roses, red};
+	A enum_obj= A::blue;
+	Enum_wrapper B{enum_obj};
+	Enum_wrapper_complete wrap{B};
+
 	return 0;
 }
