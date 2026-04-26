@@ -1,3 +1,4 @@
+
 #include<type_traits>
 #include<cstdint>
 struct Not_base {
@@ -131,3 +132,30 @@ int main()
 
 	return 0;
 }
+
+/*
+//lets have a short look on the pattern:
+//In case anyone is confused by my ad hoc pattern: it's basically stateful metaprogramming such that each enum object has a new type. This stateful metaprogramming technique is (for the lack of a better word) "Appending pattern":
+//it looks something like this:
+//This pattern wont cause issues in multiple translation units because you are basically appending and the part where you create the "red apple"(the part where the data exist) is when you append. Since the appending(not overwriting) part is literally spending hence there should be no issues.
+template<typename T, T* obj>
+consteval T get_obj() {
+return *obj;
+}
+
+template<typename T, std::uintmax_t N>
+struct The_red_apple{
+ inline static bool v = false;  
+inline static T data;//get_obj can also be used to pass this as a template argument
+};
+template<typename T, std::uintmax_t N=0, bool v=get_obj<bool,& type_exists<T, N>::v>()>
+struct get_the_type{
+using type_found=
+   std::conditional_t<
+   v,
+   typename  get_the_type  <T, N+1>::internal_t,
+      The_red_apple <T, N>
+   >;
+    type_found  ::v= true;
+};
+*/
