@@ -90,7 +90,7 @@ struct specific_interface:
 	    typename specific_interface<intermediate_enum_wrapper, N+1>::internal_t,
 	    specific_<intermediate_enum_wrapper, N>
 	    >;
-     static std::uintmax_t N_val=N;
+     static constexpr std::uintmax_t N_val=N;
 };
 
 template<typename intermediate_enum_wrapper, std::uintmax_t N= specific_interface<intermediate_enum_wrapper>::internal_t::N_val>
