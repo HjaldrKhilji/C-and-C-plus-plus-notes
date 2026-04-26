@@ -78,10 +78,7 @@ struct specific_ {
 
 
 
-template<std::uintmax_t N>
-struct empty {
-	static_assert(N==UINTMAX_MAX, "too many enums");
-};
+
 template<typename T, T* obj>
 consteval T get_obj() {
 
@@ -91,12 +88,7 @@ template<template<typename T, std::uintmax_t> class F, typename Arg, std::uintma
 using Delay = F<Arg, N>;
 
 template<typename intermediate_enum_wrapper, std::uintmax_t N=0, bool does_exist=get_obj<bool,&specific_bool_impl<intermediate_enum_wrapper, N>::v>()>
-struct specific_interface:
-	std::conditional_t<
-	does_exist,
-	specific_interface<intermediate_enum_wrapper, N+1>,
-	empty<N>
-	> {
+struct specific_interface {
 	using internal_t=
 	    std::conditional_t<
 	    does_exist,
