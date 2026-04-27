@@ -1,4 +1,3 @@
-
 #include<type_traits>
 #include<cstdint>
 struct Not_base {
@@ -57,41 +56,58 @@ struct correct_enum {
 	    >;
 	static constexpr enum_t enum_v = obj.is_initialized ? obj.enumerator : potential_base_t::enum_v;
 };
-template<typename intermediate_enum_wrapper, std::uintmax_t N>
-struct specific_bool_impl {
-	inline static bool v = false;
-};
-template<typename intermediate_enum_wrapper, std::uintmax_t N>
-struct specific_ {
-	static constexpr std::uintmax_t N_val = N;
-	inline static intermediate_enum_wrapper enum_val = intermediate_enum_wrapper{static_cast<typename intermediate_enum_wrapper::Enum_t>(0)};
-	consteval specific_() {
-		specific_bool_impl<intermediate_enum_wrapper, N>::v= true;
+
+template<template<std::uintmax_t N_> class bc, std::uintmax_t N>
+struct exist {
+	//million credits to
+	//https://www.lukas-barth.net/blog/checking-if-specialized/
+	//for saving me here:
+	template<typename exist_if_exist= decltype(std::declval<bc<c...>>().~bc<c...>())>
+	bool static does() {
+		return true;
+	}
+	bool static does() {
+		return false;
 	}
 };
-template<typename T_2, T_2* obj>
-consteval T_2 get_obj() {
-	return *obj;
+
+namespace {
+template<std::uintmax_t N=0>
+struct sequential_count {
+
+	consteval static std::uintmax_t get_num() {
+
+		if(exist<sequential_count, N+1>::does()) {
+			return sequential_count<N+2>::get_num()
+
+		}
+		else {
+			sequential_count<N+1> dummy{};
+			return N+1;
+		}
+	}
+
+};
+
 }
 
-template<template<typename T, std::uintmax_t> class F, typename Arg, std::uintmax_t N>
-using Delay = F<Arg, N>;
-template<typename intermediate_enum_wrapper, std::uintmax_t N=0, bool does_exist=get_obj<bool,&specific_bool_impl<intermediate_enum_wrapper, N>::v>()>
-struct specific_interface {
-	using internal_t=
-	    std::conditional_t<
-	    does_exist,
-	    typename specific_interface<intermediate_enum_wrapper, N+1>::internal_t,
-	    specific_<intermediate_enum_wrapper, N>
-	    >;
-	static const constexpr std::uintmax_t enum_val= N;
-};
-template<typename intermediate_enum_wrapper>
-consteval std::uintmax_t get_unique_num() {
-	return specific_interface<intermediate_enum_wrapper>::internal_t::N_val;
-}
-template<typename intermediate_enum_wrapper, std::uintmax_t N= get_unique_num<intermediate_enum_wrapper>()>
+
+template<typename intermediate_enum_wrapper, std::uintmax_t N= sequential_count::get_num()>
 struct Enum_wrapper_complete {
+	template<template<typename T_, std::uintmax_t N_> class bc, typename T, std::uintmax_t N>
+	struct exist_obj {
+		//million credits to
+		//https://www.lukas-barth.net/blog/checking-if-specialized/
+		//for saving me here:
+		template<typename exist_if_exist= decltype(std::declval<bc<c...>>().~bc<c...>())>
+		consteval static bool does() {
+			return true;
+		}
+		consteval static bool does() {
+			return false;
+		}
+		static constexpr T obj;
+	};
 	using interface_t = specific_interface<intermediate_enum_wrapper>;
 	using internal = typename interface_t::internal_t;
 	consteval Enum_wrapper_complete(intermediate_enum_wrapper a) {
@@ -116,29 +132,3 @@ int main()
 	Enum_wrapper_complete wrap{B};
 	return 0;
 }
-/*
-//lets have a short look on the pattern:
-//In case anyone is confused by my ad hoc pattern: it's basically stateful metaprogramming such that each enum object has a new type. This stateful metaprogramming technique is (for the lack of a better word) "Appending pattern":
-//it looks something like this:
-//This pattern wont cause issues in multiple translation units because you are basically appending and the part where you create the "red apple"(the part where the data exist) is when you append. Since the appending(not overwriting) part is literally spending hence there should be no issues.
-template<typename T, T* obj>
-consteval T get_obj() {
-return *obj;
-}
-
-template<typename T, std::uintmax_t N>
-struct The_red_apple{
- inline static bool v = false;  
-inline static T data;//get_obj can also be used to pass this as a template argument
-};
-template<typename T, std::uintmax_t N=0, bool v=get_obj<bool,& type_exists<T, N>::v>()>
-struct get_the_type{
-using type_found=
-   std::conditional_t<
-   v,
-   typename  get_the_type  <T, N+1>::internal_t,
-      The_red_apple <T, N>
-   >;
-    type_found  ::v= true;
-};
-*/
