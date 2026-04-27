@@ -75,6 +75,7 @@ struct exist {
 		return true;
 	}
 	bool static does() {
+   exist<bc, N+1> dummy{};
 		return false;
 	}
 };
@@ -90,7 +91,6 @@ struct sequential_count {
 
 		}
 		else {
-			sequential_count<N+1> dummy{};
 			return N+1;
 		}
 	}
@@ -102,17 +102,20 @@ struct sequential_count {
 
 template<typename intermediate_enum_wrapper, std::uintmax_t N= sequential_count::get_num()>
 struct Enum_wrapper_complete {
-	template<template<typename T, std::uintmax_t N>
+	template<template<typename T_, std::uintmax_t N_> class bc, typename T, std::uintmax_t N>
 	struct object_list {
 		//million credits to
 		//https://www.lukas-barth.net/blog/checking-if-specialized/
 		//for saving me here:
-		template<typename exist_if_exist= decltype(std::declval<bc<N>>().~bc<N>())>
+		template<typename exist_if_exist= decltype(std::declval<bc<T,N>>().~bc<T,N>())>
 		consteval static bool does_exist() {
 			return true;
 		}
 		consteval static bool does_exist() {
+    bc<T, N+1> dummy{};
+   
 			return false;
+     
 		}
 		static constexpr T obj;
 	};
@@ -126,7 +129,7 @@ struct Enum_wrapper_complete {
 
 			}
 			else {
-				sequential_enum_count<N+1-minus> dummy{};
+				
 				return N+1-minus;
 			}
 		}
