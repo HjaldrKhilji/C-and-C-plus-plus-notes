@@ -94,34 +94,47 @@ struct sequential_count {
 
 template<typename intermediate_enum_wrapper, std::uintmax_t N= sequential_count::get_num()>
 struct Enum_wrapper_complete {
-	template<template<typename T_, std::uintmax_t N_> class bc, typename T, std::uintmax_t N>
-	struct exist_obj {
+	template<template<typename T, std::uintmax_t N>
+	struct object_list {
 		//million credits to
 		//https://www.lukas-barth.net/blog/checking-if-specialized/
 		//for saving me here:
 		template<typename exist_if_exist= decltype(std::declval<bc<c...>>().~bc<c...>())>
-		consteval static bool does() {
+		consteval static bool does_exist() {
 			return true;
 		}
-		consteval static bool does() {
+		consteval static bool does_exist() {
 			return false;
 		}
 		static constexpr T obj;
 	};
-	using interface_t = specific_interface<intermediate_enum_wrapper>;
-	using internal = typename interface_t::internal_t;
-	consteval Enum_wrapper_complete(intermediate_enum_wrapper a) {
-		internal::enum_val = a;
-		specific_<intermediate_enum_wrapper, N> {};
+	template<template<typename T_, std::uintmax_t N_> class bc, typename T, signed minus= 0, std::uintmax_t N=0>
+	struct sequential_enum_count {
+
+		consteval static std::uintmax_t get_num(signed minus) {
+
+			if(object_list<sequential_count, N+1>::does_exist()) {
+				return sequential_enum_count<N+2>::get_num();
+
+			}
+			else {
+				sequential_enum_count<N+1-minus> dummy{};
+				return N+1-minus;
+			}
+		}
+
+	};
+	constexpr Enum_wrapper_complete(intermediate_enum_wrapper a) {
+		object_list<intermediate_enum_wrapper, sequential_enum_count<intermediate_enum_wrapper>>::obj = a;
+
 	}
 	consteval operator typename correct_enum<intermediate_enum_wrapper,
-	          get_obj<intermediate_enum_wrapper, &internal::enum_val>()
+	          object_list<intermediate_enum_wrapper, sequential_enum_count<intermediate_enum_wrapper, 1>>::obj
 	          >::enum_t()
 	{
 		return correct_enum<
 		       intermediate_enum_wrapper,
-		       get_obj<intermediate_enum_wrapper, &internal::enum_val>()
-		       >::enum_v;
+		       object_list<intermediate_enum_wrapper, sequential_enum_count<intermediate_enum_wrapper, 1>>::obj;
 	}
 };
 int main()
