@@ -117,9 +117,9 @@ struct Enum_wrapper_complete {
 			return false;
      
 		}
-		static constexpr T obj;
+		
 	};
-	template<typename T, T a, signed minus= 0, std::uintmax_t N=0>
+	template<typename T, signed minus= 0, std::uintmax_t N=0>
 	struct sequential_enum_count {
 
 		consteval static std::uintmax_t get_num(signed minus) {
@@ -138,7 +138,7 @@ struct Enum_wrapper_complete {
  
 	
 Enum_wrapper_complete(intermediate_enum_wrapper a) {
-		object_list<intermediate_enum_wrapper, sequential_enum_count<intermediate_enum_wrapper, a>>::obj;
+		
 
 	}
 	consteval operator typename correct_enum<intermediate_enum_wrapper,
