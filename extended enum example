@@ -2,6 +2,7 @@
 #include<type_traits>
 #include<cstdint>
 struct Not_base {
+	constexpr Not_base() {}
 	template<typename T>
 	constexpr Not_base(T&& a) {} //just a place holder
 };
@@ -12,11 +13,12 @@ struct Enum_wrapper: Base {
 	Enum_t enumerator;
 	bool is_initialized;
 	using Base_t= Base;
-	consteval Enum_wrapper(Enum_t a):
+	constexpr Enum_wrapper() {}
+	constexpr Enum_wrapper(Enum_t a):
 		enumerator{a}, is_initialized{true} {}
 	template<typename Other_Enum_t>
 	requires(std::is_scoped_enum_v<Other_Enum_t>)
-	consteval Enum_wrapper(Other_Enum_t a): Base{a}, enumerator{}, is_initialized{false} {}
+	constexpr Enum_wrapper(Other_Enum_t a): Base{a}, enumerator{}, is_initialized{false} {}
 //One could optionally (to make it even better) append/add:
 	/*
 	using enum Enum_t;
@@ -24,31 +26,23 @@ struct Enum_wrapper: Base {
 	Or Anything equavulent to the two lines above
 	*/
 };
-
 template <typename Enum_wrapper,  Enum_wrapper obj,template<typename T, T obj_nested> typename correct_enum>
 consteval auto potential_base() {
 	using potential_base= typename Enum_wrapper::Base_t;
 	if constexpr (!obj.is_initialized) {
-
 		if constexpr (std::is_same_v<potential_base,Not_base>) {
-
 			static_assert(true, "not found");
 			return;
-
 		}
 		else {
-
 			return correct_enum<potential_base, potential_base{obj}> {};
 		}
 	}
 	else {
 		static_assert(true, "not found");
 		return;
-
 	}
-
 }
-
 template<typename Enum_wrapper, Enum_wrapper obj>
 struct correct_enum {
 	using potential_base_t=
@@ -69,25 +63,19 @@ struct specific_bool_impl {
 };
 template<typename intermediate_enum_wrapper, std::uintmax_t N>
 struct specific_ {
-
+	static constexpr std::uintmax_t N_val = N;
 	inline static intermediate_enum_wrapper enum_val = intermediate_enum_wrapper{static_cast<typename intermediate_enum_wrapper::Enum_t>(0)};
 	consteval specific_() {
 		specific_bool_impl<intermediate_enum_wrapper, N>::v= true;
 	}
 };
-
-
-
-
-
-template<typename T, T* obj>
-consteval T get_obj() {
-
+template<typename T_2, T_2* obj>
+consteval T_2 get_obj() {
 	return *obj;
 }
+
 template<template<typename T, std::uintmax_t> class F, typename Arg, std::uintmax_t N>
 using Delay = F<Arg, N>;
-
 template<typename intermediate_enum_wrapper, std::uintmax_t N=0, bool does_exist=get_obj<bool,&specific_bool_impl<intermediate_enum_wrapper, N>::v>()>
 struct specific_interface {
 	using internal_t=
@@ -99,40 +87,35 @@ struct specific_interface {
 	static const constexpr std::uintmax_t enum_val= N;
 };
 template<typename intermediate_enum_wrapper>
-std::uintmax_t get_unique_num= specific_interface<intermediate_enum_wrapper>::internal_t::N_val;
-template<typename intermediate_enum_wrapper, std::uintmax_t N= get_unique_num<intermediate_enum_wrapper>>
+consteval std::uintmax_t get_unique_num() {
+	return specific_interface<intermediate_enum_wrapper>::internal_t::N_val;
+}
+template<typename intermediate_enum_wrapper, std::uintmax_t N= get_unique_num<intermediate_enum_wrapper>()>
 struct Enum_wrapper_complete {
-
 	using interface_t = specific_interface<intermediate_enum_wrapper>;
 	using internal = typename interface_t::internal_t;
-
 	consteval Enum_wrapper_complete(intermediate_enum_wrapper a) {
 		internal::enum_val = a;
 		specific_<intermediate_enum_wrapper, N> {};
-
 	}
 	consteval operator typename correct_enum<intermediate_enum_wrapper,
-	          get_obj<decltype(internal::enum_val), internal::enum_val>()
+	          get_obj<intermediate_enum_wrapper, &internal::enum_val>()
 	          >::enum_t()
 	{
 		return correct_enum<
 		       intermediate_enum_wrapper,
-		       get_obj<decltype(internal::enum_val), internal::enum_val>()
+		       get_obj<intermediate_enum_wrapper, &internal::enum_val>()
 		       >::enum_v;
-
 	}
 };
-
 int main()
 {
 	enum class A { voilet, blue, roses, red};
 	constexpr A enum_obj= A::blue;
 	Enum_wrapper B{enum_obj};
 	Enum_wrapper_complete wrap{B};
-
 	return 0;
 }
-
 /*
 //lets have a short look on the pattern:
 //In case anyone is confused by my ad hoc pattern: it's basically stateful metaprogramming such that each enum object has a new type. This stateful metaprogramming technique is (for the lack of a better word) "Appending pattern":
