@@ -62,7 +62,7 @@ struct exist {
 	//million credits to
 	//https://www.lukas-barth.net/blog/checking-if-specialized/
 	//for saving me here:
-	template<typename exist_if_exist= decltype(std::declval<bc<c...>>().~bc<c...>())>
+	template<typename exist_if_exist= decltype(std::declval<bc<N>>().~bc<N>())>
 	bool static does() {
 		return true;
 	}
@@ -99,7 +99,7 @@ struct Enum_wrapper_complete {
 		//million credits to
 		//https://www.lukas-barth.net/blog/checking-if-specialized/
 		//for saving me here:
-		template<typename exist_if_exist= decltype(std::declval<bc<c...>>().~bc<c...>())>
+		template<typename exist_if_exist= decltype(std::declval<bc<N>>().~bc<N>())>
 		consteval static bool does_exist() {
 			return true;
 		}
