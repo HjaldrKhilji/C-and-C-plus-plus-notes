@@ -148,7 +148,7 @@ struct sequential_count {
 }
 
 
-template<typename intermediate_enum_wrapper, std::uintmax_t N= sequential_count::get_num<0, 0>()>
+template<typename intermediate_enum_wrapper, std::uintmax_t N= sequential_count<0, 0>::get_num()>
 struct Enum_wrapper_complete {
 
 
@@ -160,7 +160,7 @@ struct Enum_wrapper_complete {
 	consteval operator typename correct_enum<intermediate_enum_wrapper,
 	          object_list<intermediate_enum_wrapper, >::enum_t()
 	{
-		return sequential_count<2+N, sequential_count::get_num<1, 0, 1>()>::get_num{}.obj_stored;
+		return sequential_count<2+N, sequential_count::get_num<1, 0, 1>()>::get_num().obj_stored;
 	}
 };
 int main()
