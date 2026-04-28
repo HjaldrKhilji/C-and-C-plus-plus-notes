@@ -61,31 +61,37 @@ struct correct_enum {
 
 namespace {
 constexpr std::uintmax_t b= 10;//THE B IN logbN
-template<template<std::uintmax_t N_, bool> class bc, std::uintmax_t N, bool s>
+template<template<std::uintmax_t, std::uintmax_t N_, bool> class bc, std:uintmax_t instance, std::uintmax_t N, bool s>
 struct exist {
 	//million credits to
 	//https://www.lukas-barth.net/blog/checking-if-specialized/
 	//for saving me here:
-	template<typename exist_if_exist= decltype(std::declval<bc<N,s>>().~bc<N, s>())>
+	template<typename exist_if_exist= decltype(std::declval<bc<instance, N,s>>().~bc<instance, N, s>())>
 	bool static does() {
 		return true;
 	}
 	bool static does() {
-        bc<N+1, s> dummy{};
+        bc<instance,N+1, s> dummy{};
 		return false;
 	}
 };
-template<std::uintmax_t N=0, bool search_or_asked= false, std::uintmax_t multipy_by=1, std::uintmax b_= b>
+template< std::uint8_t instance,//instance is purely to avoid writing the same thing many times
+std::uintmax_t N=0, bool search_or_asked= false>
 struct sequential_count {
     //will also be used to represent enumeurators now, hence tried to make this super efficient
-	consteval static std::uintmax_t get_num() {
+	template< std::uintmax_t multipy_by=1, std::uintmax_t b_= b>
+    consteval static std::uintmax_t get_num() {
 
-		if(exist<sequential_count, (N*multipy_by), multipy_by, b>::does()) {
-			return sequential_count<(N*multipy_by*b), multipy_by*b, b>::get_num();
-
+		if(exist<sequential_count, instance, (N*multipy_by), true>::template does<multipy_by, b_>()) {
+			if(exist<sequential_count, instance, (N*multipy_by)-b_, true>::template does<multipy_by, b_>()){
+                return sequential_count<instance, N, true>::template get_num<1,2>();
+            }
+            else{
+            return sequential_count<instance, (N*multipy_by*b), true>::template get_num< multipy_by*b, b_>();
+            }
 		}
 		else {
-			return N+1;
+			return N;
 		}
 	}
 
@@ -94,55 +100,12 @@ struct sequential_count {
 }
 
 
-template<typename intermediate_enum_wrapper, std::uintmax_t N= sequential_count::get_num()>
+template<typename intermediate_enum_wrapper, std::uintmax_t N= sequential_count::get_num<0>()>
 struct Enum_wrapper_complete {
-	template<template<typename T_, std::uintmax_t N_> class bc, typename T, std::uintmax_t N>
-	struct does_exist_struct {
-		//million credits to
-		//https://www.lukas-barth.net/blog/checking-if-specialized/
-		//for saving me here:
-		template<typename exist_if_exist= decltype(std::declval<bc<T,N*B>>().~bc<T,N*B>())>
-		consteval static bool does_exist() {
-			return true;
-		}
-		consteval static bool does_exist() {
-            bc<T, N> dummy{};
-   
-			return false;
-     
-		}
-		
-	};
-	template<typename T, signed minus= 0, std::uintmax_t N=0>
-	struct sequential_enum_count {
+	
 
-		consteval static std::uintmax_t get_num(signed minus) {
-
-			if(does_exist_struct<sequential_count, N+1>::does_exist()) {
-				return sequential_enum_count<N+2>::get_num();
-
-			}
-			else {
-				
-				return N+1-minus;
-			}
-		}
-
-	};
-
-    template<auto T, std::uintmax_t N=0 >
-    struct element_stack{
-    
-    static constexpr T obj;
-    template<T a>
-    struct element{
-        element_stack::obj = a;
-    };
-
-
-    };
     Enum_wrapper_complete(intermediate_enum_wrapper a) {
-		
+		sequential_count<1, true, >
 
 	};
 	consteval operator typename correct_enum<intermediate_enum_wrapper,
