@@ -97,43 +97,45 @@ struct raw_object { //object in integer form (think of it like hexdump of an obj
         return do_op<std::plus>(obj);
     }
     template<typename T_2>
-    consteval raw_object operator+(T_2 obj){
+    consteval raw_object operator*(T_2 obj){
         return do_op<std::multipies>(obj);
     }
 
 }
 constexpr std::uintmax_t b= 10;//THE B IN logbN
-template<template<std::uintmax_t, typename N_t_, N_t_ N_, bool, signed> class bc, std:uintmax_t instance, typename N_t, N_t N, bool s, signed t>
+template<template<std::uintmax_t, std::uintmax_t, signed, typename N_t_, N_t_, bool> class bc, std:uintmax_t instance, std::uintmax_t sub_instance, signed m, typename N_t, N_t N, bool s>
 struct exist {
 	//million credits to
 	//https://www.lukas-barth.net/blog/checking-if-specialized/
 	//for saving me here:
-	template<typename exist_if_exist= decltype(std::declval<bc<instance, N_t, N,s, t>>().~bc<instance, N_t, N, s, t>())>
+	template<typename exist_if_exist= decltype(std::declval<bc<instance, sub_instance, m, N_t, N,s>>().~bc<instance, sub_instance, m, N_t, N, s>())>
 	bool static does() {
 		return true;
 	}
 	bool static does() {
 	    if(t==0){
-		bc<instance,N_t,N+1, s, t> dummy{};
+		bc<instance, sub_instance, m, N_t,N+1, s, t> dummy{};
 	    }
 		return false;
 	}
 };
 
-template< std::uint8_t instance,//instance is purely to avoid writing the same thing many times
+template< std::uintmax_t instance,//instance is purely to avoid writing the same thing many times
+          std::uintmax_t obj_instance,//zero if you just want a number (in that case instance would be 0 or 1)
+          signed minus_by=0,
           typename N_t= std::uintmax_t, 
-          N_t N=0, bool search_or_asked= false, signed minus_by=0>
+          N_t N=0, bool search_or_asked= false>
 struct sequential_count {
 	//will also be used to represent enumeurators now, hence tried to make this super efficient
 	template< std::uintmax_t multipy_by=1, std::uintmax_t b_= b>
-	consteval static std::uintmax_t get_num() {
+	consteval static N_t get_num() {
 
-		if(exist<sequential_count, instance, N_t, (N*multipy_by), true, minus_by>::template does<multipy_by, b_>()) {
-			if(exist<sequential_count, instance, N_t, (N*multipy_by)-b_, true, minus_by>::template does<multipy_by, b_>()) {
-				return sequential_count<instance, N_t, N, true, minus_by>::template get_num<1,2>();
+		if(exist<sequential_count, instance, obj_instance, minus_by, N_t, (N*multipy_by), true>::template does<multipy_by, b_>()) {
+			if(exist<sequential_count, instance, obj_instance, minus_by, N_t, (N*multipy_by)-b_, true>::template does<multipy_by, b_>()) {
+				return sequential_count<instance, obj_instance, minus_by, N_t, N, true>::template get_num<1,2>();
 			}
 			else {
-				return sequential_count<instance, N_t, (N*multipy_by*b), true, minus_by>::template get_num< multipy_by*b, b_>();
+				return sequential_count<instance, obj_instance, minus_by, N_t, (N*multipy_by*b), true, minus_by>::template get_num< multipy_by*b, b_>();
 			}
 		}
 		else {
@@ -146,20 +148,19 @@ struct sequential_count {
 }
 
 
-template<typename intermediate_enum_wrapper, std::uintmax_t N= sequential_count::get_num<0>()>
+template<typename intermediate_enum_wrapper, std::uintmax_t N= sequential_count::get_num<0, 0>()>
 struct Enum_wrapper_complete {
 
 
 	Enum_wrapper_complete(intermediate_enum_wrapper a) {
-		sequential_count<2+N, raw_object<a>, a, true> {}; // explicit initliazation to actually sign in a value.
+	    
+		sequential_count<2+N, sequential_count::get_num<1, 0>(), raw_object<a>, a, true> {}; // explicit initliazation to actually sign in a value.
 
 	};
 	consteval operator typename correct_enum<intermediate_enum_wrapper,
 	          object_list<intermediate_enum_wrapper, >::enum_t()
 	{
-		return correct_enum<
-		       intermediate_enum_wrapper,
-		       ;
+		return sequential_count<2+N, sequential_count::get_num<1, 0, 1>()>::get_num{}.obj_stored;
 	}
 };
 int main()
