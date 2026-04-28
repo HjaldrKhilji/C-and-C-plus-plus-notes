@@ -74,7 +74,7 @@ struct raw_object { //object in integer form (think of it like hexdump of an obj
 		data{&obj_stored} {
 
 	}
-    
+    //logic and design of arethimetic and this whole class is wrong hence i will fix this tomorrow ( I have it in my mind )
 	template<typename Op, typename T_2>
 	requires(std::is_arithmetic_v<T_2>)
 	consteval raw_object do_op(T_2 arg) {
@@ -129,16 +129,22 @@ struct sequential_count {
 	//will also be used to represent enumeurators now, hence tried to make this super efficient
 	template< std::uintmax_t multipy_by=1, std::uintmax_t b_= b>
 	consteval static N_t get_num() {
-
+        //powers of b_ would be skipped when it comes to counting sadly, like its a waste but still small
+        //todo:
 		if(exist<sequential_count, instance, obj_instance, minus_by, N_t, (N*multipy_by), true>::template does<multipy_by, b_>()) {
-			if(exist<sequential_count, instance, obj_instance, minus_by, N_t, (N*multipy_by)-b_, true>::template does<multipy_by, b_>()) {
+			if(!exist<sequential_count, instance, obj_instance, minus_by, N_t, (N*multipy_by), true>::template does<multipy_by, b_>())
+			sequential_count<instance, obj_instance, minus_by, N_t, N, true>::template get_num<1,b_>()
+			}
+			else if(exist<sequential_count, instance, obj_instance, minus_by, N_t, (N*multipy_by)-b_, true>::template does<multipy_by, b_>()) {
 				return sequential_count<instance, obj_instance, minus_by, N_t, N, true>::template get_num<1,2>();
 			}
 			else {
+                
 				return sequential_count<instance, obj_instance, minus_by, N_t, (N*multipy_by*b), true, minus_by>::template get_num< multipy_by*b, b_>();
 			}
 		}
 		else {
+            
 			return N-minus_by;
 		}
 	}
