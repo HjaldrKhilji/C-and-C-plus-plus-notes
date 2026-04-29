@@ -11,29 +11,56 @@ struct Not_base {
 };
 template<typename T>
 struct raw_object { //object in integer form (think of it like hexdump of an object)
+    //todo:
 	T obj_stored;
 	constexpr static std::size_t size_of_data= sizeof(T);
-	consteval raw_object(T a): obj_stored{a}{
+	consteval raw_object(T a): obj_stored{a} {
 		//I know code is messy but didnt know a better way, sorry
 	}
 	consteval raw_object(raw_object& a): obj_stored{a.obj_stored} {
 
 	}
+
 	template<typename Op>
-	obj_stored operator+(std::array<unsigned char, size_of_data> N){
-	    T temp;
-	    unsigned char* temp_array= reinterpret_cast<unsigned char*>(&temp);
-	    bool carry=false;
-	    unsigned char* raw_data= reinterpret_cast<unsigned char*>(&obj_stored);
-	    for(std::size_t i=0; i<size_of_data;i++){
-	        unsigned char result=  N[i] + raw_data[i] + carry;
-	        carry= ( result < N[i] ) ? true : false;
-	        temp_array[i] = result;
-	    }
-	    return temp;
-	    
+	consteval obj_stored operator+(std::array<unsigned char, size_of_data> N) {
+		T temp;
+		unsigned char* temp_array= reinterpret_cast<unsigned char*>(&temp);
+		bool carry=false;
+		unsigned char* raw_data= reinterpret_cast<unsigned char*>(&obj_stored);
+		for(std::size_t i=0; i<size_of_data; i++) {
+			unsigned char result=  N[i] + raw_data[i] + carry;
+			carry= ( result < N[i] ) ? true : false;
+			temp_array[i] = result;
+		}
+		return temp;
 	}
-	
+	consteval std::uintmax_t find_index_where_number_ends(T& arg) {
+		//finds the index+1, where the element at index is zero and has all numbers to its left as zero
+		unsigned char* raw_arg= reinterpret_cast<unsigned char*>(&arg);
+		std::size_t where_number_ends= 0;
+		for(sd::size_t i = 0; i < size_of_data; i++) {
+			where_number_ends++;
+			if(raw_arg[i]!=0) {
+				where_number_ends=0;
+			}
+		}
+		return where_number_ends;
+	}
+	template<typename Op>
+	consteval obj_stored operator*(std::array<unsigned char, size_of_data> N) {
+		std::array<temp >
+		unsigned char* temp_array= reinterpret_cast<unsigned char*>(&temp);
+		std::size_t where_num_ends=find_index_where_number_ends(*this);
+		
+		for(std::size_t i=0; i<; i++) {
+			temp= temp*n[i];
+			for(std::size_t j= 0; j<size_of_data; j++) {
+
+			}
+		}
+
+
+	}
 };
 template<typename T, typename Base= Not_base>
 //Base must be another wrapper object
@@ -48,7 +75,7 @@ struct Enum_wrapper: Base {
 	template<typename Other_Enum_t>
 	requires(std::is_scoped_enum_v<Other_Enum_t>)
 	constexpr Enum_wrapper(Other_Enum_t a): Base{a}, enumerator{}, is_initialized{false} {}
-	
+
 	//One could optionally (to make it even better) append/add:
 	/*
 		using enum Enum_t;
@@ -130,12 +157,12 @@ consteval void register_power_of_b() {
 }
 template< std::uintmax_t instance,//instance is purely to avoid writing the same thing many times
           std::uintmax_t obj_instance,//zero if you just want a number (in that case instance would be 0 or 1)
-          std::intmax_t minus_by=0,//zero if signing in an object and N to find the last N object. The 
+          std::intmax_t minus_by=0,//zero if signing in an object and N to find the last N object. The
           typename N_t= std::uintmax_t,
           N_t N=0, bool search_or_asked= false>
 struct sequential_count {
 	//will also be used to represent enumeurators now, hence tried to make this super efficient (<logbN*logbN efficiency), the gap lowers as the data size does and widens as the data size does
-	template< std::uintmax_t multipy_by=1, std::uintmax_t b_= b>
+	template< std::array<unsigned char, sizeof(N_t)> multipy_by= {1, 0}, std::uintmax_t b_= b>
 	consteval static N_t get_num() {
 		//complete but probably needs debugging/double checking a million times to be trusted 100%:
 		if(exist<sequential_count, instance, obj_instance, minus_by, N_t, (return_addition<N, multipy_by>()), true>::template does()) {
