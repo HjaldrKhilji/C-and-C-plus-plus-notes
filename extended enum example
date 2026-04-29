@@ -19,8 +19,22 @@ struct raw_object { //object in integer form (think of it like hexdump of an obj
 	consteval raw_object(raw_object& a): obj_stored{a.obj_stored} {
 
 	}
+	template<typename Op>
+	obj_stored operator+(std::array<unsigned char, size_of_data> N){
+	    T temp;
+	    unsigned char* temp_array= reinterpret_cast<unsigned char*>(&temp);
+	    bool carry=false;
+	    unsigned char* raw_data= reinterpret_cast<unsigned char*>(&obj_stored);
+	    for(std::size_t i=0; i<size_of_data;i++){
+	        unsigned char result=  N[i] + raw_data[i] + carry;
+	        carry= ( result < N[i] ) ? true : false;
+	        temp_array[i] = result;
+	    }
+	    return temp;
+	    
+	}
 	
-}
+};
 template<typename T, typename Base= Not_base>
 //Base must be another wrapper object
 struct Enum_wrapper: Base {
