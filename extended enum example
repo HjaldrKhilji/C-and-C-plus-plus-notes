@@ -74,11 +74,12 @@ struct raw_object { //object in integer form (think of it like hexdump of an obj
 		data{&obj_stored} {
 
 	}
-    //logic and design of arethimetic and this whole class is wrong hence i will fix this tomorrow ( I have it in my mind )
+	//logic and design of arethimetic and this whole class is wrong hence i will fix this tomorrow ( I have it in my mind )
 	template<typename Op, typename T_2>
 	requires(std::is_arithmetic_v<T_2>)
-	consteval raw_object do_op(T_2 arg) {
+	consteval raw_object do_op(raw_object<T_2> arg) {
 		raw_object temp{*this};
+
 		unsigned char carry=0;
 		for(std::size_t count=0; count!=size_of_data; count++) {
 			unsigned char result=Op{}(Op{}(temp[count], arg),carry);
@@ -92,14 +93,14 @@ struct raw_object { //object in integer form (think of it like hexdump of an obj
 		}
 		return temp;
 	}
-    template<typename T_2>
-    consteval raw_object operator+(T_2 obj){
-        return do_op<std::plus>(obj);
-    }
-    template<typename T_2>
-    consteval raw_object operator*(T_2 obj){
-        return do_op<std::multipies>(obj);
-    }
+	template<typename T_2>
+	consteval raw_object operator+(T_2 obj) {
+		return do_op<std::plus>(obj);
+	}
+	template<typename T_2>
+	consteval raw_object operator*(T_2 obj) {
+		return do_op<std::multipies>(obj);
+	}
 
 }
 constexpr std::uintmax_t b= 10;//THE B IN logbN
@@ -113,39 +114,54 @@ struct exist {
 		return true;
 	}
 	bool static does() {
-	    if(t==0){
-		bc<instance, sub_instance, m, N_t,N+1, s, t> dummy{};
-	    }
+		if(t==0) {
+			bc<instance, sub_instance, m, N_t,N+1, s> dummy{};
+		}
 		return false;
 	}
 };
+template<template<std::uintmax_t, std::uintmax_t, signed, typename N_t_, N_t_, bool> class bc, std:uintmax_t instance, std::uintmax_t sub_instance, typename N_t, N_t N, bool s, std::uintmax_t b>
+consteval void register_power_of_b() {
+	bc<instance, sub_instance, N_t,N, s> dummy{};
+	register_power_of_b<bc, instance, sub_instance, N_t, N*b, s, b>();
+}
 
 template< std::uintmax_t instance,//instance is purely to avoid writing the same thing many times
           std::uintmax_t obj_instance,//zero if you just want a number (in that case instance would be 0 or 1)
           signed minus_by=0,
-          typename N_t= std::uintmax_t, 
+          typename N_t= std::uintmax_t,
           N_t N=0, bool search_or_asked= false>
 struct sequential_count {
-	//will also be used to represent enumeurators now, hence tried to make this super efficient
+	//will also be used to represent enumeurators now, hence tried to make this super efficient (<logbN*logbN efficiency), the gap lowers as the data size does and widens as the data size does
 	template< std::uintmax_t multipy_by=1, std::uintmax_t b_= b>
 	consteval static N_t get_num() {
-        //powers of b_ would be skipped when it comes to counting sadly, like its a waste but still small
-        //todo:
-		if(exist<sequential_count, instance, obj_instance, minus_by, N_t, (N*multipy_by), true>::template does<multipy_by, b_>()) {
-			if(!exist<sequential_count, instance, obj_instance, minus_by, N_t, (N*multipy_by), true>::template does<multipy_by, b_>())
-			sequential_count<instance, obj_instance, minus_by, N_t, N, true>::template get_num<1,b_>()
+        //still todo:
+		if(exist<sequential_count, instance, obj_instance, minus_by, N_t, (N*multipy_by), true>::template does()) {
+			//check if the current exists: current_N*current_multiply_by
+			if(!exist<sequential_count, instance, obj_instance, minus_by, N_t, (N*multipy_by*b_), true>::template does()) {
+				//check if the current_N*Next_multiply_by_exist(multipy_by*b_) does not exist
+				if(exist<sequential_count, instance, obj_instance, minus_by, N_t, (N*multipy_by*b_)-b_, true>::template does()) {
+					//check if the current_N*Next_multiply_by_exist(multipy_by*b_)-b_ does exists
+					return sequential_count<instance, obj_instance, minus_by, N_t, N, true>::template get_num<1,2>();
+				}
+				else if(exist<sequential_count, instance, obj_instance, minus_by, N_t, (N*multipy_by*b_)-1, true>::template does()){
+				    return (N*multipy_by*b_)-1; //found a power of b_ ( lucky isnt it :), like dont you get it that the odds of finding out while counting or finding object is really low? )
+					//also dont worry about if N is 0
+				}
+				else {
+				    //finds out (N*multipy_by)+(the whole process overagain) but not in the process that you would expect: 
+                    return sequential_count<instance, obj_instance, minus_by, N_t, (N*multipy_by), true, minus_by>::template get_num< multipy_by*b, b_>();
+				}
 			}
-			else if(exist<sequential_count, instance, obj_instance, minus_by, N_t, (N*multipy_by)-b_, true>::template does<multipy_by, b_>()) {
-				return sequential_count<instance, obj_instance, minus_by, N_t, N, true>::template get_num<1,2>();
-			}
+
 			else {
-                
+
 				return sequential_count<instance, obj_instance, minus_by, N_t, (N*multipy_by*b), true, minus_by>::template get_num< multipy_by*b, b_>();
 			}
 		}
 		else {
-            
-			return N-minus_by;
+
+			return (N*multipy_by)-minus_by;
 		}
 	}
 
@@ -159,7 +175,7 @@ struct Enum_wrapper_complete {
 
 
 	Enum_wrapper_complete(intermediate_enum_wrapper a) {
-	    
+
 		sequential_count<2+N, sequential_count::get_num<1, 0>(), raw_object<a>, a, true> {}; // explicit initliazation to actually sign in a value.
 
 	};
