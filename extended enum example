@@ -195,7 +195,11 @@ struct Enum_wrapper_complete {
 	consteval operator typename correct_enum<intermediate_enum_wrapper,
 	          object_list<intermediate_enum_wrapper, >::enum_t()
 	{
-		return sequential_count<2+N, sequential_count::get_num<1, 0, 1>()>::get_num().obj_stored;
+		return sequential_count<2+N, sequential_count::get_num<1, 0, 1>(), 1, raw_object<intermediate_enum_wrapper>>::get_num().obj_stored;
+	    //This line may be a little non trivial but its just finding using the instance 2+N research for this object_list
+	    //then finding the sub instance of a particular value and then in that finding the value and return the
+	    //(raw_data of the object)-1, and then you also give it raw_object<intermediate_enum_wrapper> for it to know the type of object that it is finidng
+	    
 	}
 };
 int main()
