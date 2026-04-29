@@ -232,5 +232,8 @@ int main()
 	return 0;
 }
 //personal notes:/*
-I feel like this tool will allow one to embedde trained AI into code and use that to choose the correct types and value. Its possible since the stack exist and you can get data out of it once you are done, at which point AI can take it from their, use the current type of each wrapper object (set by the bool) and the value of that current type, along with the usage frequency, etc, to choose what should be the current type next, the current value next, frequency next
+I feel like this tool will allow one to embedde trained AI into code and use that to choose the correct types and value. Its possible since the stack exist 
+and you can get data out of it once you are done, at which point AI can take it from their, use the current type of each wrapper object (set by the bool) and 
+the value of that current type, along with the usage frequency, etc, to choose what should be the current type next, the current value next, frequency next.
+Basically, Imagine a self optimizing binary or a self replicating code generator 
 */
