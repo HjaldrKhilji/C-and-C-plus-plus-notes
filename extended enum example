@@ -12,6 +12,7 @@ struct Not_base {
 template<typename T>
 struct raw_object { //object in integer form (think of it like hexdump of an object)
     //todo:
+	//here for me mathematic is just looking at classic techniques and copying them for base sizeof(char), so read the code while keeping that in mind.
 	T obj_stored;
 	constexpr static std::size_t size_of_data= sizeof(T);
 	consteval raw_object(T a): obj_stored{a} {
