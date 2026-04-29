@@ -103,7 +103,7 @@ struct raw_object { //object in integer form (think of it like hexdump of an obj
 	}
 
 }
-constexpr std::uintmax_t b= 10;//THE B IN logbN
+constexpr std::uintmax_t b= 10;//THE B IN logbN and should not be 1! (I couldve done somthing to allow it to be one), in which the complexity is just linear N when it is one and it would take if statement to handle that case of it being 1, but I realized that would cost compile time overhead
 template<template<std::uintmax_t, std::uintmax_t, signed, typename N_t_, N_t_, bool> class bc, std:uintmax_t instance, std::uintmax_t sub_instance, signed m, typename N_t, N_t N, bool s>
 struct exist {
 	//million credits to
@@ -126,16 +126,16 @@ consteval void register_power_of_b() {
 	register_power_of_b<bc, instance, sub_instance, N_t, N*b, s, b>();
 }
 template<typename N_t= std::uintmax_t,
-          N_t N=0, N_t M=1>
+         N_t N=0, N_t M=1>
 N_t return_addition{ //important for "return 0 if N+M is 1" else return N+M
-    
-    if((N+M)==1){
-        return 0;
-    }
-    else{
-        return N+M;
-    }
-    
+
+	if((N+M)==1) {
+		return 0;
+	}
+	else {
+		return N+M;
+	}
+
 }
 template< std::uintmax_t instance,//instance is purely to avoid writing the same thing many times
           std::uintmax_t obj_instance,//zero if you just want a number (in that case instance would be 0 or 1)
@@ -146,7 +146,7 @@ struct sequential_count {
 	//will also be used to represent enumeurators now, hence tried to make this super efficient (<logbN*logbN efficiency), the gap lowers as the data size does and widens as the data size does
 	template< std::uintmax_t multipy_by=1, std::uintmax_t b_= b>
 	consteval static N_t get_num() {
-        //still todo:
+		//still todo:
 		if(exist<sequential_count, instance, obj_instance, minus_by, N_t, (return_addition<N, multipy_by>()), true>::template does()) {
 			//check if the current exists: current_N*current_multiply_by
 			if(!exist<sequential_count, instance, obj_instance, minus_by, N_t, (return_addition<N, multipy_by*b_>()), true>::template does()) {
@@ -155,12 +155,15 @@ struct sequential_count {
 					//check if the current_N*Next_multiply_by_exist(multipy_by*b_)-b_ does exists
 					return sequential_count<instance, obj_instance, minus_by, N_t, (return_addition<N, multipy_by>()), true>::template get_num<1,2>();
 				}
-				else if(exist<sequential_count, instance, obj_instance, minus_by, N_t, (return_addition<N, multipy_by*b_>())-1, true>::template does()){
-				    return (N*multipy_by*b_); //found a power of b_ ( lucky isnt it :), like dont you get it that the odds of finding out while counting or finding object is really low? )
-				}
-				else {
-				    //finds out (N*multipy_by)+(the whole process overagain) but not in the process that you would expect: 
-                    return sequential_count<instance, obj_instance, minus_by, N_t, (return_addition<N, multipy_by>()), true, minus_by>::template get_num<1, b_>();
+				else if(exist<sequential_count, instance, obj_instance, minus_by, N_t, (return_addition<N, multipy_by*b_>())-1, true>::template does()) {
+					if(exist<sequential_count, instance, obj_instance, minus_by, N_t, (return_addition<N, multipy_by*b_>())-1, false>::template does()) {
+						return (N*multipy_by*b_); //found a power of b_ ( lucky isnt it :), like dont you get it that the odds of finding out while counting or finding object is really low? )
+					}
+					else {
+						//finds out (N*multipy_by)+(the whole process overagain) but not in the process that you would expect:
+						return sequential_count<instance, obj_instance, minus_by, N_t, (return_addition<N, multipy_by>()), true, minus_by>::template get_num<1, b_>();
+					}
+
 				}
 			}
 
@@ -170,7 +173,7 @@ struct sequential_count {
 			}
 		}
 		else {
-
+			register_power_of_b<instance, obj_instance, N_t>()
 			return (N*multipy_by)-minus_by;
 		}
 	}
