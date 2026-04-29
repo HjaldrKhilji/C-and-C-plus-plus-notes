@@ -163,7 +163,7 @@ template< std::uintmax_t instance,//instance is purely to avoid writing the same
           typename N_t= std::uintmax_t,
           N_t N=0, bool search_or_asked= false>
 struct sequential_count {
-	//will also be used to represent enumeurators now, hence tried to make this super efficient (<logbN*logbN efficiency), the gap lowers as the data size does and widens as the data size does
+	//will also be used to represent enumeurators now, hence tried to make this super efficient (LogbN) efficieny, the speed increases in relativity to the greatness of the value object/number that you are trying to find
 	template< std::array<unsigned char, sizeof(N_t)> multipy_by= {1, 0}, std::uintmax_t b_= b>
 	consteval static N_t get_num() {
 		//complete but probably needs debugging/double checking a million times to be trusted 100%:
