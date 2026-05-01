@@ -244,16 +244,16 @@ N_t return_addition() { //important for "return 0 if N+M is 1" else return N+M
 
 }
 template<std::size_t size_of_array, unsigned char first_element_initializer>
-std::array<unsigned char, size_of_array> give_init_array_with_first_elem_and_zeros() {
-	std::array<unsigned char, size_of_array> array_to_initialize;
-	std::fill_n(array_to_initialize, size_of_array, 0);
+consteval std::array<unsigned char, size_of_array> give_init_array_with_first_elem_and_zeros() {
+	std::array<unsigned char, size_of_array> array_to_initialize{};
+	array_to_initialize.fill(0);
 	array_to_initialize[0]= first_element_initializer;
 	return array_to_initialize;
 }
 template<std::uintmax_t domain=0>
 class generator_and_reader_infrustructor {
 	//the extra domain argument is to localize it across multiple source files (Avoid linker clashes by manually choosing the correct ID).
-	constexpr unsigned char b= 10;//THE B IN logbN and should not be 1! (I couldve done somthing to allow it to be one), in which the complexity is just linear N when it is one and it would take if statement to handle that case of it being 1, but I realized that would cost compile time overhead
+	constexpr static unsigned char b= 10;//THE B IN logbN and should not be 1! (I couldve done somthing to allow it to be one), in which the complexity is just linear N when it is one and it would take if statement to handle that case of it being 1, but I realized that would cost compile time overhead
 	template<template<std::uintmax_t, std::uintmax_t, std::uintmax_t, typename N_t_, N_t_, bool> class bc, std::uintmax_t instance, std::uintmax_t sub_instance, std::uintmax_t m, typename N_t, N_t N, bool s>
 	struct exist {
 		//million credits to
@@ -325,7 +325,9 @@ class generator_and_reader_infrustructor {
 
 //the anonymous namespace below exists to highlight the code needed to specify the domain for the current source file!
 namespace{
-std::uintmax_t domain_of_current_file= 0;
+constexpr std::uintmax_t domain_of_current_file= 0;
+
+
 template< std::uintmax_t instance,
           std::uintmax_t obj_instance,
           std::uintmax_t minus_by=0,
@@ -336,8 +338,9 @@ using sequential_count= generator_and_reader_infrustructor<0>::sequential_count<
     
 }
 
-std::uintmax_t enum_object_id=0;
-std::uintmax_t enum_object_change_id=1;
+constexpr std::uintmax_t enum_object_id=0;
+constexpr std::uintmax_t enum_object_change_id=1;
+constexpr std::uintmax_t minus_by_to_get_last_N=1;
 //the rest ids are open to use by obj (in my case (2+N) is doing it)
 template<typename intermediate_enum_wrapper, std::uintmax_t N= sequential_count<enum_object_id, 0>::get_num()>
 struct Enum_wrapper_complete {
@@ -345,19 +348,19 @@ struct Enum_wrapper_complete {
 
 	Enum_wrapper_complete(intermediate_enum_wrapper& a) {
 
-		sequential_count<2+N, sequential_count::get_num<enum_object_change_id, 0>(), raw_object<intermediate_enum_wrapper>, a, true> {}; // explicit initliazation to actually sign in a value.
+		sequential_count<2+N, sequential_count::get_num<enum_object_change_id, 0>(), 0, raw_object<intermediate_enum_wrapper>, a, true> {}; // explicit initliazation to actually sign in a value.
 
 	};
 	Enum_wrapper_complete& operator=(intermediate_enum_wrapper& a) {
 
-		sequential_count<2+N, sequential_count::get_num<enum_object_change_id, 0>(), raw_object<intermediate_enum_wrapper>, a, true> {}; // explicit initliazation to actually sign in a value.
+		sequential_count<2+N, sequential_count::get_num<enum_object_change_id, 0>(), 0,raw_object<intermediate_enum_wrapper>, a, true> {}; // explicit initliazation to actually sign in a value.
 
 	};
 	consteval operator typename object_list<
 	intermediate_enum_wrapper,
-	sequential_count<2+N, sequential_count::get_num<enum_object_change_id, 0, 1>(), 1, raw_object<intermediate_enum_wrapper>>::get_num().obj_stored
+	sequential_count<2+N, sequential_count::get_num<enum_object_change_id, 0, minus_by_to_get_last_N>(), minus_by_to_get_last_N, raw_object<intermediate_enum_wrapper>>::get_num().obj_stored
 	>::enum_t()& const {
-		return sequential_count<2+N, sequential_count::get_num<enum_object_change_id, 0, 1>(), 1, raw_object<intermediate_enum_wrapper>>::get_num().obj_stored;
+		return sequential_count<2+N, sequential_count::get_num<enum_object_change_id, 0, minus_by_to_get_last_N>(), minus_by_to_get_last_N, raw_object<intermediate_enum_wrapper>>::get_num().obj_stored;
 		//This line may be a little non trivial but its just finding using the instance 2+N research for this object_list
 		//then finding the subinstance/obj_instance of a particular value and then in that finding the value and return the
 		//(raw_object of the object)-1, and then you also give it raw_object<intermediate_enum_wrapper> for it to know the type of object that it is finidng
