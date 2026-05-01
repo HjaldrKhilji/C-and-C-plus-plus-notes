@@ -8,20 +8,7 @@
 #include<climits>
 constexpr char error_for_lack_of_precision_integers_m[]= "no two digit char found!!!!!";
 constexpr char subtraction_underflow_error_m[]= "underflow about was about to be caused by righthand side being larger than the left hand side in a substraction operation."
-        constexpr bool error_for_lack_of_precision_integers_b= sizeof(std::uintmax_t)> sizeof(unsigned char);
-template<std::size_t N>
-consteval obj_stored operator*(unsigned char N, std::array<unsigned char, N> arg) {
-	std::size_t i=0;
-	static_assert(error_for_lack_of_precision_integers_b, error_for_lack_of_precision_integers_m);
-	unsigned char carry=0;
-	for(; i<size_of_data; i++) {
-		std::uintmax_t result=(static_cast<std::uintmax_t>(arg[i]) * static_cast<std::uintmax_t>(N))+carry;
-		arg[i]= static_cast<unsigned char>(result);
-		carry= result>>CHAR_BIT;
-	}
-	return arg;
-
-}
+        bool error_for_lack_of_precision_integers_b= sizeof(std::uintmax_t)> sizeof(unsigned char);
 consteval std::size_t find_index_where_number_ends(T& arg) {
 	//finds the index+1, where the element at index is zero and has all numbers to its left as zero
 	unsigned char* raw_arg= reinterpret_cast<unsigned char*>(&(arg.obj_stored));
@@ -73,7 +60,7 @@ struct raw_object { //object in integer form (think of it like hexdump of an obj
 	//here for me mathematic is just looking at classic techniques and copying them for base sizeof(char), so read the code while keeping that in mind.
 	T obj_stored;
 	constexpr static std::size_t size_of_data= sizeof(T);
-	consteval raw_object(T a): obj_stored{a} {
+	consteval raw_object(T& a): obj_stored{a} {
 		//I know code is messy but didnt know a better way, sorry
 	}
 	consteval raw_object(raw_object& a): obj_stored{a.obj_stored} {
@@ -112,8 +99,8 @@ struct raw_object { //object in integer form (think of it like hexdump of an obj
 	}
 
 
-
-	consteval raw_object operator*(std::array<unsigned char, size_of_data>& N) {
+	consteval raw_object multiply(char *N, std::size_t size_of_array) {
+	    static_assert(size_of_array==size_of_data, "size mismatch");
 		std::size_t where_this_ends=find_index_where_number_ends(*this);
 		std::array<raw_object, where_this_ends> result{0};
 		unsigned char* temp_array= reinterpret_cast<unsigned char*>(*this);// i named it temp_array to follow that personal naming convention that i introduced in this source file
@@ -145,7 +132,14 @@ struct raw_object { //object in integer form (think of it like hexdump of an obj
 			result *this;
 
 		}
-
+	}
+    consteval raw_object operator*(std::array<unsigned char, size_of_data>& array) {
+        return multiply(array.data(), size_of_data);
+        
+    }
+    consteval raw_object operator*(std::array<unsigned char, size_of_data>& array) {
+        return multiply(reinterpret_cast<char*>(&(obj_stored)), size_of_data);
+    }
 		consteval bool operator==(raw_object& arg) {
 			unsigned char* temp_array_lhs= reinterpret_cast<char*>(&obj_stored);
 			unsigned char* temp_array_rhs= reinterpret_cast<char*>(&(arg.obj_stored));
@@ -230,7 +224,21 @@ struct raw_object { //object in integer form (think of it like hexdump of an obj
 	};
 
 
+	constexpr std::uintmax_t minus_by_global= 1;
+	template<typename N_t= std::uintmax_t,
+	         N_t N=0, N_t M=1>
+	N_t return_addition{ //important for "return 0 if N+M is 1" else return N+M
 
+		return (N+M)-minus_by_global;
+
+	}
+	template<std::size_t size_of_array, unsigned char first_element_initializer>
+	std::array<unsigned char, size_of_array> give_init_array_with_first_elem_and_zeros() {
+	    std::array<unsigned char, size_of_array> array_to_initialize;
+	    std::fill_n(arr, size_of_array, 0);
+		array_to_init[0]= first_element_initializer;
+        return array_to_init;
+	}
 	namespace {
 	constexpr unsigned char b= 10;//THE B IN logbN and should not be 1! (I couldve done somthing to allow it to be one), in which the complexity is just linear N when it is one and it would take if statement to handle that case of it being 1, but I realized that would cost compile time overhead
 template<template<std::uintmax_t, std::uintmax_t, std::uintmax_t, typename N_t_, N_t_, bool> class bc, std:uintmax_t instance, std::uintmax_t sub_instance, std::uintmax_t m, typename N_t, N_t N, bool s>
@@ -247,18 +255,12 @@ template<template<std::uintmax_t, std::uintmax_t, std::uintmax_t, typename N_t_,
 		}
 	};
 
-	template<typename N_t= std::uintmax_t,
-	         N_t N=0, N_t M=1>
-	N_t return_addition{ //important for "return 0 if N+M is 1" else return N+M
 
-		return (N+M)-1;
-
-	}
 template<template<std::uintmax_t, std::uintmax_t, std::uintmax_t, typename N_t_, N_t_, bool> class bc, std:uintmax_t instance, std::uintmax_t sub_instance, std::uintmax_t minus_by, typename N_t, N_t N, bool s, std::uintmax_t b>
 	consteval void register_power_of_b() {
 		N_t_ smallest_perfect_power=1; //smallest_perfect_power is the smallest_perfect_power bigger than N
-		for(smallest_perfect_power>N; smallest_perfect_power*=b) {
-			bc<instance, sub_instance, minus_by, N_t,smallest_perfect_power, s> dummy{};
+		for(smallest_perfect_power>N; smallest_perfect_power=smallest_perfect_power*b) {
+			bc<instance, sub_instance, minus_by, N_t,smallest_perfect_power-minus_by_global, s> dummy{};
 		}
 	}
 	template< std::uintmax_t instance,//instance is purely to avoid writing the same thing many times
@@ -268,7 +270,8 @@ template<template<std::uintmax_t, std::uintmax_t, std::uintmax_t, typename N_t_,
 	          N_t N=0, bool search_or_asked= false>
 	struct sequential_count {
 		//will also be used to represent enumeurators now, hence tried to make this super efficient (LogbN) efficieny, the speed increases in relativity to the greatness of the value object/number that you are trying to find
-		template< std::array<unsigned char, sizeof(N_t)> multipy_by= {1}, std::array<unsigned char, sizeof(N_t)> b_= b>
+		template< std::array<unsigned char, sizeof(N_t)> multipy_by= give_init_array_with_first_elem_and_zeros<sizeof(N_t), 1>(),
+		std::array<unsigned char, sizeof(N_t)> b_=  give_init_array_with_first_elem_and_zeros<sizeof(N_t), b>()>() >
 		consteval static N_t get_num() {
 			//complete but probably needs debugging/double checking a million times to be trusted 100%:
 			if(exist<sequential_count, instance, obj_instance, minus_by, N_t, (return_addition<N, multipy_by>()), true>::template does()) {
