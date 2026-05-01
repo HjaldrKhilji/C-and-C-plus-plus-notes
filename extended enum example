@@ -6,15 +6,14 @@
 #include<compare>
 #include<algorithm>
 #include<climits>
-constexpr char error_for_lack_of_precision_integers_m[]= "no two digit char found!!!!!";
-constexpr char subtraction_underflow_error_m[]= "underflow about was about to be caused by righthand side being larger than the left hand side in a substraction operation.";
 constexpr bool error_for_lack_of_precision_integers_b= sizeof(std::uintmax_t)> sizeof(unsigned char);
 template<typename T>
 consteval std::size_t find_index_where_number_ends(T& arg) {
 	//finds the index+1, where the element at index is zero and has all numbers to its left as zero
 	unsigned char* raw_arg= reinterpret_cast<unsigned char*>(&(arg.obj_stored));
 	std::size_t where_number_ends= 0;
-	for(std::size_t i = 0; i < sizeof(T); i++) {
+	std::size_t size_of_data=sizeof(T);
+	for(std::size_t i = 0; i < size_of_data; i++) {
 		where_number_ends++;
 		if(raw_arg[i]!=0) {
 			where_number_ends=0;//we start counting from zero
@@ -22,10 +21,11 @@ consteval std::size_t find_index_where_number_ends(T& arg) {
 	}
 	return size_of_data-where_number_ends;
 }
-consteval std::size_t find_index_where_number_ends(std::array<unsigned char, size_of_data>& N arg) {
+template<std::size_t size_of_data>
+consteval std::size_t find_index_where_number_ends(std::array<unsigned char, size_of_data>& N) {
 	//finds the index+1, where the element at index is zero and has all numbers to its left as zero
 	std::size_t where_number_ends= 0;
-	for(sd::size_t i = 0; i < size_of_data; i++) {
+	for(std::size_t i = 0; i < size_of_data; i++) {
 		where_number_ends++;
 		if(N[i]!=0) {
 			where_number_ends=1;//we start counting from zero
@@ -33,28 +33,31 @@ consteval std::size_t find_index_where_number_ends(std::array<unsigned char, siz
 	}
 	return size_of_data-where_number_ends;
 }
-template<std::size_t N>
-consteval obj_stored operator*(std::array<unsigned char, N> arg, std::uintmax_t N) {
+template<std::size_t size_of_data>
+consteval std::array<unsigned char, size_of_data> operator*(std::array<unsigned char, size_of_data> arg, std::uintmax_t N) {
+	static_assert(error_for_lack_of_precision_integers_b, "no two digit char found!!!!!");
 	std::size_t i=0;
 	std::uintmax_t carry=0;
 	for(; i<size_of_data; i++) {
-		std::uintmax_t result=(static_cast<std::uintmax_t>(arg[i]) * static_cast<std::uintmax_t>(N))+carry;
-		arg[i]= static_cast<unsigned char>(result);
+		std::uintmax_t result=( static_cast<std::uintmax_t>(arg[i]) * N )+carry;
+		arg[i]= static_cast<unsigned char>(result);//taking advantage of the fact that narrowing will exclude the bits on the left
 		carry= result>>CHAR_BIT;
 	}
 	return arg;
 
 }
-struct Not_base {
-	constexpr Not_base() {}
-	template<typename T>
-	constexpr Not_base(T&& a) {} //just a place holder
-	using size= 0;
-	constexpr Not_base(std::uintmax_t)
-	{
-
+consteval char* multiply(char *arg, std::size_t size_of_array, unsigned char N) {
+	static_assert(error_for_lack_of_precision_integers_b, "no two digit char found!!!!!");
+	std::size_t i=0;
+	std::uintmax_t carry=0;
+	for(; i<size_of_array; i++) {
+		std::uintmax_t result=( static_cast<std::uintmax_t>(arg[i]) * std::uintmax_t(N) )+carry;
+		arg[i]= static_cast<unsigned char>(result);//taking advantage of the fact that narrowing will exclude the bits on the left
+		carry= result>>CHAR_BIT;
 	}
-};
+	return arg;
+
+}
 template<typename T>
 struct raw_object { //object in integer form (think of it like hexdump of an object)
 	//todo:
@@ -81,17 +84,17 @@ struct raw_object { //object in integer form (think of it like hexdump of an obj
 		return temp;
 	}
 	consteval raw_object operator-(std::uintmax_t N) {
-		static_assert(error_for_lack_of_precision_integers_b, error_for_lack_of_precision_integers_m);
+		static_assert(error_for_lack_of_precision_integers_b, "no two digit char found!!!!!");
 		raw_object temp=*this;
 		unsigned char* temp_array= reinterpret_cast<unsigned char*>(&(temp.obj_stored));
-		std::size_t size_chosen= std::min(sizeof(std::uintmax_t), sizeof(raw_object));
+		constexpr std::size_t size_chosen= std::min(sizeof(std::uintmax_t), sizeof(raw_object));
 		std::array<unsigned char, size_chosen> array_rhs{};
 		for(int i= 0; i< size_chosen; i++) {
 			array_rhs[i]= N>>(CHAR_BIT*i);//converting N into array_form
 		}
 		for(int i= 0; i< size_chosen; i++) {
 			if(temp_array[i]<array_rhs[i]) {
-				static_assert((i+1)!=size_chosen), subtraction_underflow_error_m);
+				static_assert((i+1)!=size_chosen, "underflow about was about to be caused by righthand side being larger than the left hand side in a substraction operation.");
 				temp_array[i+1]--;
 				std::uintmax_t temp_array[i]=((1<<CHAR_BIT)+temp_array[i])-array_rhs[i];
 			}
@@ -102,16 +105,15 @@ struct raw_object { //object in integer form (think of it like hexdump of an obj
 
 	consteval raw_object multiply(char *N, std::size_t size_of_array) {
 		static_assert(size_of_array==size_of_data, "size mismatch");
-		std::size_t where_this_ends=find_index_where_number_ends(*(this->obj_stored));
+		constexpr std::size_t where_this_ends=find_index_where_number_ends<T,N>(*(this->obj_stored));
 		std::array<raw_object, where_this_ends> result{0};
 		unsigned char* temp_array= reinterpret_cast<unsigned char*>(*(this->obj_stored));// i named it temp_array to follow that personal naming convention that i introduced in this source file
 
 		for(std::size_t i=0; i<where_this_ends; i++) {
-			unsigned char* raw_working_data=reinterpret_cast<unsigned char*>(&)
-			                                result[i]= temp_array[i]*N;
+			result[i]= multiply(N, size_of_array, temp_array[i]);
 			std::size_t where_result_ends= find_index_where_number_ends(result[i]);
-			for(; where_result_ends!=-1; where_result_ends--;) {
-				result[where_result_ends+i]= result[where_result_ends];
+			for(; where_result_ends!=0; where_result_ends--) {
+				result[0]+= result[where_result_ends];
 			}
 
 		}
@@ -138,8 +140,8 @@ struct raw_object { //object in integer form (think of it like hexdump of an obj
 		return multiply(array.data(), size_of_data);
 
 	}
-	consteval raw_object operator*(std::array<unsigned char, size_of_data>& array) {
-		return multiply(reinterpret_cast<char*>(&(obj_stored)), size_of_data);
+	consteval raw_object operator*(raw_object arg) {
+		return multiply(reinterpret_cast<char*>(&(arg.obj_stored)), size_of_data);
 	}
 	consteval bool operator==(raw_object& arg) {
 		unsigned char* temp_array_lhs= reinterpret_cast<char*>(&obj_stored);
@@ -166,6 +168,16 @@ struct raw_object { //object in integer form (think of it like hexdump of an obj
 		return result;
 	}
 
+};
+struct Not_base {
+	//no aliases like Enum_t or Base_t are necessary here!
+	constexpr Not_base() {}
+	template<typename T>
+	constexpr Not_base(T&& a) {} //just a place holder
+	constexpr Not_base(std::uintmax_t)
+	{
+
+	}
 };
 template<typename T, typename Base= Not_base>
 //Base must be another wrapper object
@@ -197,7 +209,6 @@ consteval auto potential_base() {
 	using potential_base= typename Enum_wrapper::Base_t;
 	if constexpr (!obj.is_initialized) {
 		if constexpr (std::is_same_v<potential_base,Not_base>) {
-			static_assert(false, "not found");
 			return;
 		}
 		else {
@@ -205,7 +216,6 @@ consteval auto potential_base() {
 		}
 	}
 	else {
-		static_assert(false, "not found");
 		return;
 	}
 }
@@ -227,7 +237,7 @@ struct correct_enum {
 
 constexpr std::uintmax_t minus_by_global= 1;
 template<typename N_t= std::uintmax_t,
-         N_t N=0, N_t M=1>
+         N_t N, N_t M>
 N_t return_addition{ //important for "return 0 if N+M is 1" else return N+M
 
 	return (N+M)-minus_by_global;
