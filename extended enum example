@@ -253,7 +253,7 @@ consteval std::array<unsigned char, size_of_array> give_init_array_with_first_el
 }
 template<std::uintmax_t domain=0>
 class generator_and_reader_infrustructor {
-	//the extra domain argument is to localize it across multiple source files (Avoid linker clashes by manually choosing the correct ID).
+	//the extra domain argument is to localize it across multiple namespaces 
 	constexpr static unsigned char b= 10;//THE B IN logbN and should not be 1! (I couldve done somthing to allow it to be one), in which the complexity is just linear N when it is one and it would take if statement to handle that case of it being 1, but I realized that would cost compile time overhead
 	template<template<std::uintmax_t, std::uintmax_t, std::uintmax_t, typename N_t_, N_t_, bool> class bc, std::uintmax_t instance, std::uintmax_t sub_instance, std::uintmax_t m, typename N_t, N_t N, bool s>
 	struct exist {
@@ -324,7 +324,7 @@ class generator_and_reader_infrustructor {
 
 };
 
-//the anonymous namespace below exists to highlight the code needed to specify the domain for the current source file!
+//the anonymous namespace below exists to highlight the code needed to specify the domain for the current namespace (global namespace)!
 namespace{
 constexpr std::uintmax_t domain_of_current_file= 0;
 
