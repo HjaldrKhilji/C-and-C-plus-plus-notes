@@ -84,11 +84,11 @@ struct raw_object { //object in integer form (think of it like hexdump of an obj
 	consteval raw_object operator+(std::array<unsigned char, size_of_data>& N) {
 		raw_object temp;
 		bool carry=false;
-		unsigned char* raw_data= reinterpret_cast<unsigned char*>(&(temp.obj_stored));
+		unsigned char* raw_object= reinterpret_cast<unsigned char*>(&(temp.obj_stored));
 		for(std::size_t i=0; i<size_of_data; i++) {
-			unsigned char result=  N[i] + raw_data[i] + carry;
+			unsigned char result=  N[i] + raw_object[i] + carry;
 			carry= ( result < N[i] ) ? true : false;
-			raw_data[i] = result;
+			raw_object[i] = result;
 		}
 		return temp;
 	}
@@ -113,7 +113,7 @@ struct raw_object { //object in integer form (think of it like hexdump of an obj
 
 
 
-	consteval obj_stored operator*(std::array<unsigned char, size_of_data>& N) {
+	consteval raw_object operator*(std::array<unsigned char, size_of_data>& N) {
 		std::size_t where_this_ends=find_index_where_number_ends(*this);
 		std::array<raw_object, where_this_ends> result{0};
 		unsigned char* temp_array= reinterpret_cast<unsigned char*>(*this);// i named it temp_array to follow that personal naming convention that i introduced in this source file
@@ -146,6 +146,30 @@ struct raw_object { //object in integer form (think of it like hexdump of an obj
 
 		}
 
+		consteval bool operator==(raw_object& arg) {
+			unsigned char* temp_array_lhs= reinterpret_cast<char*>(&obj_stored);
+			unsigned char* temp_array_rhs= reinterpret_cast<char*>(&(arg.obj_stored));
+			for(int i=0; i<size_of_data; i++) {
+				if(temp_array_lhs[i]!=temp_array_rhs[i]) {
+					return false;
+				}
+			}
+			return true;
+		}
+		consteval bool operator>(raw_object& arg) {
+			unsigned char* temp_array_lhs= reinterpret_cast<char*>(&obj_stored);
+			unsigned char* temp_array_rhs= reinterpret_cast<char*>(&(arg.obj_stored));
+			bool result= true;//dummy value
+			for(int i=0; i<size_of_data; i++) {
+				if(temp_array_lhs[i]>temp_array_rhs[i]) {
+					result= true;
+				}
+				else {
+					result= false;
+				}
+			}
+			return result;
+		}
 
 	};
 	template<typename T, typename Base= Not_base>
@@ -208,7 +232,7 @@ struct raw_object { //object in integer form (think of it like hexdump of an obj
 
 
 	namespace {
-	constexpr std::uintmax_t b= 10;//THE B IN logbN and should not be 1! (I couldve done somthing to allow it to be one), in which the complexity is just linear N when it is one and it would take if statement to handle that case of it being 1, but I realized that would cost compile time overhead
+	constexpr unsigned char b= 10;//THE B IN logbN and should not be 1! (I couldve done somthing to allow it to be one), in which the complexity is just linear N when it is one and it would take if statement to handle that case of it being 1, but I realized that would cost compile time overhead
 template<template<std::uintmax_t, std::uintmax_t, std::uintmax_t, typename N_t_, N_t_, bool> class bc, std:uintmax_t instance, std::uintmax_t sub_instance, std::uintmax_t m, typename N_t, N_t N, bool s>
 	struct exist {
 		//million credits to
@@ -219,9 +243,6 @@ template<template<std::uintmax_t, std::uintmax_t, std::uintmax_t, typename N_t_,
 			return true;
 		}
 		bool static does() {
-			if(t==0) {
-				bc<instance, sub_instance, m, N_t,N+1, s> dummy{};
-			}
 			return false;
 		}
 	};
@@ -247,7 +268,7 @@ template<template<std::uintmax_t, std::uintmax_t, std::uintmax_t, typename N_t_,
 	          N_t N=0, bool search_or_asked= false>
 	struct sequential_count {
 		//will also be used to represent enumeurators now, hence tried to make this super efficient (LogbN) efficieny, the speed increases in relativity to the greatness of the value object/number that you are trying to find
-		template< std::array<unsigned char, sizeof(N_t)> multipy_by= {1, 0}, std::uintmax_t b_= b>
+		template< std::array<unsigned char, sizeof(N_t)> multipy_by= {1}, std::array<unsigned char, sizeof(N_t)> b_= b>
 		consteval static N_t get_num() {
 			//complete but probably needs debugging/double checking a million times to be trusted 100%:
 			if(exist<sequential_count, instance, obj_instance, minus_by, N_t, (return_addition<N, multipy_by>()), true>::template does()) {
@@ -291,20 +312,27 @@ template<template<std::uintmax_t, std::uintmax_t, std::uintmax_t, typename N_t_,
 	struct Enum_wrapper_complete {
 
 
-		Enum_wrapper_complete(intermediate_enum_wrapper a) {
+		Enum_wrapper_complete(intermediate_enum_wrapper& a) {
 
 			sequential_count<2+N, sequential_count::get_num<1, 0>(), raw_object<a>, a, true> {}; // explicit initliazation to actually sign in a value.
 
 		};
-		consteval operator typename correct_enum<intermediate_enum_wrapper,
-		          object_list<intermediate_enum_wrapper, >::enum_t()
-		{
+		Enum_wrapper_complete& operator=(intermediate_enum_wrapper& a) {
+
+			sequential_count<2+N, sequential_count::get_num<1, 0>(), raw_object<a>, a, true> {}; // explicit initliazation to actually sign in a value.
+
+		};
+		consteval operator typename object_list<
+		intermediate_enum_wrapper,
+		sequential_count<2+N, sequential_count::get_num<1, 0, 1>(), 1, raw_object<intermediate_enum_wrapper>>::get_num().obj_stored
+		>::enum_t()& const {
 			return sequential_count<2+N, sequential_count::get_num<1, 0, 1>(), 1, raw_object<intermediate_enum_wrapper>>::get_num().obj_stored;
 			//This line may be a little non trivial but its just finding using the instance 2+N research for this object_list
 			//then finding the subinstance/obj_instance of a particular value and then in that finding the value and return the
-			//(raw_data of the object)-1, and then you also give it raw_object<intermediate_enum_wrapper> for it to know the type of object that it is finidng
+			//(raw_object of the object)-1, and then you also give it raw_object<intermediate_enum_wrapper> for it to know the type of object that it is finidng
 
 		}
+
 	};
 	int main()
 	{
