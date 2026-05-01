@@ -5,15 +5,19 @@
 #include<functional>
 #include<compare>
 #include<algorithm>
+#include<climits>
+constexpr char error_for_lack_of_precision_integers_m[]= "no two digit char found!!!!!";
+constexpr char subtraction_underflow_error_m[]= "underflow about was about to be caused by righthand side being larger than the left hand side in a substraction operation."
+        constexpr bool error_for_lack_of_precision_integers_b= sizeof(std::uintmax_t)> sizeof(unsigned char);
 template<std::size_t N>
 consteval obj_stored operator*(unsigned char N, std::array<unsigned char, N> arg) {
 	std::size_t i=0;
-	static_assert(sizeof(std::uintmax_t)>sizeof(unsigned char), "no two digit integer found!!!!!");
+	static_assert(error_for_lack_of_precision_integers_b, error_for_lack_of_precision_integers_m);
 	unsigned char carry=0;
 	for(; i<size_of_data; i++) {
 		std::uintmax_t result=(static_cast<std::uintmax_t>(arg[i]) * static_cast<std::uintmax_t>(N))+carry;
 		arg[i]= static_cast<unsigned char>(result);
-		carry= result>>8;
+		carry= result>>CHAR_BIT;
 	}
 	return arg;
 
@@ -48,7 +52,7 @@ consteval obj_stored operator*(std::array<unsigned char, N> arg, std::uintmax_t 
 	for(; i<size_of_data; i++) {
 		std::uintmax_t result=(static_cast<std::uintmax_t>(arg[i]) * static_cast<std::uintmax_t>(N))+carry;
 		arg[i]= static_cast<unsigned char>(result);
-		carry= result>>8;
+		carry= result>>CHAR_BIT;
 	}
 	return arg;
 
@@ -88,228 +92,228 @@ struct raw_object { //object in integer form (think of it like hexdump of an obj
 		}
 		return temp;
 	}
-	consteval raw_object operator-(std::uintmax_t N);
-	raw_object temp;
-	unsigned char* temp_array= reinterpret_cast<unsigned char*>(&(temp.obj_stored));
-	std::size_t size_chosen= std::min(sizeof(std::uintmax_t), sizeof(raw_object));
-	std::array<unsigned char, size_chosen> array_source{};
-	for(int i= 0; i< size_chosen; i++) {
-		array_source[i]= N>>(8*i);//converting N into array_form
-	}
-	for(int i= 0; i< size_chosen; i++) {
-		if(temp_array[i]<array_source[i]) {
-			if(i<(size_chosen-1)) {
+	consteval raw_object operator-(std::uintmax_t N) {
+		static_assert(error_for_lack_of_precision_integers_b, error_for_lack_of_precision_integers_m);
+		raw_object temp=*this;
+		unsigned char* temp_array= reinterpret_cast<unsigned char*>(&(temp.obj_stored));
+		std::size_t size_chosen= std::min(sizeof(std::uintmax_t), sizeof(raw_object));
+		std::array<unsigned char, size_chosen> array_rhs{};
+		for(int i= 0; i< size_chosen; i++) {
+			array_rhs[i]= N>>(CHAR_BIT*i);//converting N into array_form
+		}
+		for(int i= 0; i< size_chosen; i++) {
+			if(temp_array[i]<array_rhs[i]) {
+				static_assert((i+1)!=size_chosen), subtraction_underflow_error_m);
 				temp_array[i+1]--;
-
+				std::uintmax_t temp_array[i]=((1<<CHAR_BIT)+temp_array[i])-array_rhs[i];
 			}
 		}
+		return temp;
 	}
 
-}
 
 
+	consteval obj_stored operator*(std::array<unsigned char, size_of_data>& N) {
+		std::size_t where_this_ends=find_index_where_number_ends(*this);
+		std::array<raw_object, where_this_ends> result{0};
+		unsigned char* temp_array= reinterpret_cast<unsigned char*>(*this);// i named it temp_array to follow that personal naming convention that i introduced in this source file
 
-consteval obj_stored operator*(std::array<unsigned char, size_of_data>& N) {
-	std::size_t where_this_ends=find_index_where_number_ends(*this);
-	std::array<raw_object, where_this_ends> result{};
-	unsigned char* temp_array= reinterpret_cast<unsigned char*>(*this);// i named it temp_array to follow that personal naming convention that i introduced in this source file
-
-	for(std::size_t i=0; i<where_this_ends; i++) {
-		unsigned char* raw_working_data=reinterpret_cast<unsigned char*>(&)
-		                                result[i]= temp_array[i]*N;
-		std::size_t where_result_ends= find_index_where_number_ends(result[i]);
-		for(; where_result_ends!=-1; where_result_ends--;) {
-			result[where_result_ends+i]= result[where_result_ends];
-		}
-
-	}
-	switch(where_this_ends) {
-
-	case 2:
-
-		for(std::size_t i=1; i<where_this_ends; i++) {
-
-			result[0]+=result[i];
+		for(std::size_t i=0; i<where_this_ends; i++) {
+			unsigned char* raw_working_data=reinterpret_cast<unsigned char*>(&)
+			                                result[i]= temp_array[i]*N;
+			std::size_t where_result_ends= find_index_where_number_ends(result[i]);
+			for(; where_result_ends!=-1; where_result_ends--;) {
+				result[where_result_ends+i]= result[where_result_ends];
+			}
 
 		}
-		return result[0];
-	case 1:
-		return result[0];
+		switch(where_this_ends) {
+
+		case 2:
+
+			for(std::size_t i=1; i<where_this_ends; i++) {
+
+				result[0]+=result[i];
+
+			}
+			return result[0];
+		case 1:
+			return result[0];
 
 
-	case 0:
-		result *this;
+		case 0:
+			result *this;
 
-	}
+		}
 
 
-};
-template<typename T, typename Base= Not_base>
-//Base must be another wrapper object
-struct Enum_wrapper: Base {
-	using Enum_t=T;
-	using Base_t= Base;
-	Enum_t enumerator;
-	bool is_initialized;
-	constexpr Enum_wrapper() {}
-	constexpr Enum_wrapper(Enum_t a):
-		enumerator{a}, is_initialized{true} {}
-	template<typename Other_Enum_t>
-	requires(std::is_scoped_enum_v<Other_Enum_t>)
-	constexpr Enum_wrapper(Other_Enum_t a): Base{a}, enumerator{}, is_initialized{false} {}
-	constexpr Enum_wrapper(std::uintmax_t a): Base{0}, enumerator{static_cast<Enum_t>(a)},
-		is_initialized{a} {
+	};
+	template<typename T, typename Base= Not_base>
+	//Base must be another wrapper object
+	struct Enum_wrapper: Base {
+		using Enum_t=T;
+		using Base_t= Base;
+		Enum_t enumerator;
+		bool is_initialized;
+		constexpr Enum_wrapper() {}
+		constexpr Enum_wrapper(Enum_t a):
+			enumerator{a}, is_initialized{true} {}
+		template<typename Other_Enum_t>
+		requires(std::is_scoped_enum_v<Other_Enum_t>)
+		constexpr Enum_wrapper(Other_Enum_t a): Base{a}, enumerator{}, is_initialized{false} {}
+		constexpr Enum_wrapper(std::uintmax_t a): Base{0}, enumerator{static_cast<Enum_t>(a)},
+			is_initialized{a} {
 
-	}
+		}
 
-	//One could optionally (to make it even better) append/add:
-	/*
-	        using enum Enum_t;
-	            using Base;
-	                Or Anything equavulent to the two lines above
-	                    */
-};
-template <typename Enum_wrapper,  Enum_wrapper obj,template<typename T, T obj_nested> typename correct_enum>
-consteval auto potential_base() {
-	using potential_base= typename Enum_wrapper::Base_t;
-	if constexpr (!obj.is_initialized) {
-		if constexpr (std::is_same_v<potential_base,Not_base>) {
+		//One could optionally (to make it even better) append/add:
+		/*
+		        using enum Enum_t;
+		            using Base;
+		                Or Anything equavulent to the two lines above
+		                    */
+	};
+	template <typename Enum_wrapper,  Enum_wrapper obj,template<typename T, T obj_nested> typename correct_enum>
+	consteval auto potential_base() {
+		using potential_base= typename Enum_wrapper::Base_t;
+		if constexpr (!obj.is_initialized) {
+			if constexpr (std::is_same_v<potential_base,Not_base>) {
+				static_assert(false, "not found");
+				return;
+			}
+			else {
+				return correct_enum<potential_base, potential_base{obj}> {};
+			}
+		}
+		else {
 			static_assert(false, "not found");
 			return;
 		}
-		else {
-			return correct_enum<potential_base, potential_base{obj}> {};
-		}
 	}
-	else {
-		static_assert(false, "not found");
-		return;
-	}
-}
-template<typename Enum_wrapper, Enum_wrapper obj>
-struct correct_enum {
-	using potential_base_t=
-	    decltype(
-	        potential_base<Enum_wrapper, obj, correct_enum>()
-	    );
-	using enum_t=
-	    std::conditional_t<
-	    obj.is_initialized,
-	    typename Enum_wrapper::Enum_t,
-	    typename potential_base_t::enum_t
-	    >;
-	static constexpr enum_t enum_v = obj.is_initialized ? obj.enumerator : potential_base_t::enum_v;
-};
+	template<typename Enum_wrapper, Enum_wrapper obj>
+	struct correct_enum {
+		using potential_base_t=
+		    decltype(
+		        potential_base<Enum_wrapper, obj, correct_enum>()
+		    );
+		using enum_t=
+		    std::conditional_t<
+		    obj.is_initialized,
+		    typename Enum_wrapper::Enum_t,
+		    typename potential_base_t::enum_t
+		    >;
+		static constexpr enum_t enum_v = obj.is_initialized ? obj.enumerator : potential_base_t::enum_v;
+	};
 
 
 
-namespace {
-constexpr std::uintmax_t b= 10;//THE B IN logbN and should not be 1! (I couldve done somthing to allow it to be one), in which the complexity is just linear N when it is one and it would take if statement to handle that case of it being 1, but I realized that would cost compile time overhead
+	namespace {
+	constexpr std::uintmax_t b= 10;//THE B IN logbN and should not be 1! (I couldve done somthing to allow it to be one), in which the complexity is just linear N when it is one and it would take if statement to handle that case of it being 1, but I realized that would cost compile time overhead
 template<template<std::uintmax_t, std::uintmax_t, std::uintmax_t, typename N_t_, N_t_, bool> class bc, std:uintmax_t instance, std::uintmax_t sub_instance, std::uintmax_t m, typename N_t, N_t N, bool s>
-struct exist {
-	//million credits to
-	//https://www.lukas-barth.net/blog/checking-if-specialized/
-	//for saving me here:
-	template<typename exist_if_exist= decltype(std::declval<bc<instance, sub_instance, m, N_t, N,s>>().~bc<instance, sub_instance, m, N_t, N, s>())>
-	bool static does() {
-		return true;
-	}
-	bool static does() {
-		if(t==0) {
-			bc<instance, sub_instance, m, N_t,N+1, s> dummy{};
+	struct exist {
+		//million credits to
+		//https://www.lukas-barth.net/blog/checking-if-specialized/
+		//for saving me here:
+		template<typename exist_if_exist= decltype(std::declval<bc<instance, sub_instance, m, N_t, N,s>>().~bc<instance, sub_instance, m, N_t, N, s>())>
+		bool static does() {
+			return true;
 		}
-		return false;
+		bool static does() {
+			if(t==0) {
+				bc<instance, sub_instance, m, N_t,N+1, s> dummy{};
+			}
+			return false;
+		}
+	};
+
+	template<typename N_t= std::uintmax_t,
+	         N_t N=0, N_t M=1>
+	N_t return_addition{ //important for "return 0 if N+M is 1" else return N+M
+
+		return (N+M)-1;
+
 	}
-};
-
-template<typename N_t= std::uintmax_t,
-         N_t N=0, N_t M=1>
-N_t return_addition{ //important for "return 0 if N+M is 1" else return N+M
-
-	return (N+M)-1;
-
-}
 template<template<std::uintmax_t, std::uintmax_t, std::uintmax_t, typename N_t_, N_t_, bool> class bc, std:uintmax_t instance, std::uintmax_t sub_instance, std::uintmax_t minus_by, typename N_t, N_t N, bool s, std::uintmax_t b>
-consteval void register_power_of_b() {
-	N_t_ smallest_perfect_power=1; //smallest_perfect_power is the smallest_perfect_power bigger than N
-	for(smallest_perfect_power>N; smallest_perfect_power*=b) {
-		bc<instance, sub_instance, minus_by, N_t,smallest_perfect_power, s> dummy{};
+	consteval void register_power_of_b() {
+		N_t_ smallest_perfect_power=1; //smallest_perfect_power is the smallest_perfect_power bigger than N
+		for(smallest_perfect_power>N; smallest_perfect_power*=b) {
+			bc<instance, sub_instance, minus_by, N_t,smallest_perfect_power, s> dummy{};
+		}
 	}
-}
-template< std::uintmax_t instance,//instance is purely to avoid writing the same thing many times
-          std::uintmax_t obj_instance,//zero if you just want a number (in that case instance would be 0 or 1)
-          std::uintmax_t minus_by=0,//zero if signing in an object and N to find the last N object. The
-          typename N_t= std::uintmax_t,
-          N_t N=0, bool search_or_asked= false>
-struct sequential_count {
-	//will also be used to represent enumeurators now, hence tried to make this super efficient (LogbN) efficieny, the speed increases in relativity to the greatness of the value object/number that you are trying to find
-	template< std::array<unsigned char, sizeof(N_t)> multipy_by= {1, 0}, std::uintmax_t b_= b>
-	consteval static N_t get_num() {
-		//complete but probably needs debugging/double checking a million times to be trusted 100%:
-		if(exist<sequential_count, instance, obj_instance, minus_by, N_t, (return_addition<N, multipy_by>()), true>::template does()) {
-			//check if the current exists: current_N*current_multiply_by
-			if(!exist<sequential_count, instance, obj_instance, minus_by, N_t, (return_addition<N, multipy_by*b_>()), true>::template does()) {
-				//check if the current_N*Next_multiply_by_exist(multipy_by*b_) does not exist
-				if(exist<sequential_count, instance, obj_instance, minus_by, N_t, (return_addition<N, multipy_by*b_>())-b_, true>::template does()) {
-					//check if the current_N*Next_multiply_by_exist(multipy_by*b_)-b_ does exists
-					return sequential_count<instance, obj_instance, minus_by, N_t, (return_addition<N, multipy_by>()), true>::template get_num<1,2>();
-				}
-				else if(exist<sequential_count, instance, obj_instance, minus_by, N_t, (return_addition<N, multipy_by*b_>())-1, true>::template does()) {
-					if(exist<sequential_count, instance, obj_instance, minus_by, N_t, (return_addition<N, multipy_by*b_>()), false>::template does()) {
-						//the extra check if to make sure that the empty (multipy_by*b_) slot found was registered by sequential_count instead of register_power_of_b.
-						return (N*multipy_by*b_)-minus_by; //found a power of b_ ( lucky isnt it :), like dont you get it that the odds of finding out while counting or finding object is really low? )
+	template< std::uintmax_t instance,//instance is purely to avoid writing the same thing many times
+	          std::uintmax_t obj_instance,//zero if you just want a number (in that case instance would be 0 or 1)
+	          std::uintmax_t minus_by=0,//zero if signing in an object and N to find the last N object. The
+	          typename N_t= std::uintmax_t,
+	          N_t N=0, bool search_or_asked= false>
+	struct sequential_count {
+		//will also be used to represent enumeurators now, hence tried to make this super efficient (LogbN) efficieny, the speed increases in relativity to the greatness of the value object/number that you are trying to find
+		template< std::array<unsigned char, sizeof(N_t)> multipy_by= {1, 0}, std::uintmax_t b_= b>
+		consteval static N_t get_num() {
+			//complete but probably needs debugging/double checking a million times to be trusted 100%:
+			if(exist<sequential_count, instance, obj_instance, minus_by, N_t, (return_addition<N, multipy_by>()), true>::template does()) {
+				//check if the current exists: current_N*current_multiply_by
+				if(!exist<sequential_count, instance, obj_instance, minus_by, N_t, (return_addition<N, multipy_by*b_>()), true>::template does()) {
+					//check if the current_N*Next_multiply_by_exist(multipy_by*b_) does not exist
+					if(exist<sequential_count, instance, obj_instance, minus_by, N_t, (return_addition<N, multipy_by*b_>())-b_, true>::template does()) {
+						//check if the current_N*Next_multiply_by_exist(multipy_by*b_)-b_ does exists
+						return sequential_count<instance, obj_instance, minus_by, N_t, (return_addition<N, multipy_by>()), true>::template get_num<1,2>();
 					}
-					else {
-						//finds out (N*multipy_by)+(the whole process overagain) but not in the process that you would expect:
-						return sequential_count<instance, obj_instance, minus_by, N_t, (return_addition<N, multipy_by>()), true, minus_by>::template get_num<1, b_>();
-					}
+					else if(exist<sequential_count, instance, obj_instance, minus_by, N_t, (return_addition<N, multipy_by*b_>())-1, true>::template does()) {
+						if(exist<sequential_count, instance, obj_instance, minus_by, N_t, (return_addition<N, multipy_by*b_>()), false>::template does()) {
+							//the extra check if to make sure that the empty (multipy_by*b_) slot found was registered by sequential_count instead of register_power_of_b.
+							return (N*multipy_by*b_)-minus_by; //found a power of b_ ( lucky isnt it :), like dont you get it that the odds of finding out while counting or finding object is really low? )
+						}
+						else {
+							//finds out (N*multipy_by)+(the whole process overagain) but not in the process that you would expect:
+							return sequential_count<instance, obj_instance, minus_by, N_t, (return_addition<N, multipy_by>()), true, minus_by>::template get_num<1, b_>();
+						}
 
+					}
+				}
+
+				else {
+					//going even deeper
+					return sequential_count<instance, obj_instance, minus_by, N_t, (return_addition<N, multipy_by>()), true, minus_by>::template get_num< multipy_by*b, b_>();
 				}
 			}
-
 			else {
-				//going even deeper
-				return sequential_count<instance, obj_instance, minus_by, N_t, (return_addition<N, multipy_by>()), true, minus_by>::template get_num< multipy_by*b, b_>();
+				register_power_of_b<sequential_count, instance, obj_instance, minus_by, N_t, (N*multipy_by), false, b_>();
+				return (N*multipy_by)-minus_by;
 			}
 		}
-		else {
-			register_power_of_b<sequential_count, instance, obj_instance, minus_by, N_t, (N*multipy_by), false, b_>();
-			return (N*multipy_by)-minus_by;
-		}
-	}
-
-};
-
-}
-
-
-template<typename intermediate_enum_wrapper, std::uintmax_t N= sequential_count<0, 0>::get_num()>
-struct Enum_wrapper_complete {
-
-
-	Enum_wrapper_complete(intermediate_enum_wrapper a) {
-
-		sequential_count<2+N, sequential_count::get_num<1, 0>(), raw_object<a>, a, true> {}; // explicit initliazation to actually sign in a value.
 
 	};
-	consteval operator typename correct_enum<intermediate_enum_wrapper,
-	          object_list<intermediate_enum_wrapper, >::enum_t()
-	{
-		return sequential_count<2+N, sequential_count::get_num<1, 0, 1>(), 1, raw_object<intermediate_enum_wrapper>>::get_num().obj_stored;
-		//This line may be a little non trivial but its just finding using the instance 2+N research for this object_list
-		//then finding the subinstance/obj_instance of a particular value and then in that finding the value and return the
-		//(raw_data of the object)-1, and then you also give it raw_object<intermediate_enum_wrapper> for it to know the type of object that it is finidng
 
 	}
-};
-int main()
-{
-	enum class A { voilet, blue, roses, red};
-	constexpr A enum_obj= A::blue;
-	Enum_wrapper B{enum_obj};
-	Enum_wrapper_complete wrap{B};
-	return 0;
-}
+
+
+	template<typename intermediate_enum_wrapper, std::uintmax_t N= sequential_count<0, 0>::get_num()>
+	struct Enum_wrapper_complete {
+
+
+		Enum_wrapper_complete(intermediate_enum_wrapper a) {
+
+			sequential_count<2+N, sequential_count::get_num<1, 0>(), raw_object<a>, a, true> {}; // explicit initliazation to actually sign in a value.
+
+		};
+		consteval operator typename correct_enum<intermediate_enum_wrapper,
+		          object_list<intermediate_enum_wrapper, >::enum_t()
+		{
+			return sequential_count<2+N, sequential_count::get_num<1, 0, 1>(), 1, raw_object<intermediate_enum_wrapper>>::get_num().obj_stored;
+			//This line may be a little non trivial but its just finding using the instance 2+N research for this object_list
+			//then finding the subinstance/obj_instance of a particular value and then in that finding the value and return the
+			//(raw_data of the object)-1, and then you also give it raw_object<intermediate_enum_wrapper> for it to know the type of object that it is finidng
+
+		}
+	};
+	int main()
+	{
+		enum class A { voilet, blue, roses, red};
+		constexpr A enum_obj= A::blue;
+		Enum_wrapper B{enum_obj};
+		Enum_wrapper_complete wrap{B};
+		return 0;
+	}
 //personal notes:/*
 I feel like this tool will allow one to embedde trained AI into code and use that to choose the correct types and value. Its possible since the stack exist 
 and you can get data out of it once you are done, at which point AI can take it from their, use the current type of each wrapper object (set by the bool) and 
