@@ -265,6 +265,9 @@ class generator_and_reader_infrustructor {
 			return true;
 		}
 		bool static does() {
+    if(!m){
+std::declval<bc<instance, sub_instance, m, N_t, N,s>> dummy; 
+}
 			return false;
 		}
 	};
@@ -299,7 +302,10 @@ class generator_and_reader_infrustructor {
 					else if(exist<sequential_count, instance, obj_instance, minus_by, N_t, (return_addition<N, multipy_by*b_>())-1, true>::template does()) {
 						if(exist<sequential_count, instance, obj_instance, minus_by, N_t, (return_addition<N, multipy_by*b_>()), false>::template does()) {
 							//the extra check if to make sure that the empty (multipy_by*b_) slot found was registered by sequential_count instead of register_power_of_b.
+if(!minus_by){
+register_power_of_b<sequential_count, instance, obj_instance, minus_by, N_t, (N*multipy_by), true, b_>();
 							return (N*multipy_by*b_)-minus_by; //found a power of b_ ( lucky isnt it :), like dont you get it that the odds of finding out while counting or finding object is really low? )
+}
 						}
 						else {
 							//finds out (N*multipy_by)+(the whole process overagain) but not in the process that you would expect:
@@ -315,7 +321,10 @@ class generator_and_reader_infrustructor {
 				}
 			}
 			else {
-				register_power_of_b<sequential_count, instance, obj_instance, minus_by, N_t, (N*multipy_by), false, b_>();
+if(!minus_by){
+				register_power_of_b<sequential_count, instance, obj_instance, minus_by, N_t, (N*multipy_by), true, b_>();
+     
+}
 				return (N*multipy_by)-minus_by;
 			}
 		}
