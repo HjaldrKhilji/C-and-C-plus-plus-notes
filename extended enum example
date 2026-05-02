@@ -192,6 +192,7 @@ struct Enum_wrapper: Base {
 	constexpr Enum_wrapper(Enum_t a):
 		enumerator{a}, is_initialized{true} {}
 	template<typename Other_Enum_t>
+    requires(std::is_scoped_enum_v<Other_Enum_t>)
 	constexpr Enum_wrapper(Other_Enum_t a): Base{a}, enumerator{}, is_initialized{false} {}
 	constexpr Enum_wrapper(std::uintmax_t a): Base{0}, enumerator{static_cast<Enum_t>(a)},
 		is_initialized{a} {
@@ -253,7 +254,7 @@ consteval std::array<unsigned char, size_of_array> give_init_array_with_first_el
 }
 template<std::uintmax_t domain=0>
 class generator_and_reader_infrustructor {
-	//the extra domain argument is to localize it across multiple namespaces
+	//the extra domain argument is to localize it across multiple namespaces 
 	constexpr static unsigned char b= 10;//THE B IN logbN and should not be 1! (I couldve done somthing to allow it to be one), in which the complexity is just linear N when it is one and it would take if statement to handle that case of it being 1, but I realized that would cost compile time overhead
 	template<template<std::uintmax_t, std::uintmax_t, std::uintmax_t, typename N_t_, N_t_, bool> class bc, std::uintmax_t instance, std::uintmax_t sub_instance, std::uintmax_t m, typename N_t, N_t N, bool s>
 	struct exist {
@@ -265,14 +266,25 @@ class generator_and_reader_infrustructor {
 			return true;
 		}
 		bool static does() {
-			if(!m) {
-				bc<instance, sub_instance, m, N_t, N,s> dummy{};
-			}
+            if(!m){
+                bc<instance, sub_instance, m, N_t, N,s> dummy{}; 
+            }
 			return false;
 		}
 	};
-
-
+    template<typename N_t, unsigned char init_first_digit>
+    struct config_of_screws_in_the_engine{
+        constexpr static N_t get_init(){
+            if(std::is_same_v<N_t, std::uintmax_t>){
+                return init_first_digit;
+            }
+            else{
+                //assumes its an array anyway (trying to finish this document as soon as possible)
+                return give_init_array_with_first_elem_and_zeros<std::size(std::declval<N_t>()), init_first_digit>();
+            }
+        }
+        using type= N_t;
+    };
 	template<template<std::uintmax_t, std::uintmax_t, std::uintmax_t, typename N_t_, N_t_, bool> class bc, std::uintmax_t instance, std::uintmax_t sub_instance, std::uintmax_t minus_by, typename N_t, N_t N, bool s, std::uintmax_t b>
 	consteval void register_power_of_b() {
 		N_t smallest_perfect_power=1; //smallest_perfect_power is the smallest_perfect_power bigger than N
@@ -287,29 +299,29 @@ class generator_and_reader_infrustructor {
 	          N_t N=0, bool search_or_asked= false>
 	struct sequential_count {
 		//will also be used to represent enumeurators now, hence tried to make this super efficient (LogbN) efficieny, the speed increases in relativity to the greatness of the value object/number that you are trying to find
-		template< std::array<unsigned char, sizeof(N_t)> multipy_by= give_init_array_with_first_elem_and_zeros<sizeof(N_t), 1>(),
-		          std::array<unsigned char, sizeof(N_t)> b_=  give_init_array_with_first_elem_and_zeros<sizeof(N_t), b>() >
+		template< config_of_screws_in_the_engine<N_t, 1>::type multipy_by= config_of_screws_in_the_engine<N_t,1>::get_init(),
+		          std::uintmax_t b_ =  b >
 		consteval static N_t get_num() {
 			//complete but probably needs debugging/double checking a million times to be trusted 100%:
-			if(exist<sequential_count, instance, obj_instance, minus_by, N_t, (return_addition<N, multipy_by>()), true>::template does()) {
+			if(exist<sequential_count, instance, obj_instance, minus_by, N_t, (return_addition<N_t,N, multipy_by>()), true>::template does()) {
 				//check if the current exists: current_N*current_multiply_by
-				if(!exist<sequential_count, instance, obj_instance, minus_by, N_t, (return_addition<N, multipy_by*b_>()), true>::template does()) {
+				if(!exist<sequential_count, instance, obj_instance, minus_by, N_t, (return_addition<N_t,N, multipy_by*b_>()), true>::template does()) {
 					//check if the current_N*Next_multiply_by_exist(multipy_by*b_) does not exist
-					if(exist<sequential_count, instance, obj_instance, minus_by, N_t, (return_addition<N, multipy_by*b_>())-b_, true>::template does()) {
+					if(exist<sequential_count, instance, obj_instance, minus_by, N_t, (return_addition<N_t,N, multipy_by*b_>())-b_, true>::template does()) {
 						//check if the current_N*Next_multiply_by_exist(multipy_by*b_)-b_ does exists
-						return sequential_count<instance, obj_instance, minus_by, N_t, (return_addition<N, multipy_by>()), true>::template get_num<1,2>();
+						return sequential_count<instance, obj_instance, minus_by, N_t, (return_addition<N_t,N, multipy_by>()), true>::template get_num<1,2>();
 					}
-					else if(exist<sequential_count, instance, obj_instance, minus_by, N_t, (return_addition<N, multipy_by*b_>())-1, true>::template does()) {
-						if(exist<sequential_count, instance, obj_instance, minus_by, N_t, (return_addition<N, multipy_by*b_>()), false>::template does()) {
+					else if(exist<sequential_count, instance, obj_instance, minus_by, N_t, (return_addition<N_t,N, multipy_by*b_>())-1, true>::template does()) {
+						if(exist<sequential_count, instance, obj_instance, minus_by, N_t, (return_addition<N_t,N, multipy_by*b_>()), false>::template does()) {
 							//the extra check if to make sure that the empty (multipy_by*b_) slot found was registered by sequential_count instead of register_power_of_b.
-							if(!minus_by) {
-								register_power_of_b<sequential_count, instance, obj_instance, minus_by, N_t, (N*multipy_by), true, b_>();
-								return (N*multipy_by*b_)-minus_by; //found a power of b_ ( lucky isnt it :), like dont you get it that the odds of finding out while counting or finding object is really low? )
-							}
+                            if(!minus_by){
+                            register_power_of_b<sequential_count, instance, obj_instance, minus_by, N_t, (N*multipy_by), true, b_>();
+                                                        return (N*multipy_by*b_)-minus_by; //found a power of b_ ( lucky isnt it :), like dont you get it that the odds of finding out while counting or finding object is really low? )
+                            }
 						}
 						else {
 							//finds out (N*multipy_by)+(the whole process overagain) but not in the process that you would expect:
-							return sequential_count<instance, obj_instance, minus_by, N_t, (return_addition<N, multipy_by>()), true>::template get_num<1, b_>();
+							return sequential_count<instance, obj_instance, minus_by, N_t, (return_addition<N_t,N, multipy_by>()), true>::template get_num<1, b_>();
 						}
 
 					}
@@ -321,10 +333,10 @@ class generator_and_reader_infrustructor {
 				}
 			}
 			else {
-				if(!minus_by) {
-					register_power_of_b<sequential_count, instance, obj_instance, minus_by, N_t, (N*multipy_by), true, b_>();
-
-				}
+if(!minus_by){
+				register_power_of_b<sequential_count, instance, obj_instance, minus_by, N_t, (N*multipy_by), true, b_>();
+     
+}
 				return (N*multipy_by)-minus_by;
 			}
 		}
@@ -334,7 +346,7 @@ class generator_and_reader_infrustructor {
 };
 
 //the anonymous namespace below exists to highlight the code needed to specify the domain for the current namespace (global namespace)!
-namespace {
+namespace{
 constexpr std::uintmax_t domain_of_current_file= 0;
 
 
@@ -345,7 +357,7 @@ template< std::uintmax_t instance,
           N_t N=0, bool search_or_asked= false>
 using sequential_count= generator_and_reader_infrustructor<0>::sequential_count<instance, obj_instance, minus_by, N_t, N, search_or_asked>;
 // A file can obviously use two domain integers if needed!
-
+    
 }
 
 constexpr std::uintmax_t enum_object_id=0;
@@ -371,10 +383,10 @@ struct Enum_wrapper_complete {
 	sequential_count<2+N, sequential_count<enum_object_change_id, 0, minus_by_to_get_last_N>::get_num(), minus_by_to_get_last_N, raw_object<intermediate_enum_wrapper>>::get_num().obj_stored
 	>::enum_t() {
 		return correct_enum<
-		       intermediate_enum_wrapper,
-		       sequential_count<2+N, sequential_count::get_num<enum_object_change_id, 0, minus_by_to_get_last_N>(), minus_by_to_get_last_N, raw_object<intermediate_enum_wrapper>>::get_num().obj_stored;
-		>::enum_v;
-		//This line may be a little non trivial but its just finding using the instance 2+N research for this object_list
+                intermediate_enum_wrapper,
+                sequential_count<2+N, sequential_count::get_num<enum_object_change_id, 0, minus_by_to_get_last_N>(), minus_by_to_get_last_N, raw_object<intermediate_enum_wrapper>>::get_num().obj_stored;
+                >::enum_v;
+        //This line may be a little non trivial but its just finding using the instance 2+N research for this object_list
 		//then finding the subinstance/obj_instance of a particular value and then in that finding the value and return the
 		//(raw_object of the object)-1, and then you also give it raw_object<intermediate_enum_wrapper> for it to know the type of object that it is finidng
 
