@@ -238,9 +238,9 @@ struct correct_enum {
 
 
 constexpr std::uintmax_t minus_by_global= 1;
-template<typename N_t= std::uintmax_t,
-         N_t N, N_t M>
-N_t return_addition() { //important for "return 0 if N+M is 1" else return N+M
+template<typename N_t= std::uintmax_t, typename T,
+         N_t N, T M>
+consteval N_t return_addition() { //important for "return 0 if N+M is 1" else return N+M
 
 	return (N+M)-minus_by_global;
 
@@ -269,43 +269,18 @@ consteval std::array<unsigned char, size_of_array> give_init_container_with_firs
 			return false;
 		}
 	};
-    template<typename T>
-    concept Is_Container_Concept = requires(T a) {
-        //checks if its like a container
-        a.size();
-    };
-    template<Is_Container_Concept T>
-    consteval bool is_container(){
-        return true;
-    }
-    template<typename>
-    consteval bool is_container(){
-        return false;
-    }
-
-    template<std::integral T, unsigned char initializer>
-    consteval T get_integral(){
-        return initializer;
-    }
-    template<Is_Container_Concept T, unsigned char initializer>
-    consteval T get_container(){
-        T array_var{};
-        return give_init_container_with_first_elem_and_zeros<array_var.size(), initializer>();
-    }
-    template<typename T, unsigned char initializer>
-    consteval T get_data(){
-        if(std::is_integral_v<T>){
-            return get_integral<T, initializer>();
-        }
-        else{
-            return get_container<T, initializer>();
-        }
-    }
     template<typename N_t, unsigned char init_first_digit>
     struct config_of_screws_in_the_engine{
+        constexpr static std::size_t size_of_raw_data_array=init_first_digit;
+        using type= std::array<unsigned char, size_of_raw_data_array>;
+        consteval static type get_init(){
+            return give_init_container_with_first_elem_and_zeros<size_of_raw_data_array, init_first_digit>();
+        }
+    };
+    template<std::integral N_t, unsigned char init_first_digit>
+    struct config_of_screws_in_the_engine<N_t, init_first_digit>{
         consteval static N_t get_init(){
-            static_assert(is_container<N_t>()||std::is_same_v<N_t, std::uintmax_t>, "type is neither uintmax_t or std::array");
-            return get_data<N_t, init_first_digit>();
+            return init_first_digit;
         }
         using type= N_t;
     };
@@ -334,17 +309,18 @@ class generator_and_reader_infrustructor {
 		template< multiply_by::type multipy_by= multiply_by::get_init(),
 		          std::uintmax_t b_ =  b >
 		consteval static N_t get_num() {
-			//complete but probably needs debugging/double checking a million times to be trusted 100%:
-			if(exist<sequential_count, instance, obj_instance, minus_by, N_t, (return_addition<N_t,N, multipy_by>()), true>::template does()) {
+
+        	//complete but probably needs debugging/double checking a million times to be trusted 100%:
+			if(exist<sequential_count, instance, obj_instance, minus_by, N_t, (return_addition<N_t,typename multiply_by::type,N, multipy_by>()), true>::template does()) {
 				//check if the current exists: current_N*current_multiply_by
-				if(!exist<sequential_count, instance, obj_instance, minus_by, N_t, (return_addition<N_t,N, multipy_by*b_>()), true>::template does()) {
+				if(!exist<sequential_count, instance, obj_instance, minus_by, N_t, (return_addition<N_t,typename multiply_by::type,N, multipy_by*b_>()), true>::template does()) {
 					//check if the current_N*Next_multiply_by_exist(multipy_by*b_) does not exist
-					if(exist<sequential_count, instance, obj_instance, minus_by, N_t, (return_addition<N_t,N, multipy_by*b_>())-b_, true>::template does()) {
+					if(exist<sequential_count, instance, obj_instance, minus_by, N_t, (return_addition<N_t,typename multiply_by::type,N, multipy_by*b_>())-b_, true>::template does()) {
 						//check if the current_N*Next_multiply_by_exist(multipy_by*b_)-b_ does exists
-						return sequential_count<instance, obj_instance, minus_by, N_t, (return_addition<N_t,N, multipy_by>()), true>::template get_num<1,2>();
+						return sequential_count<instance, obj_instance, minus_by, N_t, (return_addition<N_t,typename multiply_by::type,N, multipy_by>()), true>::template get_num<1,2>();
 					}
-					else if(exist<sequential_count, instance, obj_instance, minus_by, N_t, (return_addition<N_t,N, multipy_by*b_>())-1, true>::template does()) {
-						if(exist<sequential_count, instance, obj_instance, minus_by, N_t, (return_addition<N_t,N, multipy_by*b_>()), false>::template does()) {
+					else if(exist<sequential_count, instance, obj_instance, minus_by, N_t, (return_addition<N_t,typename multiply_by::type,N, multipy_by*b_>())-1, true>::template does()) {
+						if(exist<sequential_count, instance, obj_instance, minus_by, N_t, (return_addition<N_t,typename multiply_by::type,N, multipy_by*b_>()), false>::template does()) {
 							//the extra check if to make sure that the empty (multipy_by*b_) slot found was registered by sequential_count instead of register_power_of_b.
                             if(!minus_by){
                             register_power_of_b<sequential_count, instance, obj_instance, minus_by, N_t, (N*multipy_by), true, b_>();
