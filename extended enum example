@@ -246,42 +246,66 @@ N_t return_addition() { //important for "return 0 if N+M is 1" else return N+M
 
 }
 template<std::size_t size_of_array, unsigned char first_element_initializer>
-consteval std::array<unsigned char, size_of_array> give_init_array_with_first_elem_and_zeros() {
+consteval std::array<unsigned char, size_of_array> give_init_container_with_first_elem_and_zeros() {
+    //*for array speciliazation*
 	std::array<unsigned char, size_of_array> array_to_initialize{};
 	array_to_initialize.fill(0);
 	array_to_initialize[0]= first_element_initializer;
 	return array_to_initialize;
 }
-template<std::uintmax_t domain=0>
-class generator_and_reader_infrustructor {
-	//the extra domain argument is to localize it across multiple namespaces 
-	constexpr static unsigned char b= 10;//THE B IN logbN and should not be 1! (I couldve done somthing to allow it to be one), in which the complexity is just linear N when it is one and it would take if statement to handle that case of it being 1, but I realized that would cost compile time overhead
 	template<template<std::uintmax_t, std::uintmax_t, std::uintmax_t, typename N_t_, N_t_, bool> class bc, std::uintmax_t instance, std::uintmax_t sub_instance, std::uintmax_t m, typename N_t, N_t N, bool s>
 	struct exist {
 		//million credits to
 		//https://www.lukas-barth.net/blog/checking-if-specialized/
 		//for saving me here:
 		template<typename exist_if_exist= decltype(std::declval<bc<instance, sub_instance, m, N_t, N,s>>().~bc<instance, sub_instance, m, N_t, N, s>())>
-		bool static does() {
+		bool static consteval does() {
 			return true;
 		}
-		bool static does() {
+		bool static consteval does() {
             if(!m){
                 bc<instance, sub_instance, m, N_t, N,s> dummy{}; 
             }
 			return false;
 		}
 	};
+    template<typename T>
+    concept Is_Container_Concept = requires(T a) {
+        //checks if its like a container
+        a.size();
+    };
+    template<Is_Container_Concept T>
+    consteval bool is_container(){
+        return true;
+    }
+    template<typename>
+    consteval bool is_container(){
+        return false;
+    }
+
+    template<std::integral T, unsigned char initializer>
+    consteval T get_integral(){
+        return initializer;
+    }
+    template<Is_Container_Concept T, unsigned char initializer>
+    consteval T get_container(){
+        T array_var{};
+        return give_init_container_with_first_elem_and_zeros<array_var.size(), initializer>();
+    }
+    template<typename T, unsigned char initializer>
+    consteval T get_data(){
+        if(std::is_integral_v<T>){
+            return get_integral<T, initializer>();
+        }
+        else{
+            return get_container<T, initializer>();
+        }
+    }
     template<typename N_t, unsigned char init_first_digit>
     struct config_of_screws_in_the_engine{
-        constexpr static N_t get_init(){
-            if(std::is_same_v<N_t, std::uintmax_t>){
-                return init_first_digit;
-            }
-            else{
-                //assumes its an array anyway (trying to finish this document as soon as possible)
-                return give_init_array_with_first_elem_and_zeros<std::size(std::declval<N_t>()), init_first_digit>();
-            }
+        consteval static N_t get_init(){
+            static_assert(is_container<N_t>()||std::is_same_v<N_t, std::uintmax_t>, "type is neither uintmax_t or std::array");
+            return get_data<N_t, init_first_digit>();
         }
         using type= N_t;
     };
@@ -292,14 +316,22 @@ class generator_and_reader_infrustructor {
 			bc<instance, sub_instance, minus_by, N_t,smallest_perfect_power-minus_by_global, s> dummy{};
 		}
 	}
+template<std::uintmax_t domain=0>
+class generator_and_reader_infrustructor {
+    //usually the namespace domain that you should number using "domain" should be the global namespace (to avoid linker issues)
+    //but if the C++ standard provides an interface to get a unique id with the combination of a filename with a namespace name.
+	//the extra domain argument is to localize it across multiple namespaces 
+	constexpr static unsigned char b= 10;//THE B IN logbN and should not be 1! (I couldve done somthing to allow it to be one), in which the complexity is just linear N when it is one and it would take if statement to handle that case of it being 1, but I realized that would cost compile time overhead
+
 	template< std::uintmax_t instance,//instance is purely to avoid writing the same thing many times
 	          std::uintmax_t obj_instance,//zero if you just want a number (in that case instance would be 0 or 1)
 	          std::uintmax_t minus_by=0,//zero if signing in an object and N to find the last N object. The
 	          typename N_t= std::uintmax_t,
 	          N_t N=0, bool search_or_asked= false>
 	struct sequential_count {
+        using multiply_by=config_of_screws_in_the_engine<N_t, 1>;
 		//will also be used to represent enumeurators now, hence tried to make this super efficient (LogbN) efficieny, the speed increases in relativity to the greatness of the value object/number that you are trying to find
-		template< config_of_screws_in_the_engine<N_t, 1>::type multipy_by= config_of_screws_in_the_engine<N_t,1>::get_init(),
+		template< multiply_by::type multipy_by= multiply_by::get_init(),
 		          std::uintmax_t b_ =  b >
 		consteval static N_t get_num() {
 			//complete but probably needs debugging/double checking a million times to be trusted 100%:
@@ -316,7 +348,7 @@ class generator_and_reader_infrustructor {
 							//the extra check if to make sure that the empty (multipy_by*b_) slot found was registered by sequential_count instead of register_power_of_b.
                             if(!minus_by){
                             register_power_of_b<sequential_count, instance, obj_instance, minus_by, N_t, (N*multipy_by), true, b_>();
-                                                        return (N*multipy_by*b_)-minus_by; //found a power of b_ ( lucky isnt it :), like dont you get it that the odds of finding out while counting or finding object is really low? )
+                                return (N*multipy_by*b_)-minus_by; //found a power of b_ ( lucky isnt it :), like dont you get it that the odds of finding out while counting or finding object is really low? )
                             }
 						}
 						else {
@@ -333,10 +365,9 @@ class generator_and_reader_infrustructor {
 				}
 			}
 			else {
-if(!minus_by){
-				register_power_of_b<sequential_count, instance, obj_instance, minus_by, N_t, (N*multipy_by), true, b_>();
-     
-}
+                if(!minus_by){
+                    register_power_of_b<sequential_count, instance, obj_instance, minus_by, N_t, (N*multipy_by), true, b_>();
+                }
 				return (N*multipy_by)-minus_by;
 			}
 		}
