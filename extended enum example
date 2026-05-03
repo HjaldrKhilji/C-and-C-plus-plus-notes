@@ -8,6 +8,7 @@
 #include<algorithm>
 #include<climits>
 #include <concepts>
+#include<utility>
 constexpr bool error_for_lack_of_precision_integers_b= sizeof(std::uintmax_t)> sizeof(unsigned char);
 template<typename T>
 consteval std::size_t find_index_where_number_ends(T& arg) {
@@ -195,7 +196,7 @@ struct Enum_wrapper: Base {
     requires(std::is_scoped_enum_v<Other_Enum_t>)
 	constexpr Enum_wrapper(Other_Enum_t a): Base{a}, enumerator{}, is_initialized{false} {}
 	constexpr Enum_wrapper(std::uintmax_t a): Base{0}, enumerator{static_cast<Enum_t>(a)},
-		is_initialized{a} {
+		is_initialized{false} {
 
 	}
 
@@ -284,12 +285,13 @@ consteval std::array<unsigned char, size_of_array> give_init_container_with_firs
         }
         using type= N_t;
     };
-	template<template<std::uintmax_t, std::uintmax_t, std::uintmax_t, typename N_t_, N_t_, bool> class bc, std::uintmax_t instance, std::uintmax_t sub_instance, std::uintmax_t minus_by, typename N_t, N_t N, bool s, std::uintmax_t b>
+	template<template<std::uintmax_t, std::uintmax_t, std::uintmax_t, typename N_t_, N_t_, bool> class bc, std::uintmax_t instance, std::uintmax_t sub_instance, std::uintmax_t minus_by, typename N_t, N_t N, bool s, std::uintmax_t b, N_t multiply_by>
 	consteval void register_power_of_b() {
-		N_t smallest_perfect_power=1; //smallest_perfect_power is the smallest_perfect_power bigger than N
-		for(; smallest_perfect_power>N; smallest_perfect_power=smallest_perfect_power*b) {
-			bc<instance, sub_instance, minus_by, N_t,smallest_perfect_power-minus_by_global, s> dummy{};
-		}
+	if(multiply_by<N){
+    bc<instance, sub_instance, minus_by, N_t,multiply_by-minus_by_global, s> dummy{};
+    register_power_of_b<bc, instance, sub_instance, minus_by, N_t, N, s, b, multiply_by*b>();
+    }
+    
 	}
 template<std::uintmax_t domain=0>
 class generator_and_reader_infrustructor {
@@ -342,7 +344,7 @@ class generator_and_reader_infrustructor {
 			}
 			else {
                 if(!minus_by){
-                    register_power_of_b<sequential_count, instance, obj_instance, minus_by, N_t, (N*plus_with), true, b_>();
+                    register_power_of_b<sequential_count, instance, obj_instance, minus_by, N_t, (N*plus_with), true, b_, N_t{1}>();
                 }
 				return (N*plus_with)-minus_by;
 			}
@@ -377,17 +379,17 @@ struct Enum_wrapper_complete {
 
 	Enum_wrapper_complete(intermediate_enum_wrapper& a) {
 
-		sequential_count<2+N, sequential_count::get_num<enum_object_change_id_gen, 0>(), 0, raw_object<intermediate_enum_wrapper>, a, true> {}; // explicit initliazation to actually sign in a value.
+		sequential_count<2+N, sequential_count::get_num<enum_object_change_id_gen, 0>()::get_num(), 0, raw_object<intermediate_enum_wrapper>, a, true> {}; // explicit initliazation to actually sign in a value.
 
 	};
 	Enum_wrapper_complete& operator=(intermediate_enum_wrapper& a) {
 
-		sequential_count<2+N, sequential_count::get_num<enum_object_change_id_gen, 0>(), 0,raw_object<intermediate_enum_wrapper>, a, true> {}; // explicit initliazation to actually sign in a value.
+		sequential_count<2+N, sequential_count::get_num<enum_object_change_id_gen, 0>()::get_num(), 0,raw_object<intermediate_enum_wrapper>, a, true> {}; // explicit initliazation to actually sign in a value.
 
 	};
 	consteval operator typename correct_enum<
     intermediate_enum_wrapper,
-    sequential_count<2+N, sequential_count::get_num<enum_object_change_id, 0, minus_by_to_get_last_N>()::get_num(), minus_by_to_get_last_N, raw_object<intermediate_enum_wrapper>>::get_num().obj_stored
+    sequential_count<2+N, sequential_count::get_num<enum_object_change_id, 0, minus_by_to_get_last_N>()::get_num(), minus_by_to_get_last_N, raw_object<intermediate_enum_wrapper> >::get_num().obj_stored
     >::enum_t() {
 		return correct_enum<
                 intermediate_enum_wrapper,
