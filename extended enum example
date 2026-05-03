@@ -304,32 +304,32 @@ class generator_and_reader_infrustructor {
 	          typename N_t= std::uintmax_t,
 	          N_t N=0, bool search_or_asked= false>
 	struct sequential_count {
-        using multiply_by=config_of_screws_in_the_engine<N_t, 1>;
+        using multiply_by_t=config_of_screws_in_the_engine<N_t, 1>;
 		//will also be used to represent enumeurators now, hence tried to make this super efficient (LogbN) efficieny, the speed increases in relativity to the greatness of the value object/number that you are trying to find
-		template< multiply_by::type multipy_by= multiply_by::get_init(),
+		template< multiply_by_t::type plus_with= multiply_by_t::get_init(),
 		          std::uintmax_t b_ =  b >
 		consteval static N_t get_num() {
 
         	//complete but probably needs debugging/double checking a million times to be trusted 100%:
-			if(exist<sequential_count, instance, obj_instance, minus_by, N_t, (return_addition<N_t,typename multiply_by::type,N, multipy_by>()), true>::template does()) {
+			if(exist<sequential_count, instance, obj_instance, minus_by, N_t, (return_addition<N_t,typename multiply_by_t::type,N, plus_with>()), true>::template does()) {
 				//check if the current exists: current_N*current_multiply_by
-				if(!exist<sequential_count, instance, obj_instance, minus_by, N_t, (return_addition<N_t,typename multiply_by::type,N, multipy_by*b_>()), true>::template does()) {
-					//check if the current_N*Next_multiply_by_exist(multipy_by*b_) does not exist
-					if(exist<sequential_count, instance, obj_instance, minus_by, N_t, (return_addition<N_t,typename multiply_by::type,N, multipy_by*b_>())-b_, true>::template does()) {
-						//check if the current_N*Next_multiply_by_exist(multipy_by*b_)-b_ does exists
-						return sequential_count<instance, obj_instance, minus_by, N_t, (return_addition<N_t,typename multiply_by::type,N, multipy_by>()), true>::template get_num<1,2>();
+				if(!exist<sequential_count, instance, obj_instance, minus_by, N_t, (return_addition<N_t,typename multiply_by_t::type,N, plus_with*b_>()), true>::template does()) {
+					//check if the current_N*Next_multiply_by_exist(plus_with*b_) does not exist
+					if(exist<sequential_count, instance, obj_instance, minus_by, N_t, (return_addition<N_t,typename multiply_by_t::type,N, plus_with*b_>())-b_, true>::template does()) {
+						//check if the current_N*Next_multiply_by_exist(plus_with*b_)-b_ does exists
+						return sequential_count<instance, obj_instance, minus_by, N_t, (return_addition<N_t,typename multiply_by_t::type,N, plus_with*b_>())-b_, true>::template get_num<1,2>();
 					}
-					else if(exist<sequential_count, instance, obj_instance, minus_by, N_t, (return_addition<N_t,typename multiply_by::type,N, multipy_by*b_>())-1, true>::template does()) {
-						if(exist<sequential_count, instance, obj_instance, minus_by, N_t, (return_addition<N_t,typename multiply_by::type,N, multipy_by*b_>()), false>::template does()) {
-							//the extra check if to make sure that the empty (multipy_by*b_) slot found was registered by sequential_count instead of register_power_of_b.
+					else if(exist<sequential_count, instance, obj_instance, minus_by, N_t, (return_addition<N_t,typename multiply_by_t::type,N, plus_with*b_>()), true>::template does()) {
+						if(exist<sequential_count, instance, obj_instance, minus_by, N_t, (return_addition<N_t,typename multiply_by_t::type,N, plus_with*b_>()), false>::template does()) {
+							//the extra check if to make sure that the empty (plus_with*b_) slot found was registered by sequential_count instead of register_power_of_b.
                             if(!minus_by){
-                            register_power_of_b<sequential_count, instance, obj_instance, minus_by, N_t, (N*multipy_by), true, b_>();
-                                return (N*multipy_by*b_)-minus_by; //found a power of b_ ( lucky isnt it :), like dont you get it that the odds of finding out while counting or finding object is really low? )
+                            register_power_of_b<sequential_count, instance, obj_instance, minus_by, N_t, (N*plus_with), true, b_>();
+                                return (N*plus_with*b_)-minus_by; //found a power of b_ ( lucky isnt it :), like dont you get it that the odds of finding out while counting or finding object is really low? )
                             }
 						}
 						else {
-							//finds out (N*multipy_by)+(the whole process overagain) but not in the process that you would expect:
-							return sequential_count<instance, obj_instance, minus_by, N_t, (return_addition<N_t,N, multipy_by>()), true>::template get_num<1, b_>();
+							//finds out (N*plus_with)+(the whole process overagain) but not in the process that you would expect:
+							return sequential_count<instance, obj_instance, minus_by, N_t, (return_addition<N_t,typename multiply_by_t::type, N, plus_with*config_of_screws_in_the_engine<N_t, 1>::get_init()>()), true>::template get_num<1, b_>();
 						}
 
 					}
@@ -337,14 +337,14 @@ class generator_and_reader_infrustructor {
 
 				else {
 					//going even deeper
-					return sequential_count<instance, obj_instance, minus_by, N_t, (return_addition<N, multipy_by>()), true>::template get_num< multipy_by*b, b_>();
+					return sequential_count<instance, obj_instance, minus_by, N_t, N, true>::template get_num< plus_with*b, b_>();
 				}
 			}
 			else {
                 if(!minus_by){
-                    register_power_of_b<sequential_count, instance, obj_instance, minus_by, N_t, (N*multipy_by), true, b_>();
+                    register_power_of_b<sequential_count, instance, obj_instance, minus_by, N_t, (N*plus_with), true, b_>();
                 }
-				return (N*multipy_by)-minus_by;
+				return (N*plus_with)-minus_by;
 			}
 		}
 
@@ -367,31 +367,31 @@ using sequential_count= generator_and_reader_infrustructor<0>::sequential_count<
     
 }
 
-constexpr std::uintmax_t enum_object_id=0;
-constexpr std::uintmax_t enum_object_change_id=1;
+constexpr std::uintmax_t enum_object_id_gen=0;
+constexpr std::uintmax_t enum_object_change_id_gen=1;
 constexpr std::uintmax_t minus_by_to_get_last_N=1;
 //the rest ids are open to use by obj (in my case (2+N) is doing it)
-template<typename intermediate_enum_wrapper, std::uintmax_t N= sequential_count<enum_object_id, 0>::get_num()>
+template<typename intermediate_enum_wrapper, std::uintmax_t N= sequential_count<enum_object_id_gen, 0>::get_num()>
 struct Enum_wrapper_complete {
 
 
 	Enum_wrapper_complete(intermediate_enum_wrapper& a) {
 
-		sequential_count<2+N, sequential_count::get_num<enum_object_change_id, 0>(), 0, raw_object<intermediate_enum_wrapper>, a, true> {}; // explicit initliazation to actually sign in a value.
+		sequential_count<2+N, sequential_count::get_num<enum_object_change_id_gen, 0>(), 0, raw_object<intermediate_enum_wrapper>, a, true> {}; // explicit initliazation to actually sign in a value.
 
 	};
 	Enum_wrapper_complete& operator=(intermediate_enum_wrapper& a) {
 
-		sequential_count<2+N, sequential_count::get_num<enum_object_change_id, 0>(), 0,raw_object<intermediate_enum_wrapper>, a, true> {}; // explicit initliazation to actually sign in a value.
+		sequential_count<2+N, sequential_count::get_num<enum_object_change_id_gen, 0>(), 0,raw_object<intermediate_enum_wrapper>, a, true> {}; // explicit initliazation to actually sign in a value.
 
 	};
 	consteval operator typename correct_enum<
-	intermediate_enum_wrapper,
-	sequential_count<2+N, sequential_count<enum_object_change_id, 0, minus_by_to_get_last_N>::get_num(), minus_by_to_get_last_N, raw_object<intermediate_enum_wrapper>>::get_num().obj_stored
-	>::enum_t() {
+    intermediate_enum_wrapper,
+    sequential_count<2+N, sequential_count::get_num<enum_object_change_id, 0, minus_by_to_get_last_N>()::get_num(), minus_by_to_get_last_N, raw_object<intermediate_enum_wrapper>>::get_num().obj_stored
+    >::enum_t() {
 		return correct_enum<
                 intermediate_enum_wrapper,
-                sequential_count<2+N, sequential_count::get_num<enum_object_change_id, 0, minus_by_to_get_last_N>(), minus_by_to_get_last_N, raw_object<intermediate_enum_wrapper>>::get_num().obj_stored;
+                sequential_count<2+N, sequential_count::get_num<enum_object_change_id, 0, minus_by_to_get_last_N>()::get_num(), minus_by_to_get_last_N, raw_object<intermediate_enum_wrapper>>::get_num().obj_stored
                 >::enum_v;
         //This line may be a little non trivial but its just finding using the instance 2+N research for this object_list
 		//then finding the subinstance/obj_instance of a particular value and then in that finding the value and return the
