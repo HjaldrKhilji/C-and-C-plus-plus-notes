@@ -325,7 +325,7 @@ class generator_and_reader_infrustructor {
 						if(exist<sequential_count, instance, obj_instance, minus_by, N_t, (return_addition<N_t,typename multiply_by_t::type,N, plus_with*b_>()), false>::template does()) {
 							//the extra check if to make sure that the empty (plus_with*b_) slot found was registered by sequential_count instead of register_power_of_b.
                             if(!minus_by){
-                            register_power_of_b<sequential_count, instance, obj_instance, minus_by, N_t, (N*plus_with), true, b_>();
+                                register_power_of_b<sequential_count, instance, obj_instance, minus_by, N_t, (N*plus_with), true, b_, N_t{1}>();
                                 return (N*plus_with*b_)-minus_by; //found a power of b_ ( lucky isnt it :), like dont you get it that the odds of finding out while counting or finding object is really low? )
                             }
 						}
