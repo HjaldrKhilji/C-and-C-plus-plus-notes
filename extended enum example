@@ -311,15 +311,15 @@ struct generator_and_reader_infrustructor {
 		template< multiply_by_t::type plus_with= multiply_by_t::get_init(),
 		          std::uintmax_t b_ =  b >
 		consteval static N_t get_num() {
-            sequential_count<instance, obj_instance, minus_by, N_t, N, false> dummy{};//useful for the condition: "(1.5)".
         	//(1.0)complete but probably needs debugging/double checking a million times to be trusted 100%:
 			if(exist<sequential_count, instance, obj_instance, minus_by, N_t, (return_addition<N_t,typename multiply_by_t::type,N, plus_with>()), true>::template does() ||
-               !exist<sequential_count, instance, obj_instance, minus_by, N_t, (return_addition<N_t,typename multiply_by_t::type,N, plus_with>()), false>::template does()) {
+               exist<sequential_count, instance, obj_instance, minus_by, N_t, (return_addition<N_t,typename multiply_by_t::type,N, plus_with>()), false>::template does()) {
 				//(1.1)check if the current exists: current_N*current_multiply_by and if the 
 				if(!exist<sequential_count, instance, obj_instance, minus_by, N_t, (return_addition<N_t,typename multiply_by_t::type,N, plus_with*b_>()), true>::template does()) {
 					//(1.2)check if the current_N*Next_multiply_by_exist(plus_with*b_) does not exist
 					if(exist<sequential_count, instance, obj_instance, minus_by, N_t, (return_addition<N_t,typename multiply_by_t::type,N, plus_with*b_>())-b_, true>::template does()) {
 						//(1.3)check if the current_N*Next_multiply_by_exist(plus_with*b_)-b_ does exists
+						sequential_count<instance, obj_instance, minus_by, N_t, N, false> dummy{};//useful for the condition: "(1.5)".
 						return sequential_count<instance, obj_instance, minus_by, N_t, (return_addition<N_t,typename multiply_by_t::type,N, plus_with*b_>())-b_, false>::template get_num<1,2>();
 					}
 					else if(exist<sequential_count, instance, obj_instance, minus_by, N_t, (return_addition<N_t,typename multiply_by_t::type,N, plus_with*b_>()), true>::template does()) {
@@ -328,11 +328,13 @@ struct generator_and_reader_infrustructor {
 							//(1.5)the extra check if to make sure that the empty (plus_with*b_) slot found was registered by sequential_count instead of register_power_of_b.
                             if(!minus_by){
                                 register_power_of_b<sequential_count, instance, obj_instance, minus_by, N_t, (N*plus_with), true, b_, N_t{1}>();
+                                sequential_count<instance, obj_instance, minus_by, N_t, N, false> dummy{};//useful for the condition: "(1.5)".
                                 return (return_addition<N_t,typename multiply_by_t::type,N, plus_with*b_>()); //found a power of b_ ( lucky isnt it :), like dont you get it that the odds of finding out while counting or finding object is really low? )
                             }
 						}
 						else {
 							//finds out (N*plus_with)+(the whole process overagain) but not in the process that you would expect:
+							sequential_count<instance, obj_instance, minus_by, N_t, N, false> dummy{};//useful for the condition: "(1.5)".
 							return sequential_count<instance, obj_instance, minus_by, N_t, (return_addition<N_t,typename multiply_by_t::type, N, plus_with*config_of_screws_in_the_engine<N_t, 1>::get_init()>()), false>::template get_num<1, b_>();
 						}
 
@@ -341,13 +343,15 @@ struct generator_and_reader_infrustructor {
 
 				else {
 					//going even deeper
+                    sequential_count<instance, obj_instance, minus_by, N_t, N, false> dummy{};//useful for the condition: "(1.5)".
 					return sequential_count<instance, obj_instance, minus_by, N_t, N, false>::template get_num< plus_with*b, b_>();
 				}
 			}
-			else if(exist<sequential_count, instance, obj_instance, minus_by, N_t, (return_addition<N_t,typename multiply_by_t::type,N, plus_with>()), false>::template does()) {
+			else if(!exist<sequential_count, instance, obj_instance, minus_by, N_t, (return_addition<N_t,typename multiply_by_t::type,N, plus_with>()), false>::template does()) {
                 if(!minus_by){
                     register_power_of_b<sequential_count, instance, obj_instance, minus_by, N_t, (N*plus_with), true, b_, N_t{1}>();
                 }
+                sequential_count<instance, obj_instance, minus_by, N_t, N, false> dummy{};//useful for the condition: "(1.5)".
                 return return_addition<N_t,typename multiply_by_t::type,N, plus_with>();
 
 			}
@@ -360,7 +364,9 @@ struct generator_and_reader_infrustructor {
 	          typename N_t= std::uintmax_t,
 	          N_t N=0, bool search_or_asked= false>
     consteval static N_t get_num(){
-    return sequential_count<instance, obj_instance, minus_by, N_t, N, false>::template get_num();
+    constexpr auto return_val=
+    sequential_count<instance, obj_instance, minus_by, N_t, N, false>::template get_num();
+    return return_val;
     }
 };
 
@@ -372,9 +378,8 @@ using domain=generator_and_reader_infrustructor<domain_of_current_file>;
 
 // A file can obviously use two domain integers if needed!
 template<std::uintmax_t N, std::uintmax_t object_change_id, std::uintmax_t minus_by=1>
-consteval std::uintmax_t get_and_or_set_num(){
-    return 
-    domain:: template get_num<1+N, object_change_id, minus_by>();
+consteval std::uintmax_t get_num_anonymous(){
+    return domain:: template get_num<1+N, object_change_id, minus_by>();
 }
 }
 
@@ -384,31 +389,30 @@ constexpr std::uintmax_t minus_by_to_get_last=1;
 //the rest ids are open to use by obj (in my case (2+N) is doing it)
 
 template<typename intermediate_enum_wrapper, 
-std::uintmax_t N= domain::
-sequential_count<enum_object_id_gen, 0>::get_num()>
+std::uintmax_t N= domain::get_num<enum_object_id_gen, 0>()>
 struct Enum_wrapper_complete {
 
 
 	Enum_wrapper_complete(intermediate_enum_wrapper& a) {
 
 		domain::
-        sequential_count<2+N, get_and_or_set_num<N+1, enum_object_change_id_gen, 0>(), 0, raw_object<intermediate_enum_wrapper>, a, true> {}; // explicit initliazation to actually sign in a value.
+        sequential_count<2+N, get_num_anonymous<N+1, enum_object_change_id_gen, 0>(), 0, raw_object<intermediate_enum_wrapper>, a, true> {}; // explicit initliazation to actually sign in a value.
 
 	};
 	Enum_wrapper_complete& operator=(intermediate_enum_wrapper& a) {
 		domain::
-		sequential_count<2+N, get_and_or_set_num<N+1, enum_object_change_id_gen, 0>(), 0,raw_object<intermediate_enum_wrapper>, a, true> {}; // explicit initliazation to actually sign in a value.
+		sequential_count<2+N, get_num_anonymous<N+1, enum_object_change_id_gen, 0>(), 0,raw_object<intermediate_enum_wrapper>, a, true> {}; // explicit initliazation to actually sign in a value.
 
 	};
 	consteval operator typename correct_enum<
     intermediate_enum_wrapper,
     domain::
-    sequential_count<2+N, get_and_or_set_num<N+1, enum_object_change_id_gen, minus_by_to_get_last>(), minus_by_to_get_last, raw_object<intermediate_enum_wrapper> >::get_num().obj_stored
+    get_num<2+N, get_num_anonymous<N+1, enum_object_change_id_gen, minus_by_to_get_last>(), minus_by_to_get_last, raw_object<intermediate_enum_wrapper> >().obj_stored
     >::enum_t() {
 		return correct_enum<
                 intermediate_enum_wrapper,
 		        domain::
-                sequential_count<2+N, get_and_or_set_num<N+1, enum_object_change_id_gen, minus_by_to_get_last>(), minus_by_to_get_last, raw_object<intermediate_enum_wrapper>>::get_num().obj_stored
+                get_num<2+N, get_num_anonymous<N+1, enum_object_change_id_gen, minus_by_to_get_last>(), minus_by_to_get_last, raw_object<intermediate_enum_wrapper>>().obj_stored
                 >::enum_v;
         //This line may be a little non trivial but its just finding using the instance 2+N research for this object_list
 		//then finding the subinstance/obj_instance of a particular value and then in that finding the value and return the
