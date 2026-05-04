@@ -366,34 +366,40 @@ template< std::uintmax_t instance,
           N_t N=0, bool search_or_asked= false>
 using sequential_count= generator_and_reader_infrustructor<0>::sequential_count<instance, obj_instance, minus_by, N_t, N, search_or_asked>;
 // A file can obviously use two domain integers if needed!
-    
+template<std::uintmax_t N, std::uintmax_t object_change_id, std::uintmax_t minus_by=1>
+consteval std::uintmax_t get_and_or_set_num(){
+    return 
+    generator_and_reader_infrustructor<0>::sequential_count
+    <1+N, object_change_id, minus_by>()::get_num();
+}
 }
 
 constexpr std::uintmax_t enum_object_id_gen=0;
 constexpr std::uintmax_t enum_object_change_id_gen=1;
-constexpr std::uintmax_t minus_by_to_get_last_N=1;
+constexpr std::uintmax_t minus_by_to_get_last=1;
 //the rest ids are open to use by obj (in my case (2+N) is doing it)
+
 template<typename intermediate_enum_wrapper, std::uintmax_t N= sequential_count<enum_object_id_gen, 0>::get_num()>
 struct Enum_wrapper_complete {
 
 
 	Enum_wrapper_complete(intermediate_enum_wrapper& a) {
 
-		sequential_count<2+N, sequential_count::get_num<enum_object_change_id_gen, 0>()::get_num(), 0, raw_object<intermediate_enum_wrapper>, a, true> {}; // explicit initliazation to actually sign in a value.
+		sequential_count<2+N, get_and_or_set_num<N+1, enum_object_change_id_gen, 0>(), 0, raw_object<intermediate_enum_wrapper>, a, true> {}; // explicit initliazation to actually sign in a value.
 
 	};
 	Enum_wrapper_complete& operator=(intermediate_enum_wrapper& a) {
 
-		sequential_count<2+N, sequential_count::get_num<enum_object_change_id_gen, 0>()::get_num(), 0,raw_object<intermediate_enum_wrapper>, a, true> {}; // explicit initliazation to actually sign in a value.
+		sequential_count<2+N, get_and_or_set_num<N+1, enum_object_change_id_gen, 0>(), 0,raw_object<intermediate_enum_wrapper>, a, true> {}; // explicit initliazation to actually sign in a value.
 
 	};
 	consteval operator typename correct_enum<
     intermediate_enum_wrapper,
-    sequential_count<2+N, sequential_count::get_num<enum_object_change_id, 0, minus_by_to_get_last_N>()::get_num(), minus_by_to_get_last_N, raw_object<intermediate_enum_wrapper> >::get_num().obj_stored
+    sequential_count<2+N, get_and_or_set_num<N+1, enum_object_change_id_gen, minus_by_to_get_last>(), minus_by_to_get_last, raw_object<intermediate_enum_wrapper> >::get_num().obj_stored
     >::enum_t() {
 		return correct_enum<
                 intermediate_enum_wrapper,
-                sequential_count<2+N, sequential_count::get_num<enum_object_change_id, 0, minus_by_to_get_last_N>()::get_num(), minus_by_to_get_last_N, raw_object<intermediate_enum_wrapper>>::get_num().obj_stored
+                sequential_count<2+N, get_and_or_set_num<N+1, enum_object_change_id_gen, minus_by_to_get_last>(), minus_by_to_get_last, raw_object<intermediate_enum_wrapper>>::get_num().obj_stored
                 >::enum_v;
         //This line may be a little non trivial but its just finding using the instance 2+N research for this object_list
 		//then finding the subinstance/obj_instance of a particular value and then in that finding the value and return the
@@ -410,7 +416,8 @@ int main()
 	Enum_wrapper_complete wrap{B};
 	return 0;
 }
-//personal notes:/*
+//personal notes:
+/*
 I feel like this tool will allow one to embedde trained AI into code and use that to choose the correct types and value. Its possible since the stack exist 
 and you can get data out of it once you are done, at which point AI can take it from their, use the current type of each wrapper object (set by the bool) and 
 the value of that current type, along with the usage frequency, etc, to choose what should be the current type next, the current value next, frequency next.
