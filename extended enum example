@@ -11,7 +11,7 @@
 #include<utility>
 constexpr bool error_for_lack_of_precision_integers_b= sizeof(std::uintmax_t)> sizeof(unsigned char);
 template<typename T>
-consteval std::size_t find_index_where_number_ends(T& arg) {
+consteval std::size_t find_index_where_number_ends(const T& arg) {
 	//finds the index+1, where the element at index is zero and has all numbers to its left as zero
 	unsigned char* raw_arg= reinterpret_cast<unsigned char*>(&(arg.obj_stored));
 	std::size_t where_number_ends= 0;
@@ -25,7 +25,7 @@ consteval std::size_t find_index_where_number_ends(T& arg) {
 	return size_of_data-where_number_ends;
 }
 template<std::size_t size_of_data>
-consteval std::size_t find_index_where_number_ends(std::array<unsigned char, size_of_data>& N) {
+consteval std::size_t find_index_where_number_ends(const std::array<unsigned char, size_of_data>& N) {
 	//finds the index+1, where the element at index is zero and has all numbers to its left as zero
 	std::size_t where_number_ends= 0;
 	for(std::size_t i = 0; i < size_of_data; i++) {
@@ -37,7 +37,7 @@ consteval std::size_t find_index_where_number_ends(std::array<unsigned char, siz
 	return size_of_data-where_number_ends;
 }
 template<std::size_t size_of_data>
-consteval std::array<unsigned char, size_of_data> operator*(std::array<unsigned char, size_of_data> arg, std::uintmax_t N) {
+consteval std::array<unsigned char, size_of_data> operator*(const std::array<unsigned char, size_of_data> arg, std::uintmax_t N) {
 	static_assert(error_for_lack_of_precision_integers_b, "no two digit char found!!!!!");
 	std::size_t i=0;
 	std::uintmax_t carry=0;
@@ -67,15 +67,13 @@ struct raw_object { //object in integer form (think of it like hexdump of an obj
 	//here for me mathematic is just looking at classic techniques and copying them for base sizeof(char), so read the code while keeping that in mind.
 	T obj_stored;
 	constexpr static std::size_t size_of_data= sizeof(T);
-	consteval raw_object(T& a): obj_stored{a} {
-		//I know code is messy but didnt know a better way, sorry
-	}
-	consteval raw_object(raw_object& a): obj_stored{a.obj_stored} {
-
-	}
-
-
-	consteval raw_object operator+(std::array<unsigned char, size_of_data>& N) {
+    explicit consteval raw_object(T& a):obj_stored{a}{};
+    explicit consteval raw_object(T&& a):obj_stored{std::move(a)}{};
+	consteval raw_object(const raw_object& a)=default;
+    consteval raw_object(const raw_object&& a)=default;
+    template<typename T_t>
+    consteval raw_object(raw_object<T_t>& a):obj_stored{a.obj_stored}{}
+	consteval raw_object operator+(const std::array<unsigned char, size_of_data>& N) {
 		raw_object temp;
 		bool carry=false;
 		unsigned char* raw_object= reinterpret_cast<unsigned char*>(&(temp.obj_stored));
@@ -139,14 +137,14 @@ struct raw_object { //object in integer form (think of it like hexdump of an obj
 
 		}
 	}
-	consteval raw_object operator*(std::array<unsigned char, size_of_data>& array) {
+	consteval raw_object operator*(const std::array<unsigned char, size_of_data>& array) {
 		return multiply(array.data(), size_of_data);
 
 	}
-	consteval raw_object operator*(raw_object arg) {
+	consteval raw_object operator*(const raw_object arg) {
 		return multiply(reinterpret_cast<char*>(&(arg.obj_stored)), size_of_data);
 	}
-	consteval bool operator==(raw_object& arg) {
+	consteval bool operator==(const raw_object& arg) {
 		unsigned char* temp_array_lhs= reinterpret_cast<char*>(&obj_stored);
 		unsigned char* temp_array_rhs= reinterpret_cast<char*>(&(arg.obj_stored));
 		for(int i=0; i<size_of_data; i++) {
@@ -156,7 +154,7 @@ struct raw_object { //object in integer form (think of it like hexdump of an obj
 		}
 		return true;
 	}
-	consteval bool operator>(raw_object& arg) {
+	consteval bool operator>(const raw_object& arg) {
 		unsigned char* temp_array_lhs= reinterpret_cast<char*>(&obj_stored);
 		unsigned char* temp_array_rhs= reinterpret_cast<char*>(&(arg.obj_stored));
 		bool result= true;//dummy value
@@ -272,7 +270,7 @@ consteval std::array<unsigned char, size_of_array> give_init_container_with_firs
 	};
     template<typename N_t, unsigned char init_first_digit>
     struct config_of_screws_in_the_engine{
-        constexpr static std::size_t size_of_raw_data_array=init_first_digit;
+        constexpr static std::size_t size_of_raw_data_array=sizeof(N_t);
         using type= std::array<unsigned char, size_of_raw_data_array>;
         consteval static type get_init(){
             return give_init_container_with_first_elem_and_zeros<size_of_raw_data_array, init_first_digit>();
@@ -362,11 +360,9 @@ struct generator_and_reader_infrustructor {
 	          std::uintmax_t obj_instance,
 	          std::uintmax_t minus_by=0,
 	          typename N_t= std::uintmax_t,
-	          N_t N=0, bool search_or_asked= false>
-    consteval static N_t get_num(){
-    constexpr auto return_val=
-    sequential_count<instance, obj_instance, minus_by, N_t, N, false>::template get_num();
-    return return_val;
+	          N_t N=N_t{0}, bool search_or_asked= false>
+    consteval static N_t get_num(){    
+    return N_t{sequential_count<instance, obj_instance, minus_by, N_t, N, false>::template get_num()};
     }
 };
 
@@ -392,27 +388,27 @@ template<typename intermediate_enum_wrapper,
 std::uintmax_t N= domain::get_num<enum_object_id_gen, 0>()>
 struct Enum_wrapper_complete {
 
-
-	Enum_wrapper_complete(intermediate_enum_wrapper& a) {
+    using T= raw_object<intermediate_enum_wrapper>;
+	consteval Enum_wrapper_complete(const intermediate_enum_wrapper& a) {
 
 		domain::
-        sequential_count<2+N, get_num_anonymous<N+1, enum_object_change_id_gen, 0>(), 0, raw_object<intermediate_enum_wrapper>, a, true> {}; // explicit initliazation to actually sign in a value.
+        sequential_count<2+N, get_num_anonymous<N+1, enum_object_change_id_gen, 0>(), 0, T, T{a}, true> {}; // explicit initliazation to actually sign in a value.
 
 	};
-	Enum_wrapper_complete& operator=(intermediate_enum_wrapper& a) {
+	consteval Enum_wrapper_complete& operator=(const intermediate_enum_wrapper& a) {
 		domain::
-		sequential_count<2+N, get_num_anonymous<N+1, enum_object_change_id_gen, 0>(), 0,raw_object<intermediate_enum_wrapper>, a, true> {}; // explicit initliazation to actually sign in a value.
+		sequential_count<2+N, get_num_anonymous<N+1, enum_object_change_id_gen, 0>(), 0,T, T{a}, true> {}; // explicit initliazation to actually sign in a value.
 
 	};
 	consteval operator typename correct_enum<
     intermediate_enum_wrapper,
     domain::
-    get_num<2+N, get_num_anonymous<N+1, enum_object_change_id_gen, minus_by_to_get_last>(), minus_by_to_get_last, raw_object<intermediate_enum_wrapper> >().obj_stored
+    get_num<2+N, get_num_anonymous<N+1, enum_object_change_id_gen, minus_by_to_get_last>(), minus_by_to_get_last, T >().obj_stored
     >::enum_t() {
 		return correct_enum<
                 intermediate_enum_wrapper,
 		        domain::
-                get_num<2+N, get_num_anonymous<N+1, enum_object_change_id_gen, minus_by_to_get_last>(), minus_by_to_get_last, raw_object<intermediate_enum_wrapper>>().obj_stored
+                get_num<2+N, get_num_anonymous<N+1, enum_object_change_id_gen, minus_by_to_get_last>(), minus_by_to_get_last, T>().obj_stored
                 >::enum_v;
         //This line may be a little non trivial but its just finding using the instance 2+N research for this object_list
 		//then finding the subinstance/obj_instance of a particular value and then in that finding the value and return the
