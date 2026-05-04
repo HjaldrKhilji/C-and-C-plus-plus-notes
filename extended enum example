@@ -294,7 +294,7 @@ consteval std::array<unsigned char, size_of_array> give_init_container_with_firs
     
 	}
 template<std::uintmax_t domain=0>
-class generator_and_reader_infrustructor {
+struct generator_and_reader_infrustructor {
     //usually the namespace domain that you should number using "domain" should be the global namespace (to avoid linker issues)
     //but if the C++ standard provides an interface to get a unique id with the combination of a filename with a namespace name.
 	//the extra domain argument is to localize it across multiple namespaces 
@@ -359,12 +359,6 @@ namespace{
 constexpr std::uintmax_t domain_of_current_file= 0;
 
 
-template< std::uintmax_t instance,
-          std::uintmax_t obj_instance,
-          std::uintmax_t minus_by=0,
-          typename N_t= std::uintmax_t,
-          N_t N=0, bool search_or_asked= false>
-using sequential_count= generator_and_reader_infrustructor<0>::sequential_count<instance, obj_instance, minus_by, N_t, N, search_or_asked>;
 // A file can obviously use two domain integers if needed!
 template<std::uintmax_t N, std::uintmax_t object_change_id, std::uintmax_t minus_by=1>
 consteval std::uintmax_t get_and_or_set_num(){
@@ -379,26 +373,31 @@ constexpr std::uintmax_t enum_object_change_id_gen=1;
 constexpr std::uintmax_t minus_by_to_get_last=1;
 //the rest ids are open to use by obj (in my case (2+N) is doing it)
 
-template<typename intermediate_enum_wrapper, std::uintmax_t N= sequential_count<enum_object_id_gen, 0>::get_num()>
+template<typename intermediate_enum_wrapper, 
+std::uintmax_t N= generator_and_reader_infrustructor<domain_of_current_file>::
+sequential_count<enum_object_id_gen, 0>::get_num()>
 struct Enum_wrapper_complete {
 
 
 	Enum_wrapper_complete(intermediate_enum_wrapper& a) {
 
-		sequential_count<2+N, get_and_or_set_num<N+1, enum_object_change_id_gen, 0>(), 0, raw_object<intermediate_enum_wrapper>, a, true> {}; // explicit initliazation to actually sign in a value.
+		generator_and_reader_infrustructor<domain_of_current_file>::
+        sequential_count<2+N, get_and_or_set_num<N+1, enum_object_change_id_gen, 0>(), 0, raw_object<intermediate_enum_wrapper>, a, true> {}; // explicit initliazation to actually sign in a value.
 
 	};
 	Enum_wrapper_complete& operator=(intermediate_enum_wrapper& a) {
-
+		generator_and_reader_infrustructor<domain_of_current_file>::
 		sequential_count<2+N, get_and_or_set_num<N+1, enum_object_change_id_gen, 0>(), 0,raw_object<intermediate_enum_wrapper>, a, true> {}; // explicit initliazation to actually sign in a value.
 
 	};
 	consteval operator typename correct_enum<
     intermediate_enum_wrapper,
+    generator_and_reader_infrustructor<domain_of_current_file>::
     sequential_count<2+N, get_and_or_set_num<N+1, enum_object_change_id_gen, minus_by_to_get_last>(), minus_by_to_get_last, raw_object<intermediate_enum_wrapper> >::get_num().obj_stored
     >::enum_t() {
 		return correct_enum<
                 intermediate_enum_wrapper,
+		        generator_and_reader_infrustructor<domain_of_current_file>::
                 sequential_count<2+N, get_and_or_set_num<N+1, enum_object_change_id_gen, minus_by_to_get_last>(), minus_by_to_get_last, raw_object<intermediate_enum_wrapper>>::get_num().obj_stored
                 >::enum_v;
         //This line may be a little non trivial but its just finding using the instance 2+N research for this object_list
