@@ -74,15 +74,14 @@ struct raw_object { //object in integer form (think of it like hexdump of an obj
     template<typename T_t>
     consteval raw_object(raw_object<T_t>& a):obj_stored{a.obj_stored}{}
 	consteval raw_object operator+(const std::array<unsigned char, size_of_data>& N) const {
-		raw_object temp{T{0}};
+		auto raw_object_result = std::bit_cast<std::array<unsigned char, size_of_data>>(obj_stored);
 		bool carry=false;
-		unsigned char* raw_object= temp.obj_stored.get_char_ptr();
 		for(std::size_t i=0; i<size_of_data; i++) {
-			unsigned char result=  N[i] + *(  static_cast<unsigned char*>(static_cast<void*>(raw_object)+i)  ) + carry;
+			unsigned char result=  N[i] + raw_object_result[i] + carry;
 			carry= ( result < N[i] ) ? true : false;
-			raw_object[i] = result;
+			raw_object_result[i] = result;
 		}
-		return temp;
+		return std::bit_cast<raw_object>(obj_stored);
 	}
 	consteval raw_object operator-(std::uintmax_t N) {
 		static_assert(error_for_lack_of_precision_integers_b, "no two digit char found!!!!!");
@@ -179,27 +178,28 @@ struct Not_base {
 	{
 
 	}
+    std::size_t required_size_of_array=0;
 };
 template<typename T, typename Base= Not_base>
 //Base must be another wrapper object
 struct Enum_wrapper: Base {
 	using Enum_t=T;
 	using Base_t= Base;
-	unsigned char is_initialized;
+	bool is_initialized;
 	Enum_t enumerator;
 	constexpr Enum_wrapper() {}
 	constexpr Enum_wrapper(Enum_t a):
-		enumerator{a}, is_initialized{1} {}
+		enumerator{a}, is_initialized{true} {}
 	template<typename Other_Enum_t>
     requires(std::is_scoped_enum_v<Other_Enum_t>)
-	constexpr Enum_wrapper(Other_Enum_t a): Base{a}, enumerator{}, is_initialized{0} {}
+	constexpr Enum_wrapper(Other_Enum_t a): Base{a}, enumerator{}, is_initialized{false} {}
 	constexpr Enum_wrapper(std::uintmax_t a): Base{0}, enumerator{static_cast<Enum_t>(a)},
-		is_initialized{0} {
+		is_initialized{false} {
 
 	}
-    consteval unsigned char* get_char_ptr(){
-        return &is_initialized;
-    }
+
+
+    
 
 	//One could optionally (to make it even better) append/add:
 	/*
