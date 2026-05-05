@@ -9,11 +9,12 @@
 #include<climits>
 #include <concepts>
 #include<utility>
+#include<bit>
 constexpr bool error_for_lack_of_precision_integers_b= sizeof(std::uintmax_t)> sizeof(unsigned char);
 template<typename T>
 consteval std::size_t find_index_where_number_ends(const T& arg) {
 	//finds the index+1, where the element at index is zero and has all numbers to its left as zero
-	unsigned char* raw_arg= reinterpret_cast<unsigned char*>(&(arg.obj_stored));
+	auto raw_arg=  std::bit_cast<std::array<unsigned char, size_of_data>>(arg.obj_stored);
 	std::size_t where_number_ends= 0;
 	std::size_t size_of_data=sizeof(T);
 	for(std::size_t i = 0; i < size_of_data; i++) {
@@ -49,7 +50,8 @@ consteval std::array<unsigned char, size_of_data> operator*(const std::array<uns
 	return arg;
 
 }
-consteval char* multiply(char *arg, std::size_t size_of_array, unsigned char N) {
+template<std::size_t size_of_array>
+consteval char* multiply(std::array<unsigned char, size_of_array> arg, unsigned char N) {
 	static_assert(error_for_lack_of_precision_integers_b, "no two digit char found!!!!!");
 	std::size_t i=0;
 	std::uintmax_t carry=0;
@@ -74,7 +76,9 @@ struct raw_object { //object in integer form (think of it like hexdump of an obj
     template<typename T_t>
     consteval raw_object(raw_object<T_t>& a):obj_stored{a.obj_stored}{}
 	consteval raw_object operator+(const std::array<unsigned char, size_of_data>& N) const {
-		auto raw_object_result = std::bit_cast<std::array<unsigned char, size_of_data>>(obj_stored);
+        raw_object temp{0};
+		auto raw_object_result =
+         std::bit_cast<std::array<unsigned char, size_of_data>>(temp.obj_stored);
 		bool carry=false;
 		for(std::size_t i=0; i<size_of_data; i++) {
 			unsigned char result=  N[i] + raw_object_result[i] + carry;
@@ -85,8 +89,9 @@ struct raw_object { //object in integer form (think of it like hexdump of an obj
 	}
 	consteval raw_object operator-(std::uintmax_t N) {
 		static_assert(error_for_lack_of_precision_integers_b, "no two digit char found!!!!!");
-		raw_object temp=*this;
-		unsigned char* temp_array= reinterpret_cast<unsigned char*>(&(temp.obj_stored));
+		raw_object temp{*this};
+		auto temp_array =
+         std::bit_cast<std::array<unsigned char, size_of_data>>(temp.obj_stored);
 		constexpr std::size_t size_chosen= std::min(sizeof(std::uintmax_t), sizeof(raw_object));
 		std::array<unsigned char, size_chosen> array_rhs{};
 		for(int i= 0; i< size_chosen; i++) {
@@ -99,18 +104,17 @@ struct raw_object { //object in integer form (think of it like hexdump of an obj
 				std::uintmax_t temp_array[i]=((1<<CHAR_BIT)+temp_array[i])-array_rhs[i];
 			}
 		}
-		return temp;
+		return std::bit_cast<raw_object>(temp_array);
 	}
 
 
-	consteval raw_object multiply(char *N, std::size_t size_of_array) {
-		static_assert(size_of_array==size_of_data, "size mismatch");
-		constexpr std::size_t where_this_ends=find_index_where_number_ends<T,N>(*(this->obj_stored));
+	consteval raw_object multiply(std::array<unsigned char, size_of_data> N) {
+		constexpr std::size_t where_this_ends=find_index_where_number_ends(N);
 		std::array<raw_object, where_this_ends> result{0};
-		unsigned char* temp_array= reinterpret_cast<unsigned char*>(*(this->obj_stored));// i named it temp_array to follow that personal naming convention that i introduced in this source file
+		auto temp_array= std::bit_cast<std::array<unsigned char, size_of_data>>(obj_stored);// i named it temp_array to follow that personal naming convention that i introduced in this source file
 
 		for(std::size_t i=0; i<where_this_ends; i++) {
-			result[i]= multiply(N, size_of_array, temp_array[i]);
+			result[i]= multiply(N, temp_array[i]);
 			std::size_t where_result_ends= find_index_where_number_ends(result[i]);
 			for(; where_result_ends!=0; where_result_ends--) {
 				result[0]+= result[where_result_ends];
@@ -136,12 +140,8 @@ struct raw_object { //object in integer form (think of it like hexdump of an obj
 
 		}
 	}
-	consteval raw_object operator*(const std::array<unsigned char, size_of_data>& array) {
-		return multiply(array.data(), size_of_data);
-
-	}
 	consteval raw_object operator*(const raw_object arg) {
-		return multiply(reinterpret_cast<char*>(&(arg.obj_stored)), size_of_data);
+		return 
 	}
 	consteval bool operator==(const raw_object& arg) {
 		unsigned char* temp_array_lhs= reinterpret_cast<char*>(&obj_stored);
